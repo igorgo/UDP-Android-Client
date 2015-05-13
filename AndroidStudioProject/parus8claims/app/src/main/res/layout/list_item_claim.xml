@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:paddingBottom="5dp"
+              android:paddingTop="5dp"
+              tools:ignore="RtlHardcoded">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/сliTypeImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="false"
+            android:contentDescription="@string/claim_type"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/cliNumber"
+            style="@style/small_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="false"
+            android:layout_toRightOf="@+id/сliTypeImage"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/label_right_margin"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/ctvRegDate"
+            style="@style/small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="false"
+            android:gravity="right|center_vertical"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/ctvInitiator"
+            style="@style/small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="false"
+            android:layout_gravity="center_vertical"
+            android:layout_toRightOf="@+id/cliNumber"
+            android:layout_toLeftOf="@+id/ctvRegDate"
+            android:gravity="center_vertical"
+            android:textStyle="italic"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/civAttach"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="false"
+            android:contentDescription="@string/attached_docums"
+            android:src="@drawable/ic_action_attachment"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/ctvUnitcode"
+            style="@style/small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="false"
+            android:layout_toRightOf="@+id/civAttach"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/label_right_margin"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/ctvPriority"
+            style="@style/small_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/priority_background"
+            android:gravity="center_horizontal"
+            android:paddingLeft="@dimen/label_right_margin"
+            android:paddingRight="@dimen/label_right_margin"/>
+
+        <TextView
+            android:id="@+id/ctvRelease"
+            style="@style/release_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/label_right_margin"
+            android:layout_toRightOf="@+id/ctvPriority"
+            android:gravity="center_vertical|center"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/ctvDescription"
+        style="@style/small"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/ctvState"
+            style="@style/claim_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView
+            android:id="@+id/ctvExecutor"
+            style="@style/small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/civExecType"
+            android:layout_toLeftOf="@+id/ctvChangeDate"
+            android:textStyle="italic"/>
+
+        <TextView
+            android:id="@+id/ctvChangeDate"
+            style="@style/small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
+
+        <ImageView
+            android:id="@+id/civExecType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/ctvState"
+            android:contentDescription="@string/exec_type"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

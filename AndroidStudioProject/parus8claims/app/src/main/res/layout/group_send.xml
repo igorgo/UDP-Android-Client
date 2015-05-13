@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/sendLabel"
+        style="@style/form_group_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/executor" />
+
+    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        android:id="@+id/sendSpinner"
+        style="@style/small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog" />
+
+</LinearLayout>

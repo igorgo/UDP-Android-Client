@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fciExecutorContainer"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/fciExecutorLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_executor"
+        android:layout_gravity="center_vertical" />
+
+    <ImageView
+        android:id="@+id/fciExecutorImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/exec_type"
+        android:layout_gravity="center_vertical"
+        android:minHeight="@dimen/min_designer_image_size"
+        android:minWidth="@dimen/min_designer_image_size" />
+
+    <TextView
+        android:id="@+id/fciExecutorText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/min_designer_width"
+        android:layout_gravity="center_vertical" />
+
+</LinearLayout>

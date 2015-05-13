@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content">
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/form_group_header"
+    android:text="@string/release_where_found"
+    android:id="@+id/textView" />
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/labelRelease"
+        style="@style/form_label"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="@color/NegoSatate"
+        android:gravity="bottom"
+        android:text="@string/claim_release" />
+
+    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        android:id="@+id/releaseSpinner"
+        style="@style/small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog" />
+</LinearLayout>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/labelBuild"
+        style="@style/form_label"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:textColor="@color/NegoSatate"
+        android:text="@string/claim_build" />
+
+    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        android:id="@+id/buildSpinner"
+        style="@style/small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog" />
+</LinearLayout>
+</LinearLayout>

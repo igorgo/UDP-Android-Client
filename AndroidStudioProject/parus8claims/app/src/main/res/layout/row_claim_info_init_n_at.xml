@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/fciInitiatorLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_initiator" />
+
+    <TextView
+        android:id="@+id/fciInitiatorText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/fciInitiatorLabel"
+        android:layout_toLeftOf="@+id/fciRegDateLabel"
+        android:layout_toRightOf="@+id/fciInitiatorLabel"
+        android:layout_toStartOf="@+id/fciRegDateLabel"
+        android:minWidth="@dimen/min_designer_width" />
+
+    <TextView
+        android:id="@+id/fciRegDateLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/fciRegDateText"
+        android:layout_toStartOf="@+id/fciRegDateText"
+        android:text="@string/claim_date_reg"/>
+
+    <TextView
+        android:id="@+id/fciRegDateText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:minWidth="@dimen/min_designer_width" />
+</RelativeLayout>

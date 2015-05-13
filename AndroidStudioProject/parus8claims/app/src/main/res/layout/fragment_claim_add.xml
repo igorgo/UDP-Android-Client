@@ -1,0 +1,75 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="ua.parus.pmo.parus8claims.objects.claim.actions.ClaimEditFragment">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/form_group_header"
+                    android:text="@string/claim_typeh"
+                    android:id="@+id/textView" />
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/typeRadioGroup"
+                    android:checkedButton="@+id/radioTypeAddon">
+
+                    <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/small"
+                        android:text="@string/claim_type_addon"
+                        android:id="@+id/radioTypeAddon"
+                        android:layout_weight="5" />
+
+                    <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/small"
+                        android:text="@string/claim_type_rebuke"
+                        android:id="@+id/radioTypeRebuke"
+                        android:layout_weight="5" />
+
+                    <RadioButton
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/small"
+                        android:text="@string/claim_type_error"
+                        android:id="@+id/radioTypeError"
+                        android:layout_weight="6" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <include layout="@layout/group_release_found" />
+
+            <include layout="@layout/group_release_fix" />
+
+            <include layout="@layout/group_system" />
+
+            <include layout="@layout/group_comment" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

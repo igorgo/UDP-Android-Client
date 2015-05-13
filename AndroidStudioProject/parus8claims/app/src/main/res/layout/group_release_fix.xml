@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:id="@+id/groupFix">
+
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/form_group_header"
+    android:text="@string/release_to_fix"
+    android:id="@+id/textView2" />
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/labelReleaseFix"
+        style="@style/form_label"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:text="@string/claim_release" />
+
+    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        android:id="@+id/releaseFixSpinner"
+        style="@style/small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog" />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/labelBuildFix"
+            style="@style/form_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:text="@string/claim_build" />
+
+        <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+            android:id="@+id/buildFixSpinner"
+            style="@style/small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog" />
+    </LinearLayout>
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/priorityLabel"
+        style="@style/form_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/priorityEdit"
+        android:layout_alignParentLeft="true"
+        android:text="@string/claim_priority" />
+
+    <EditText
+        android:id="@+id/priorityEdit"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:ems="2"
+        android:gravity="right"
+        android:inputType="numberDecimal" />
+
+</RelativeLayout>
+</LinearLayout>

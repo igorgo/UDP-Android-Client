@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/fciStatusLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_state" />
+
+    <TextView
+        android:id="@+id/fciStatusText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/fciStatusLabel"
+        android:layout_toLeftOf="@+id/fciChangeDateLabel"
+        android:layout_toRightOf="@+id/fciStatusLabel"
+        android:layout_toStartOf="@+id/fciChangeDateLabel"
+        android:minWidth="@dimen/min_designer_width" />
+
+    <TextView
+        android:id="@+id/fciChangeDateLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/fciChangeDateText"
+        android:layout_toStartOf="@+id/fciChangeDateText"
+        android:text="@string/claim_date_change" />
+
+    <TextView
+        android:id="@+id/fciChangeDateText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:minWidth="@dimen/min_designer_width" />
+</RelativeLayout>

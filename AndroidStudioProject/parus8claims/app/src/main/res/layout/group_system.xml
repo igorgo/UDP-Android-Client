@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/form_group_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/system" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/unitsLabel"
+            style="@style/form_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textColor="@color/NegoSatate"
+            android:gravity="bottom"
+            android:text="@string/claim_unit" />
+
+        <MultiAutoCompleteTextView
+            android:id="@+id/unitsText"
+            style="@style/small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/appLabel"
+            style="@style/form_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:text="@string/claim_application" />
+
+        <ua.parus.pmo.parus8claims.gui.MultiSpinner
+            android:id="@+id/appSpinner"
+            style="@style/small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/funcLabel"
+            style="@style/form_label"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:text="@string/claim_unitfunc" />
+
+        <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+            android:id="@+id/funcSpinner"
+            style="@style/small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog" />
+    </LinearLayout>
+</LinearLayout>

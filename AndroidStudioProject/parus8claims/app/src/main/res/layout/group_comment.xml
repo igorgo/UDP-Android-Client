@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/contentLabel"
+        style="@style/form_group_header"
+        android:layout_width="match_parent"
+        android:textColor="@color/NegoSatate"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_content" />
+
+    <EditText
+        android:id="@+id/contentEdit"
+        style="@style/small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="@integer/max_content_length"
+        android:inputType="textMultiLine" />
+
+</LinearLayout>

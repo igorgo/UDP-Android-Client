@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="RtlHardcoded">
+
+    <TextView
+        android:id="@+id/fciTypeText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/label_right_margin"
+        android:layout_marginStart="@dimen/label_right_margin"
+        android:minWidth="@dimen/min_designer_width" />
+
+    <ImageView
+        android:id="@+id/fciTypeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/fciTypeText"
+        android:layout_toStartOf="@+id/fciTypeText"
+        android:contentDescription="@string/claim_type"
+        android:minHeight="@dimen/min_designer_image_size"
+        android:minWidth="@dimen/min_designer_image_size" />
+
+    <TextView
+        android:id="@+id/fciNumberLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:text="@string/claim_number" />
+
+    <TextView
+        android:id="@+id/fciNumberText"
+        style="@style/small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/fciTypeLabel"
+        android:layout_toRightOf="@+id/fciNumberLabel"
+        android:minWidth="@dimen/min_designer_width" />
+
+
+    <TextView
+        android:id="@+id/fciTypeLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/fciTypeImage"
+        android:layout_toStartOf="@+id/fciTypeImage"
+        android:text="@string/claim_type" />
+</RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/fciPriorityLabel"
+        style="@style/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/claim_priority" />
+
+    <TextView
+        android:id="@+id/fciPriorityText"
+        style="@style/small_bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/label_right_margin"
+        android:layout_marginStart="@dimen/label_right_margin"
+        android:background="@drawable/priority_background"
+        android:gravity="center_horizontal"
+        android:minWidth="@dimen/min_designer_width" />
+</LinearLayout>
