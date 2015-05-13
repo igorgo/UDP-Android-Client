@@ -12,7 +12,7 @@ import android.view.KeyEvent;
 public class ErrorPopup implements DialogInterface.OnKeyListener {
 
     private final Context context;
-    private DialogInterface.OnClickListener onClickListener;
+    private final DialogInterface.OnClickListener onClickListener;
 
     public ErrorPopup(final Context context , DialogInterface.OnClickListener onClickListener) {
         this.context = context;

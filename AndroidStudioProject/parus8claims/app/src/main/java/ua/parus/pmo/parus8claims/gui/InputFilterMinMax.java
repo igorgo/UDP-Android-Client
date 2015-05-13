@@ -6,6 +6,7 @@ import android.text.Spanned;
 /**
  * Created   by igorgo on 02.05.2015.
  */
+@SuppressWarnings("SameParameterValue")
 public class InputFilterMinMax implements InputFilter {
     private int min, max;
 

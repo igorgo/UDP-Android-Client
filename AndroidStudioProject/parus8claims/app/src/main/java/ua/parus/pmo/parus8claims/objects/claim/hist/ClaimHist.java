@@ -25,9 +25,9 @@ class ClaimHist {
 
 
     public static final String FLAG_COMMENT_OTHER = "O";
-    public static final String FLAG_NOCOMMENT = "N";
+    // --Commented out by Inspection (13.05.2015 16:03):public static final String FLAG_NOCOMMENT = "N";
     public static final String FLAG_COMMENT_AUTHOR = "A";
-    public static final String FLAG_IGNORE = "I";
+    // --Commented out by Inspection (13.05.2015 16:03):public static final String FLAG_IGNORE = "I";
 
     private static final String TOKEN_WHO = "@@";
     private static final String TOKEN_WHOM = "$$";

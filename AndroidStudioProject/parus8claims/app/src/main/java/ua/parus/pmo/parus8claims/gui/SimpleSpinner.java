@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 
 import java.util.List;
@@ -115,7 +114,7 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         }
     }
 
-    public void setValue(Long value) {
+    void setValue(Long value) {
         String displayItem = EMPTY_STRING;
         Long oldValue = this.getValueLong();
         this.selected = -1;
@@ -189,12 +188,10 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         if (this.valueType == ValueType.LONG && valueLongItems != null && valueLongItems.size() > 0) {
             setValue(valueLongItems.get(which));
             dialog.dismiss();
-            return;
         }
         if (this.valueType == ValueType.STRING && valueStringItems != null && valueStringItems.size() > 0){
             setValue(valueStringItems.get(which));
             dialog.dismiss();
-            return;
         }
     }
 
@@ -210,7 +207,7 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         return valueString;
     }
 
-    public Long getValueLong() {
+    Long getValueLong() {
         return valueLong;
     }
 

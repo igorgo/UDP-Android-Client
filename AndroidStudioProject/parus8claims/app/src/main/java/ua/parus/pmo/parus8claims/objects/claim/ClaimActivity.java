@@ -43,6 +43,7 @@ import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 
+@SuppressWarnings("deprecation")
 public class ClaimActivity extends ActionBarActivity
         implements
         ClaimHistoryFragment.ClaimHistoryFragmentInterface {
@@ -69,8 +70,10 @@ public class ClaimActivity extends ActionBarActivity
         this.session = ((ClaimApplication) this.getApplication()).getSessionId();
         this.claim = null;
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("");
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null) {
+            actionBar.setTitle("");
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
         /*actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setLogo(R.drawable.ic_action_back);
         actionBar.setDisplayUseLogoEnabled(true);*/
@@ -152,7 +155,8 @@ public class ClaimActivity extends ActionBarActivity
     }
 
 
-    private void doSimpleAction(final String url, int titleId, int confirmTextId, final int resultCode) {
+    private void doSimpleAction(final String url, int titleId, int confirmTextId, @SuppressWarnings(
+            "SameParameterValue") final int resultCode) {
         new AlertDialog.Builder(this)
                 .setTitle(titleId)
                 .setMessage(getString(confirmTextId, claim.number))
@@ -179,9 +183,7 @@ public class ClaimActivity extends ActionBarActivity
                                     Intent intent = new Intent();
                                     setResult(resultCode, intent);
                                     finish();
-                                } catch (MalformedURLException e) {
-                                    e.printStackTrace();
-                                } catch (ConnectException e) {
+                                } catch (MalformedURLException | ConnectException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -355,9 +357,7 @@ public class ClaimActivity extends ActionBarActivity
                     Uri selectedFileUri = data.getData();
                     try {
                         uploadAttach(selectedFileUri);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
+                    } catch (IOException | JSONException e) {
                         e.printStackTrace();
                     }
                 }

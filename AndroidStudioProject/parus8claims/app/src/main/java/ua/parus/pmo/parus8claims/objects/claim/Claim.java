@@ -282,7 +282,7 @@ public class Claim implements Serializable {
                 else
                     textView.setText(this.releaseFix.name);
             } else {
-                ((View) textView.getParent()).setVisibility(View.GONE);;
+                ((View) textView.getParent()).setVisibility(View.GONE);
             }
         }
 

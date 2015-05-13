@@ -26,8 +26,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/form_group_header"
-                    android:text="@string/claim_typeh"
-                    android:id="@+id/textView" />
+                    android:text="@string/claim_typeh" />
                 <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

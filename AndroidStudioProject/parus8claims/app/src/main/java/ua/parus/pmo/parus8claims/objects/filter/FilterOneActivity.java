@@ -27,13 +27,14 @@ import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 
 
+@SuppressWarnings("deprecation")
 public class FilterOneActivity extends ActionBarActivity
         implements MultiSpinner.OnSetItemValueListener,
                    MultiSpinner.OnValueChangedListener {
 
-    public static final String SPINNER_BUILD_TAGNAME = "build8";
-    public static final String SPINNER_RELEASE_TAGNAME = "release8";
-    public static final String SPINNER_VERSION_TAGNAME = "version8";
+    private static final String SPINNER_BUILD_TAGNAME = "build8";
+    private static final String SPINNER_RELEASE_TAGNAME = "release8";
+    private static final String SPINNER_VERSION_TAGNAME = "version8";
     private static final String TAG = "FilterOneActivity";
     private Holder holder;
     private Intent resultIntent;
@@ -48,11 +49,13 @@ public class FilterOneActivity extends ActionBarActivity
         selfRequest = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
         setContentView(R.layout.activity_filter_editor);
         ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
         /*actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setLogo(R.drawable.pmo_logo);
         actionBar.setDisplayUseLogoEnabled(true);*/
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.query_editor);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(R.string.query_editor);
+        }
         this.filter = new Filter();
         this.filter.filter_rn = getIntent().getLongExtra(Intents.EXTRA_KEY_RN, 0);
         this.filter.readFromServer(this);

@@ -79,7 +79,7 @@ public class Releases {
     }
 
 
-    public static List<String> getVersions(Context context, boolean mandatory, String nulltext) {
+    @SuppressWarnings("SameParameterValue") public static List<String> getVersions(Context context, boolean mandatory, String nulltext) {
         List<String> versions = new ArrayList<>();
         if (!mandatory) versions.add(nulltext);
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);

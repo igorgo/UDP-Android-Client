@@ -60,8 +60,8 @@ public class ClaimApplication extends Application {
         this.isPmoUser = isPmoUser;
     }
 
-    public boolean isCacheRefreched() {
-        return this.cacheRefreched;
+    public boolean isNotCacheRefreched() {
+        return !this.cacheRefreched;
     }
 
     public void setCacheRefreched() {

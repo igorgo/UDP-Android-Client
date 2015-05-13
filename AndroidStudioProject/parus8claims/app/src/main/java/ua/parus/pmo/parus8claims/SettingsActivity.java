@@ -27,6 +27,7 @@ import ua.parus.pmo.parus8claims.objects.dicts.Applists;
 import ua.parus.pmo.parus8claims.objects.dicts.Releases;
 import ua.parus.pmo.parus8claims.objects.dicts.Units;
 
+@SuppressWarnings({"deprecation", "BooleanMethodIsAlwaysInverted"})
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
     public static final String PREF_PASSWORD = "password";
     public static final String PREF_USERNAME = "username";
@@ -87,9 +88,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
      * "simplified" settings UI should be shown.
      */
     private static boolean isSimplePreferences(Context context) {
-        return ALWAYS_SIMPLE_PREFS
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                || !isXLargeTablet(context);
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB || !isXLargeTablet(context);
     }
 
     /**

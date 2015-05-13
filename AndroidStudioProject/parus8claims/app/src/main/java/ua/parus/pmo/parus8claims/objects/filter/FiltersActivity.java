@@ -18,6 +18,7 @@ import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 
 
+@SuppressWarnings("deprecation")
 public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = FiltersActivity.class.getSimpleName();
@@ -29,11 +30,13 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filters);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         /*actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setLogo(R.drawable.pmo_logo);
         actionBar.setDisplayUseLogoEnabled(true);*/
-        actionBar.setTitle(R.string.stores_queries);
+            actionBar.setTitle(R.string.stores_queries);
+        }
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         try {
             FilterListAdapter adapter;

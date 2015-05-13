@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.gui;
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;

@@ -43,6 +43,7 @@ import ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,
                                                                AutoScrollListPageListener {
 
@@ -69,9 +70,11 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             this.currentConditionRn = savedInstanceState.getLong(KEY_CONDITION, 0);
         }
         actionBar = getSupportActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.pmo_logo);
-        actionBar.setDisplayUseLogoEnabled(true);
+        if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setLogo(R.drawable.pmo_logo);
+            actionBar.setDisplayUseLogoEnabled(true);
+        }
         this.claimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
         this.emptyText = (TextView) findViewById(R.id.nodata);
         this.progress = (LinearLayout) findViewById(R.id.progress_container);
@@ -88,7 +91,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
         //   new RefreshCacheAsync().execute();
         boolean rc = true;
-        if (!application.isCacheRefreched()) {
+        if (application.isNotCacheRefreched()) {
             //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
             try {
                 rc = false;
@@ -346,7 +349,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         @Override
         protected Boolean doInBackground(Void... params) {
             boolean rc = true;
-            if (!application.isCacheRefreched()) {
+            if (application.isNotCacheRefreched()) {
                 //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
                 try {
                     rc = false;

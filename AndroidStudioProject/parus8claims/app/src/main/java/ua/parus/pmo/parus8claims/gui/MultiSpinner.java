@@ -291,7 +291,7 @@ public class MultiSpinner extends Spinner implements
         this.textNoOneSelected = text;
     }
 
-    public void setItems(List<String> items, boolean preserveValue) {
+    @SuppressWarnings("SameParameterValue") public void setItems(List<String> items, boolean preserveValue) {
         this.items = items;
         String oldValue = this.getValue();
         this.selected = new boolean[items.size()];
@@ -306,7 +306,7 @@ public class MultiSpinner extends Spinner implements
         }
     }
 
-    public void setEditable(boolean isEditable) {
+    @SuppressWarnings("SameParameterValue") public void setEditable(boolean isEditable) {
         if (isEditable)
             this.setOnLongClickListener(this);
         else

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,29 +22,30 @@ import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 
+@SuppressWarnings("deprecation")
 public class ClaimActionActivity extends ActionBarActivity {
 
 
-    public static final String REST_POST_METHOD = "POST";
-    public static final String REST_PARAM_SESSION = "session";
-    public static final String REST_PARAM_RN = "rn";
-    public static final String REST_PARAM_DESCRIPTION = "description";
-    public static final String REST_PARAM_RELEASE_FOUND = "relfound";
-    public static final String REST_PARAM_BUILD_FOUND = "bldfound";
-    public static final String REST_PARAM_RELEASE_FIX = "relfix";
-    public static final String REST_PARAM_BUILD_FIX = "bldfix";
-    public static final String REST_PARAM_UNIT_APP = "app";
-    public static final String REST_PARAM_UNIT = "unit";
-    public static final String REST_PARAM_UNIT_FUNC = "func";
-    public static final String REST_PARAM_PRIORITY = "priority";
-    public static final String REST_PARAM_ERROR = "error";
-    public static final String REST_PARAM_TYPE = "ptype";
-    public static final String CLAIM_TYPE_ADDON = "ДОРАБОТКА";
-    public static final String CLAIM_TYPE_REBUKE = "ЗАМЕЧАНИЕ";
-    public static final String CLAIM_TYPE_ERROR = "ОШИБКА";
-    public static final String REST_NOTE_URL = "claim/addnote/";
-    public static final String REST_EDIT_URL = "claim/edit/";
-    public static final String REST_ADD_URL = "claim/add/";
+    private static final String REST_POST_METHOD = "POST";
+    private static final String REST_PARAM_SESSION = "session";
+    private static final String REST_PARAM_RN = "rn";
+    private static final String REST_PARAM_DESCRIPTION = "description";
+    private static final String REST_PARAM_RELEASE_FOUND = "relfound";
+    private static final String REST_PARAM_BUILD_FOUND = "bldfound";
+    private static final String REST_PARAM_RELEASE_FIX = "relfix";
+    private static final String REST_PARAM_BUILD_FIX = "bldfix";
+    private static final String REST_PARAM_UNIT_APP = "app";
+    private static final String REST_PARAM_UNIT = "unit";
+    private static final String REST_PARAM_UNIT_FUNC = "func";
+    private static final String REST_PARAM_PRIORITY = "priority";
+    private static final String REST_PARAM_ERROR = "error";
+    private static final String REST_PARAM_TYPE = "ptype";
+    private static final String CLAIM_TYPE_ADDON = "ДОРАБОТКА";
+    private static final String CLAIM_TYPE_REBUKE = "ЗАМЕЧАНИЕ";
+    private static final String CLAIM_TYPE_ERROR = "ОШИБКА";
+    private static final String REST_NOTE_URL = "claim/addnote/";
+    private static final String REST_EDIT_URL = "claim/edit/";
+    private static final String REST_ADD_URL = "claim/add/";
     private static final String REST_SEND_URL = "send/";
     private static final String REST_RETURN_URL = "return/";
     private static final String REST_PARAM_NOTE = "note";
@@ -52,8 +54,7 @@ public class ClaimActionActivity extends ActionBarActivity {
     private static final String REST_PARAM_STATE = "stat";
     private Claim claim;
     private int request;
-    public String session;
-    public boolean isPmoUser;
+    private String session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,39 +62,42 @@ public class ClaimActionActivity extends ActionBarActivity {
         this.claim = (Claim) getIntent().getSerializableExtra(Intents.EXTRA_KEY_CLAIM);
         this.request = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
         this.session = getIntent().getStringExtra(Intents.EXTRA_KEY_SESSION);
-        this.isPmoUser = ((ClaimApplication) getApplication()).isPmoUser();
         setContentView(R.layout.activity_claim);
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction;
-            if (this.request == Intents.REQUEST_CLAIM_EDIT) {
-                getSupportActionBar().setTitle(R.string.editing);
-                ClaimEditFragment claimEditFragment = ClaimEditFragment.newInstance(this.claim);
-                placeFragment(claimEditFragment);
-            }
-            if (this.request == Intents.REQUEST_CLAIM_ADD) {
-                getSupportActionBar().setTitle(R.string.adding);
-                ClaimAddFragment claimAddFragment = ClaimAddFragment.newInstance();
-                placeFragment(claimAddFragment);
-            }
-            if (this.request == Intents.REQUEST_CLAIM_NOTE) {
-                getSupportActionBar().setTitle(R.string.claim_note);
-                ClaimNoteFragment claimNoteFragment = ClaimNoteFragment.newInstance(this.claim);
-                placeFragment(claimNoteFragment);
-            }
-            if (this.request == Intents.REQUEST_CLAIM_SEND) {
-                getSupportActionBar().setTitle(R.string.act_send);
-                ClaimSendFragment claimSendFragment = ClaimSendFragment.newInstance(this.claim, this.session);
-                placeFragment(claimSendFragment);
-            }
-            if (this.request == Intents.REQUEST_CLAIM_RETURN) {
-                getSupportActionBar().setTitle(R.string.act_return);
-                ClaimReturnFragment claimReturnFragment = ClaimReturnFragment.newInstance(this.claim, this.session);
-                placeFragment(claimReturnFragment);
-            }
-            if (this.request == Intents.REQUEST_CLAIM_FORWARD) {
-                getSupportActionBar().setTitle(R.string.pass_on);
-                ClaimForwardFragment claimForwardFragment = ClaimForwardFragment.newInstance(this.claim, this.session);
-                placeFragment(claimForwardFragment);
+            ActionBar supportActionBar = getSupportActionBar();
+            if (supportActionBar != null) {
+                if (this.request == Intents.REQUEST_CLAIM_EDIT) {
+                    supportActionBar.setTitle(R.string.editing);
+                    ClaimEditFragment claimEditFragment = ClaimEditFragment.newInstance(this.claim);
+                    placeFragment(claimEditFragment);
+                }
+                if (this.request == Intents.REQUEST_CLAIM_ADD) {
+                    supportActionBar.setTitle(R.string.adding);
+                    ClaimAddFragment claimAddFragment = ClaimAddFragment.newInstance();
+                    placeFragment(claimAddFragment);
+                }
+                if (this.request == Intents.REQUEST_CLAIM_NOTE) {
+                    supportActionBar.setTitle(R.string.claim_note);
+                    ClaimNoteFragment claimNoteFragment = ClaimNoteFragment.newInstance();
+                    placeFragment(claimNoteFragment);
+                }
+                if (this.request == Intents.REQUEST_CLAIM_SEND) {
+                    supportActionBar.setTitle(R.string.act_send);
+                    ClaimSendFragment claimSendFragment = ClaimSendFragment.newInstance(this.claim, this.session);
+                    placeFragment(claimSendFragment);
+                }
+                if (this.request == Intents.REQUEST_CLAIM_RETURN) {
+                    supportActionBar.setTitle(R.string.act_return);
+                    ClaimReturnFragment claimReturnFragment = ClaimReturnFragment.newInstance(this.claim, this.session);
+                    placeFragment(claimReturnFragment);
+                }
+                if (this.request == Intents.REQUEST_CLAIM_FORWARD) {
+                    supportActionBar.setTitle(R.string.pass_on);
+                    ClaimForwardFragment claimForwardFragment =
+                            ClaimForwardFragment.newInstance(this.claim, this.session);
+                    placeFragment(claimForwardFragment);
+                }
             }
         }
     }
@@ -125,10 +129,10 @@ public class ClaimActionActivity extends ActionBarActivity {
         boolean unitNotSet = fragment.holder.unit.getText().toString().isEmpty();
         boolean contentNotSet = fragment.holder.content.getText().toString().isEmpty();
         boolean relNotSet = (fragment.holder.release.getValueString() == null)
-                || fragment.holder.release.getValueString().isEmpty();
+                            || fragment.holder.release.getValueString().isEmpty();
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
-                || fragment.holder.build.getValueString().isEmpty();
-        if (unitNotSet || contentNotSet || relNotSet || bldNotSet ) return;
+                            || fragment.holder.build.getValueString().isEmpty();
+        if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
         try {
             RestRequest restRequest = new RestRequest(REST_ADD_URL, REST_POST_METHOD);
             restRequest.addInParam(REST_PARAM_SESSION, session);
@@ -167,10 +171,11 @@ public class ClaimActionActivity extends ActionBarActivity {
             JSONObject response = restRequest.getJsonContent();
             if (response != null) {
                 if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                    new ErrorPopup(this,null).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
+                    new ErrorPopup(this, null)
+                            .showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
                     return;
                 } else {
-                    claimRn = response.optLong(REST_PARAM_RN);;
+                    claimRn = response.optLong(REST_PARAM_RN);
                 }
             }
         } catch (MalformedURLException | ConnectException e) {
@@ -186,17 +191,16 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
 
-
     private void editClaim() {
         ClaimEditFragment fragment = (ClaimEditFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.container);
         boolean unitNotSet = fragment.holder.unit.getText().toString().isEmpty();
         boolean contentNotSet = fragment.holder.content.getText().toString().isEmpty();
         boolean relNotSet = (fragment.holder.release.getValueString() == null)
-                || fragment.holder.release.getValueString().isEmpty();
+                            || fragment.holder.release.getValueString().isEmpty();
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
-                || fragment.holder.build.getValueString().isEmpty();
-        if (unitNotSet || contentNotSet || relNotSet || bldNotSet ) return;
+                            || fragment.holder.build.getValueString().isEmpty();
+        if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
         try {
             RestRequest restRequest = new RestRequest(REST_EDIT_URL, REST_POST_METHOD);
             restRequest.addInParam(REST_PARAM_SESSION, session);
@@ -243,7 +247,8 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
         if (response != null) {
             if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(this,null).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
+                new ErrorPopup(this, null)
+                        .showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
                 return true;
             }
         }
@@ -267,7 +272,7 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
     private void sendClaim() {
-       ClaimSendFragment fragment = (ClaimSendFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        ClaimSendFragment fragment = (ClaimSendFragment) getSupportFragmentManager().findFragmentById(R.id.container);
         try {
             RestRequest restRequest = new RestRequest(REST_SEND_URL, REST_POST_METHOD);
             restRequest.addInParam(REST_PARAM_SESSION, session);
@@ -285,7 +290,8 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
     private void forwardClaim() {
-        ClaimForwardFragment fragment = (ClaimForwardFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        ClaimForwardFragment fragment =
+                (ClaimForwardFragment) getSupportFragmentManager().findFragmentById(R.id.container);
         try {
             RestRequest restRequest = new RestRequest(REST_FORWARD_URL, REST_POST_METHOD);
             restRequest.addInParam(REST_PARAM_SESSION, session);
@@ -309,9 +315,9 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
 
-
     private void returnClaim() {
-        ClaimReturnFragment fragment = (ClaimReturnFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        ClaimReturnFragment fragment =
+                (ClaimReturnFragment) getSupportFragmentManager().findFragmentById(R.id.container);
         try {
             RestRequest restRequest = new RestRequest(REST_RETURN_URL, REST_POST_METHOD);
             restRequest.addInParam(REST_PARAM_SESSION, session);

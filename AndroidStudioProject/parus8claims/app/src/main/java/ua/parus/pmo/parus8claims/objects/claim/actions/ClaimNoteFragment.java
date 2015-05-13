@@ -19,15 +19,13 @@ import ua.parus.pmo.parus8claims.objects.claim.Claim;
  */
 public class ClaimNoteFragment extends Fragment {
     private static final String ARG_PARAM1 = "claim";
-    private Claim claim;
     private View rootView;
     public EditText note;
 
 
-    public static ClaimNoteFragment newInstance(Claim claim) {
+    public static ClaimNoteFragment newInstance() {
         ClaimNoteFragment fragment = new ClaimNoteFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PARAM1, claim);
         fragment.setArguments(args);
         return fragment;
     }
@@ -39,9 +37,6 @@ public class ClaimNoteFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            this.claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
-        }
     }
 
     @Override

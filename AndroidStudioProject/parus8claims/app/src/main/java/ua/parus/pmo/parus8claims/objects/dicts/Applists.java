@@ -43,7 +43,7 @@ public class Applists {
                     COLUMN_ID + " " + COLUMN_ID_TYPE + COMMA_SEP +
                     COLUMN_NAME + " " + COLUMN_NAME_TYPE +
                     ")";
-    public static final String REST_URL = "dicts/applist/";
+    private static final String REST_URL = "dicts/applist/";
 
     public static void refreshCache(Context context) {
         final Context lContext = context;

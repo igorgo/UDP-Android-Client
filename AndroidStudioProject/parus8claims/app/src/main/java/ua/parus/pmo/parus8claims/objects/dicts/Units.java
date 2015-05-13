@@ -44,9 +44,9 @@ public class Units {
     public static final String SQL_DROP_TABLE =
             "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    public static final String URL_DEPS = "dicts/units/deps/";
-    public static final String URL_UNITS = "dicts/units/";
-    public static final String REST_PARAM_PEPS_UNIT =  "unitname";
+    private static final String URL_DEPS = "dicts/units/deps/";
+    private static final String URL_UNITS = "dicts/units/";
+    private static final String REST_PARAM_PEPS_UNIT =  "unitname";
 
     public static void refreshCache(Context context) {
         final Context lContext = context;
@@ -119,7 +119,7 @@ public class Units {
         return unitsList;
     }
 
-    public static Unit getUnitByName (Context context, String name){
+    private static Unit getUnitByName(Context context, String name){
         Unit unit = new Unit();
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();

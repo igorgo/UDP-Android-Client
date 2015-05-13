@@ -29,7 +29,7 @@ import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 
 public class ClaimAddFragment extends Fragment {
     private static final String TAG = ClaimAddFragment.class.getSimpleName();
-    public static final int DEFAULT_PRIORITY = 5;
+    private static final int DEFAULT_PRIORITY = 5;
     private View rootView;
     public Holder holder;
     private boolean isPmoUser;
