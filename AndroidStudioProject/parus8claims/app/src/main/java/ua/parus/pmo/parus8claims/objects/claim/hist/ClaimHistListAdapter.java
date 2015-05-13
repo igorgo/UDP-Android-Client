@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,12 @@ public class ClaimHistListAdapter extends BaseAdapter {
         RestRequest historyRequest = new RestRequest(REST_URL);
         historyRequest.addInParam(PARAM_SESSION, ((ClaimApplication) this.context.getApplicationContext()).getSessionId());
         historyRequest.addInParam(PARAM_PRN, String.valueOf(prn));
-        JSONArray response = historyRequest.getAllRows();
+        JSONArray response = null;
+        try {
+            response = historyRequest.getAllRows();
+        } catch (ConnectException e) {
+            e.printStackTrace();
+        }
         if (response == null) return;
         for (int i = 0; i < response.length(); i++) {
             try {

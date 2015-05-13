@@ -1,5 +1,6 @@
 package ua.parus.pmo.parus8claims.gui;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -93,6 +94,12 @@ public abstract class AutoScrollListAdapter extends BaseAdapter implements AbsLi
         unlock();
         if (this.autoScrollListPageListener != null) {
             this.autoScrollListPageListener.onHasMore();
+        }
+    }
+
+    protected void notifyEmptyList(boolean empty) {
+        if (this.autoScrollListPageListener != null) {
+            this.autoScrollListPageListener.onEmptyList(empty);
         }
     }
 

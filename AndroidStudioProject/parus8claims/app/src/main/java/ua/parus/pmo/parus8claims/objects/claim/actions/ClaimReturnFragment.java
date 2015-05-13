@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
@@ -76,7 +77,7 @@ public class ClaimReturnFragment extends Fragment {
                     JSONObject item = items.getJSONObject(0);
                     message.setText(item.optString("s01"));
                 }
-            } catch (MalformedURLException | JSONException e) {
+            } catch (MalformedURLException | JSONException | ConnectException e) {
                 e.printStackTrace();
             }
         }

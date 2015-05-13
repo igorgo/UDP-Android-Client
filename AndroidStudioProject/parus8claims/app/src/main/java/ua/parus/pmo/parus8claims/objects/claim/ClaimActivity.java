@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -170,7 +171,7 @@ public class ClaimActivity extends ActionBarActivity
                                         String error = response.optString("error");
                                         if (error != null && !error.isEmpty()) {
                                             dialog.dismiss();
-                                            new ErrorPopup(ClaimActivity.this).showErrorDialog(getString(R.string.error_title), error);
+                                            new ErrorPopup(ClaimActivity.this,null).showErrorDialog(getString(R.string.error_title), error);
                                             return;
                                         }
                                     }
@@ -179,6 +180,8 @@ public class ClaimActivity extends ActionBarActivity
                                     setResult(resultCode, intent);
                                     finish();
                                 } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                } catch (ConnectException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -296,7 +299,7 @@ public class ClaimActivity extends ActionBarActivity
             JSONObject jsonContent = new JSONObject(content.toString());
             if (jsonContent != null) {
                 if (jsonContent.optString(REST_PARAM_ERROR) != null && !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
-                    new ErrorPopup(this).showErrorDialog(getString(R.string.error_title), jsonContent.optString(REST_PARAM_ERROR));
+                    new ErrorPopup(this,null).showErrorDialog(getString(R.string.error_title), jsonContent.optString(REST_PARAM_ERROR));
                     return;
                 }
             }

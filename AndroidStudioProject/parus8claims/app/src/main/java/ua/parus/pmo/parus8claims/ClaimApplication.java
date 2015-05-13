@@ -6,6 +6,8 @@ import android.view.ViewConfiguration;
 
 import java.lang.reflect.Field;
 
+import ua.parus.pmo.parus8claims.objects.filter.FilterListAdapter;
+
 /**
  * Created by igor-go on 09.04.2015.
  * ${PACKAGE_NAME}
@@ -14,6 +16,7 @@ public class ClaimApplication extends Application {
     private String sessionId;
     private boolean isPmoUser;
     private boolean cacheRefreched;
+    private FilterListAdapter filters;
 
     private void getOverflowMenu() {
 
@@ -36,6 +39,7 @@ public class ClaimApplication extends Application {
         StrictMode.setThreadPolicy(policy);
         // Грязный хак для показа трех точек в меню
         this.getOverflowMenu();
+        this.filters = null;
         //Releases.RefreshCache(getBaseContext());
         //Builds.RefreshCache(getBaseContext());
     }
@@ -65,4 +69,11 @@ public class ClaimApplication extends Application {
         this.cacheRefreched = true;
     }
 
+    public void setFilters(FilterListAdapter filters) {
+        this.filters = filters;
+    }
+
+    public FilterListAdapter getFilters() {
+        return filters;
+    }
 }

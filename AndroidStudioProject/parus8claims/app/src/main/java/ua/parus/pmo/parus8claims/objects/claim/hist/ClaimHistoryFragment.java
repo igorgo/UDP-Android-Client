@@ -22,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 
@@ -214,7 +215,7 @@ public class ClaimHistoryFragment extends ListFragment implements View.OnClickLi
                 JSONArray response = restRequest.getAllRows();
                 if (response != null) return response;
 
-            } catch (MalformedURLException e) {
+            } catch (MalformedURLException | ConnectException e) {
                 e.printStackTrace();
             }
             return null;

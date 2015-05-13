@@ -15,6 +15,7 @@ import android.widget.MultiAutoCompleteTextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.objects.dicts.Applists;
@@ -191,6 +192,7 @@ public class FilterOneActivity extends ActionBarActivity
                                     that.filter.filter_name = userInput;
                                     setFilterFromFields();
                                     that.filter.saveToServer(that);
+                                    ((ClaimApplication) that.getApplication()).getFilters().addReplaceFilter(that.filter);
                                     that.resultIntent = new Intent();
                                     //resultIntent.putExtra(Filter.PARAM_FILTER_NAME, userInput);
                                     if (that.filter.filter_rn > 0) {
@@ -221,6 +223,7 @@ public class FilterOneActivity extends ActionBarActivity
                 return true;
             case R.id.action_delete_query:
                 this.filter.deleteOnServer(this);
+                ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
                 setResult(Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
                 finish();
                 return true;

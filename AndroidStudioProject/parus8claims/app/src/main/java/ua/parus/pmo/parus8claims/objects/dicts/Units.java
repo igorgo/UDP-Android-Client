@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class Units {
                                     }
                                 }
                             }
-                        } catch (MalformedURLException e) {
+                        } catch (MalformedURLException | ConnectException e) {
                             e.printStackTrace();
                         }
                         db.close();
@@ -181,7 +182,7 @@ public class Units {
                 values.put(COLUMN_DEPS_CACHED, 1);
                 db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(unit.id)});
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
         } finally {
             db.close();

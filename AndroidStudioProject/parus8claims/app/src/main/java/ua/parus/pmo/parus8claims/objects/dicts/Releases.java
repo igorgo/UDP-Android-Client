@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class Releases {
                     COLUMN_BUILDS_CACHED + " " + TYPE_BUILDS_CACHED +
                     ")";
 
-    public static void RefreshCache(Context context) {
+    public static void RefreshCache(Context context) throws ConnectException {
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();
         try {

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class Applists {
                                     }
                                 }
                             }
-                        } catch (MalformedURLException e) {
+                        } catch (MalformedURLException | ConnectException e) {
                             e.printStackTrace();
                         }
                         db.close();

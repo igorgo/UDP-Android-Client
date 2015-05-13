@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
@@ -162,6 +163,8 @@ public class Claim implements Serializable {
 
         } catch (MalformedURLException|JSONException e) {
             Log.e(TAG, e.getLocalizedMessage());
+            e.printStackTrace();
+        } catch (ConnectException e) {
             e.printStackTrace();
         }
     }

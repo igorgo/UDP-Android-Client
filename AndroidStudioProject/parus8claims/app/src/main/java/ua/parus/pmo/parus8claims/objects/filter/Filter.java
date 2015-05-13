@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
@@ -61,7 +62,7 @@ public class Filter {
             JSONObject item = restRequest.getJsonContent();
             if (item == null) return;
             if (item.optString(PARAM_ERROR) != null && !item.optString(PARAM_ERROR).isEmpty()) {
-                ErrorPopup errorPopup = new ErrorPopup(context);
+                ErrorPopup errorPopup = new ErrorPopup(context,null);
                 errorPopup.showErrorDialog(context.getString(R.string.error_title), item.optString(PARAM_ERROR));
             } else {
                 this.filter_name = item.optString(PARAM_FILTER_NAME);
@@ -75,7 +76,7 @@ public class Filter {
                 this.condImExecutor = item.optInt(PARAM_CLAIM_IM_EXEC) == 1;
                 this.condContent = item.optString(PARAM_CLAIM_CONTENT);
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
         }
     }
@@ -114,11 +115,11 @@ public class Filter {
             JSONObject response = restRequest.getJsonContent();
             if (response == null) return;
             if (response.optString(PARAM_ERROR) != null && !response.optString(PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(context).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
+                new ErrorPopup(context,null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
             } else {
                 this.filter_rn = response.optLong(PARAM_OUT_RN);
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
         }
     }
@@ -135,9 +136,9 @@ public class Filter {
             if (response == null) return;
             if (response.optString(PARAM_ERROR) != null
                     && !response.optString(PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(context).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
+                new ErrorPopup(context,null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
         }
     }

@@ -1,9 +1,12 @@
 package ua.parus.pmo.parus8claims;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -17,12 +20,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.HeaderViewListAdapter;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
+import ua.parus.pmo.parus8claims.gui.AutoScrollListPageListener;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
@@ -37,16 +42,21 @@ import ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, AutoScrollListPageListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String KEY_CONDITION = "CURRENT_CONDITION";
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
+    private ActionBar actionBar;
+    private Drawable actionBarBackGround;
     private String session;
+    private ProgressDialog connectDialog;
+    private TextView emptyText;
 
-    @SuppressLint("InflateParams") @Override
+    @SuppressLint("InflateParams")
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -55,23 +65,25 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         if (savedInstanceState != null) {
             this.currentConditionRn = savedInstanceState.getLong(KEY_CONDITION, 0);
         }
-        ActionBar actionBar = getSupportActionBar();
+        actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setLogo(R.drawable.pmo_logo);
         actionBar.setDisplayUseLogoEnabled(true);
         this.claimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
+        this.emptyText = (TextView) findViewById(R.id.nodata);
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
-        if (!this.application.isCacheRefreched()) {
-            Releases.RefreshCache(this);
-            Units.checkCache(this);
-            Applists.checkCache(this);
-            this.application.setCacheRefreched();
-        }
-        Log.i(TAG, "Call login to UDP");
-        this.loginToUdp();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        connectDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
+        new RefreshCacheAsync().execute();
+
+
     }
 
     private void getClaims(Long cond, Long newrn) {
@@ -79,6 +91,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             Log.i(TAG, "Load Claims From Inet");
             ClaimListAdapter claimListAdapter = new ClaimListAdapter(this, cond, newrn);
             this.claimsListView.setAdapter(claimListAdapter);
+            claimListAdapter.setAutoScrollListPageListener(this);
             claimListAdapter.onScrollNext();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -190,7 +203,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                         View row = claimsListView.getChildAt(listPos - claimsListView.getFirstVisiblePosition());
                         ClaimListAdapter.ClaimHolder holder = new ClaimListAdapter.ClaimHolder();
                         ClaimListAdapter.initHolder(holder, row);
-                        ClaimListAdapter.populateHolder(this,holder,oldClaim);
+                        ClaimListAdapter.populateHolder(this, holder, oldClaim);
                     }
                     //this.getClaims(this.currentConditionRn, null);
                 }
@@ -249,14 +262,82 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         }
     }
 
+    @Override
+    public void onListEnd() {
+        this.claimsListView.onListEnd();
+    }
+
+    @Override
+    public void onHasMore() {
+        this.claimsListView.onHasMore();
+    }
+
+    @Override
+    public void onEmptyList(boolean empty) {
+        this.claimsListView.onEmptyList(empty);
+        if (empty) {
+            Log.i(TAG,"List is empty");
+            this.claimsListView.setVisibility(View.GONE);
+            this.emptyText.setVisibility(View.VISIBLE);
+        }else{
+            Log.i(TAG,"List not empty");
+            this.claimsListView.setVisibility(View.VISIBLE);
+            this.emptyText.setVisibility(View.GONE);
+        }
+    }
+
+    private class RefreshCacheAsync extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            boolean rc = true;
+            if (!application.isCacheRefreched()) {
+                //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
+                try {
+                    rc = false;
+                    Releases.RefreshCache(MainActivity.this);
+                    rc = true;
+                } catch (ConnectException e) {
+                    e.printStackTrace();
+                }
+                if (rc) {
+                    Units.checkCache(MainActivity.this);
+                    Applists.checkCache(MainActivity.this);
+                    application.setCacheRefreched();
+                }
+            }
+            return rc;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            connectDialog.dismiss();
+            if (result) {
+                Log.i(TAG, "Call login to UDP");
+                loginToUdp();
+            } else {
+                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        System.exit(0);
+                    }
+                });
+                errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
+            }
+        }
+    }
+
+
     private class LoginAsyncTask extends AsyncTask<String, Void, JSONObject> {
         public static final String REST_URL = "login/";
-        final Toast toast = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
+        //final Toast toast = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
         final MainActivity that = MainActivity.this;
+        final ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.authorizing), true);
 
         @Override
         protected JSONObject doInBackground(String... params) {
-            toast.show();
+            loadDialog.show();
             JSONObject response = null;
             RestRequest loginRequest;
             try {
@@ -265,7 +346,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 loginRequest.addInParam("pass", params[1]);
 
                 response = loginRequest.getJsonContent();
-            } catch (MalformedURLException e) {
+            } catch (MalformedURLException | ConnectException e) {
                 e.printStackTrace();
             }
             return response;
@@ -273,10 +354,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(JSONObject response) {
-            toast.cancel();
-            if (response == null) return;
+            loadDialog.cancel();
+            if (response == null) {
+                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
+                errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.connection_time_out));
+                return;
+            }
             if (response.optString("ERROR") != null && !response.optString("ERROR").isEmpty()) {
-                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this);
+                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
                 errorPopup.showErrorDialog(getString(R.string.error_title), response.optString("ERROR"));
                 return;
             } else {

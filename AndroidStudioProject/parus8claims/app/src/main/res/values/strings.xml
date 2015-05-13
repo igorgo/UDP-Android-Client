@@ -95,4 +95,9 @@
     <string name="pref_header_general">General</string>
     <string name="pref_title_user_name">UserName</string>
     <string name="pref_title_password">Password</string>
+    <string name="connection_time_out">Connection timed out</string>
+    <string name="server_unreachable">Server is unreachable.</string>
+    <string name="refreshing_cache">Refreshing chache…</string>
+    <string name="connect_to_server">Connecting to pmo server…</string>
+    <string name="no_datafound">No data found according your condition.</string>
 </resources>

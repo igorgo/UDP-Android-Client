@@ -16,9 +16,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ public class RestRequest {
     private static final String DEFAULT_HTTP_METHOD = "GET";
     private static final String UNICODE_CHARSET_NAME = "UTF-8";
     private static final String TAG = RestRequest.class.getSimpleName();
+    private static final String ADDRESS = "192.168.7.4";
     public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
 //    public static final String BASE_URL = "http://192.168.7.4:7777/apex/rest/udp/";
     private static final String TAG_ITEMS = "items";
@@ -43,6 +47,7 @@ public class RestRequest {
     private int pageSize;
     private boolean firstTime;
     private Map<String, String> inParams;
+
 
     public RestRequest(String url, String httpMethod) throws MalformedURLException {
         this(url);
@@ -87,9 +92,12 @@ public class RestRequest {
 
             if (this.hasNextPage()) {
                 connection = (HttpURLConnection) this.nextUrl.openConnection();
+                Log.i(TAG,"Open connection to " + this.nextUrl.toString());
             } else {
                 connection = (HttpURLConnection) this.startUrl.openConnection();
+                Log.i(TAG,"Open connection to " + this.startUrl.toString());
             }
+            connection.setConnectTimeout(3000);
             connection.setRequestMethod(this.httpMethod);
 
             if (this.httpMethod.equals(DEFAULT_HTTP_METHOD)) {
@@ -113,12 +121,13 @@ public class RestRequest {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public String getStringContent() {
+    public String getStringContent() throws ConnectException{
         HttpURLConnection connection;
         StringBuilder content = new StringBuilder();
         try {
             if ((connection = this.getHttpConnection()) != null) {
                 // заворачиваем ответ HttpURLConnection в BufferedReader
+                Log.i(TAG,"Fetching data from " + connection.getURL().toString());
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream())
                 );
@@ -128,10 +137,13 @@ public class RestRequest {
                     content.append(line);
                 }
                 reader.close();
+                Log.i(TAG, "The data is fetched from " + connection.getURL().toString());
                 connection.disconnect();
             }
         } catch (ConnectException e) {
-            e.printStackTrace();
+            throw e;
+        } catch (SocketTimeoutException e) {
+            throw new ConnectException();
         } catch (IOException e) {
             Log.e(TAG, "IOException", e);
             e.printStackTrace();
@@ -142,7 +154,7 @@ public class RestRequest {
         return content.toString();
     }
 
-    public JSONObject getJsonContent() {
+    public JSONObject getJsonContent() throws ConnectException {
         JSONObject jsonContent = null;
         String stringContent = this.getStringContent();
         if (stringContent != null) {
@@ -156,7 +168,7 @@ public class RestRequest {
         return jsonContent;
     }
 
-    public JSONArray getPageRows() {
+    public JSONArray getPageRows() throws ConnectException {
         JSONObject nextPageReference;
         JSONArray rows = null;
         JSONObject jsonContent = this.getJsonContent();
@@ -185,7 +197,7 @@ public class RestRequest {
         return toArray;
     }
 
-    public JSONArray getAllRows() {
+    public JSONArray getAllRows() throws ConnectException {
         JSONArray rows = null;
         try {
             rows = this.getPageRows();

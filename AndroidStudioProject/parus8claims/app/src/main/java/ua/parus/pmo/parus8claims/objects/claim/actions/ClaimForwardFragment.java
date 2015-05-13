@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ClaimForwardFragment extends Fragment {
                                         execsD.add(item.getString("s02"));
                                     }
                                 }
-                            } catch (MalformedURLException | JSONException e) {
+                            } catch (MalformedURLException | JSONException | ConnectException e) {
                                 e.printStackTrace();
                             }
                             if (execsV.size() > 0) {
@@ -166,7 +167,7 @@ public class ClaimForwardFragment extends Fragment {
                         statesD.add(item.getString("s01"));
                     }
                 }
-            } catch (MalformedURLException | JSONException e) {
+            } catch (MalformedURLException | JSONException | ConnectException e) {
                 e.printStackTrace();
             }
             if (statesV.size() > 0) {

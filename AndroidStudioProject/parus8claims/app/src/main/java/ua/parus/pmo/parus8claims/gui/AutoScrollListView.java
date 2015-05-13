@@ -2,6 +2,7 @@ package ua.parus.pmo.parus8claims.gui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -96,6 +97,11 @@ public class AutoScrollListView extends ListView implements AutoScrollListPageLi
     @Override
     public void onHasMore() {
         addLoadingView(AutoScrollListView.this, this.loadingView);
+    }
+
+    @Override
+    public void onEmptyList(boolean empty) {
+
     }
 
     public enum LoadingMode {SCROLL_TO_TOP, SCROLL_TO_BOTTOM}

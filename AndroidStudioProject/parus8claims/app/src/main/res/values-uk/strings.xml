@@ -95,4 +95,9 @@
     <string name="title_activity_claim_action">Рекламація</string>
     <string name="title_activity_filter_editor">Запит</string>
     <string name="title_activity_filters">Запити</string>
+    <string name="connection_time_out">Час очикування з\'єднання минув.</string>
+    <string name="server_unreachable">Неможливо з\'єднатися з сервером</string>
+    <string name="refreshing_cache">Оновлення кеша…</string>
+    <string name="connect_to_server">З\'єднання з сервером…</string>
+    <string name="no_datafound">По заданих умовах вібору дані не знайдені.</string>
 </resources>

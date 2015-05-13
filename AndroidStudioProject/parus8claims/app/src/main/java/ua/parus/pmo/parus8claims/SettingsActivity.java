@@ -2,6 +2,7 @@ package ua.parus.pmo.parus8claims;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,8 +18,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import java.net.ConnectException;
 import java.util.List;
 
+import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.objects.dicts.Applists;
 import ua.parus.pmo.parus8claims.objects.dicts.Releases;
 import ua.parus.pmo.parus8claims.objects.dicts.Units;
@@ -177,7 +180,18 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     @Override
     public boolean onPreferenceClick(Preference preference) {
         if (preference.getKey().equals("cache")) {
-            Releases.RefreshCache(this);
+            try {
+                Releases.RefreshCache(this);
+            } catch (ConnectException e) {
+                ErrorPopup errorPopup = new ErrorPopup(this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        System.exit(0);
+                    }
+                });
+                errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
+            }
             Units.refreshCache(this);
             Applists.refreshCache(this);
             ((ClaimApplication) this.getApplication()).setCacheRefreched();

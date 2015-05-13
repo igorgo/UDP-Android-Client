@@ -8,4 +8,6 @@ public interface AutoScrollListPageListener {
     public abstract void onListEnd();
 
     public abstract void onHasMore();
+
+    public abstract void onEmptyList(boolean empty);
 }

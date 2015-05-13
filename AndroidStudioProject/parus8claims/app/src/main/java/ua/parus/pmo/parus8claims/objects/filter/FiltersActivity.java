@@ -13,6 +13,7 @@ import android.widget.ListView;
 
 import java.net.MalformedURLException;
 
+import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 
@@ -35,7 +36,13 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         actionBar.setTitle(R.string.stores_queries);
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         try {
-            this.filtersListView.setAdapter(new FilterListAdapter(this));
+            FilterListAdapter adapter;
+            if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
+                adapter = new FilterListAdapter(this);
+                ((ClaimApplication)getApplication()).setFilters(adapter);
+            }
+            this.filtersListView.setAdapter(adapter);
+
             this.filtersListView.setOnItemClickListener(this);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -96,7 +103,12 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         if (requestCode == Intents.REQUEST_FILTER_EDIT)
         if (resultCode != Intents.RESULT_CANCEL) {
             try {
-                this.filtersListView.setAdapter(new FilterListAdapter(this));
+                FilterListAdapter adapter;
+                if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
+                    adapter = new FilterListAdapter(this);
+                    ((ClaimApplication)getApplication()).setFilters(adapter);
+                }
+                this.filtersListView.setAdapter(adapter);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

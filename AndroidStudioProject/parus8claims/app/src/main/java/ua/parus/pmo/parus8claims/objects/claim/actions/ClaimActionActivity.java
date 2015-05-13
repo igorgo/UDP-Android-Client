@@ -10,6 +10,7 @@ import android.view.MenuItem;
 
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
@@ -166,13 +167,13 @@ public class ClaimActionActivity extends ActionBarActivity {
             JSONObject response = restRequest.getJsonContent();
             if (response != null) {
                 if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                    new ErrorPopup(this).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
+                    new ErrorPopup(this,null).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
                     return;
                 } else {
                     claimRn = response.optLong(REST_PARAM_RN);;
                 }
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
         }
         if (claimRn != null) {
@@ -233,10 +234,16 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
     private boolean doRestForError(RestRequest restRequest) {
-        JSONObject response = restRequest.getJsonContent();
+        JSONObject response = null;
+        try {
+            response = restRequest.getJsonContent();
+        } catch (ConnectException e) {
+            e.printStackTrace();
+            response = null;
+        }
         if (response != null) {
             if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(this).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
+                new ErrorPopup(this,null).showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
                 return true;
             }
         }

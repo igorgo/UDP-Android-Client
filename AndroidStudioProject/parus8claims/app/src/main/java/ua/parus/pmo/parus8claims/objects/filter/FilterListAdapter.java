@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,11 +103,50 @@ public class FilterListAdapter extends BaseAdapter {
         ImageView flImageEdit;
     }
 
+    public void deleteFilter(Filter filter) {
+        if (filter.filter_rn > 0) {
+            int j =-1;
+            for (int i = 0; i < entries.size(); i++) {
+                if (entries.get(i).filter_rn == filter.filter_rn) {
+                    j=i;
+                    break;
+                }
+            }
+            if (j>=0) {
+                entries.remove(j);
+            }
+        }
+
+    }
+
+    public void addReplaceFilter(Filter filter){
+        if (filter.filter_rn > 0) {
+            int j =-1;
+            for (int i = 0; i < entries.size(); i++) {
+                if (entries.get(i).filter_rn == filter.filter_rn) {
+                    j=i;
+                    break;
+                }
+            }
+            filter.filter_editable = true;
+            if (j>=0) {
+                entries.set(j,filter);
+            } else {
+                entries.add(filter);
+            }
+        }
+    }
+
     private class FetchAsyncTask extends AsyncTask<Void, Void, JSONArray> {
 
         @Override
         protected JSONArray doInBackground(Void... voids) {
-            return FilterListAdapter.this.filtersRequest.getAllRows();
+            try {
+                return FilterListAdapter.this.filtersRequest.getAllRows();
+            } catch (ConnectException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         @Override

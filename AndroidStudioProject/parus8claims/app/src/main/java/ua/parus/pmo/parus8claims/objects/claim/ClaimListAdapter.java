@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -292,7 +293,12 @@ public class ClaimListAdapter extends AutoScrollListAdapter {
 
         @Override
         protected JSONArray doInBackground(Void... params) {
-            return ClaimListAdapter.this.claimsRestRequest.getPageRows();
+            try {
+                return ClaimListAdapter.this.claimsRestRequest.getPageRows();
+            } catch (ConnectException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         @Override
@@ -330,6 +336,7 @@ public class ClaimListAdapter extends AutoScrollListAdapter {
                 }
                 ClaimListAdapter.this.entries.addAll(claims);
                 notifyDataSetChanged();
+                ClaimListAdapter.this.notifyEmptyList( ClaimListAdapter.this.entries.size()==0);
                 if (ClaimListAdapter.this.claimsRestRequest.hasNextPage()) {
                     ClaimListAdapter.this.notifyHasMore();
                 } else {
