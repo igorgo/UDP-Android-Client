@@ -50,7 +50,8 @@ public class Units {
 
     public static void refreshCache(Context context) {
         final Context lContext = context;
-        final ProgressDialog loadDialog = ProgressDialog.show(lContext, lContext.getString(R.string.please_wait), lContext.getString(R.string.loading_unitlist), true);
+        final ProgressDialog loadDialog = ProgressDialog.show(lContext, lContext.getString(R.string.please_wait),
+                lContext.getString(R.string.loading_unitlist), true);
         new Thread(
                 new Runnable() {
                     @Override
