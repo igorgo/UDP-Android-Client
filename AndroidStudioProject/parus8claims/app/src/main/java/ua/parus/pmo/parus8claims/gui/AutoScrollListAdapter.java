@@ -14,41 +14,41 @@ public abstract class AutoScrollListAdapter extends BaseAdapter implements AbsLi
     protected static final String TAG = AutoScrollListAdapter.class.getSimpleName();
 
     // Блокировка для предотвращения другого события скроллинга
-    private boolean mCanScroll = false;
+    private boolean canScroll = false;
     // Флаг enable/disable клик на строке
-    private boolean mRowEnabled = true;
-    private AutoScrollListView.LoadingMode mLoadingMode;
-    private AutoScrollListView.StopPosition mStopPosition;
-    private AutoScrollListPageListener mAutoScrollListPageListener;
+    private boolean rowEnabled = true;
+    private AutoScrollListView.LoadingMode loadingMode;
+    private AutoScrollListView.StopPosition stopPosition;
+    private AutoScrollListPageListener autoScrollListPageListener;
 
     protected void lock() {
-        mCanScroll = false;
+        this.canScroll = false;
     }
 
     void unlock() {
-        mCanScroll = true;
+        this.canScroll = true;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public void setRowEnabled(boolean rowEnabled) {
-        this.mRowEnabled = rowEnabled;
+        this.rowEnabled = rowEnabled;
     }
 
     public void setLoadingMode(AutoScrollListView.LoadingMode loadingMode) {
-        this.mLoadingMode = loadingMode;
+        this.loadingMode = loadingMode;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public AutoScrollListView.StopPosition getStopPosition() {
-        return mStopPosition;
+        return this.stopPosition;
     }
 
     public void setStopPosition(AutoScrollListView.StopPosition stopPosition) {
-        this.mStopPosition = stopPosition;
+        this.stopPosition = stopPosition;
     }
 
     public void setAutoScrollListPageListener(AutoScrollListPageListener autoScrollListPageListener) {
-        this.mAutoScrollListPageListener = autoScrollListPageListener;
+        this.autoScrollListPageListener = autoScrollListPageListener;
     }
 
     protected abstract void onScrollNext();
@@ -57,16 +57,16 @@ public abstract class AutoScrollListAdapter extends BaseAdapter implements AbsLi
 
     @Override
     public boolean isEnabled(int position) {
-        return mRowEnabled;
+        return this.rowEnabled;
     }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (view instanceof AutoScrollListView) {
-            if (mLoadingMode == AutoScrollListView.LoadingMode.SCROLL_TO_TOP && firstVisibleItem == 0 && mCanScroll) {
+            if (this.loadingMode == AutoScrollListView.LoadingMode.SCROLL_TO_TOP && firstVisibleItem == 0 && this.canScroll) {
                 onScrollNext();
             }
-            if (mLoadingMode == AutoScrollListView.LoadingMode.SCROLL_TO_BOTTOM && firstVisibleItem + visibleItemCount - 1 == getCount() && mCanScroll) {
+            if (this.loadingMode == AutoScrollListView.LoadingMode.SCROLL_TO_BOTTOM && firstVisibleItem + visibleItemCount - 1 == getCount() && this.canScroll) {
                 onScrollNext();
             }
         }
@@ -84,15 +84,15 @@ public abstract class AutoScrollListAdapter extends BaseAdapter implements AbsLi
 
     protected void notifyEndOfList() {
         lock();
-        if (mAutoScrollListPageListener != null) {
-            mAutoScrollListPageListener.onListEnd();
+        if (this.autoScrollListPageListener != null) {
+            this.autoScrollListPageListener.onListEnd();
         }
     }
 
     protected void notifyHasMore() {
         unlock();
-        if (mAutoScrollListPageListener != null) {
-            mAutoScrollListPageListener.onHasMore();
+        if (this.autoScrollListPageListener != null) {
+            this.autoScrollListPageListener.onHasMore();
         }
     }
 

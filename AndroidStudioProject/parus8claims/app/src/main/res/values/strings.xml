@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Parus 8 Claims</string>
 
-    <string name="hello_world" translatable="false">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="error_title">Error</string>
     <string name="authorizing">Authorizing in the system</string>
@@ -9,10 +8,10 @@
     <string name="my_list_header">Claims you have to process</string>
     <string name="action_search">Search</string>
     <string name="action_help">Help</string>
-    <string name="title_activity_filters" translatable="false">FiltersActivity</string>
+    <string name="title_activity_filters">FiltersActivity</string>
     <string name="stores_queries">Stored queries</string>
     <string name="add_query">Add query</string>
-    <string name="title_activity_filter_editor" translatable="false">FilterEditor</string>
+    <string name="title_activity_filter_editor">FilterEditor</string>
     <string name="query_editor">Query</string>
     <string name="general">General</string>
     <string name="number">Number</string>
@@ -41,14 +40,13 @@
     <string name="loading">Loading data…</string>
     <string name="clear">Clear</string>
     <string name="delete">Delete</string>
-    <string name="title_activity_claim" translatable="false">ClaimActivity</string>
-
+    <string name="title_activity_claim">ClaimActivity</string>
     <string name="action_claim_edit">Edit</string>
     <string name="pass_on">Pass on</string>
     <string name="act_return">Return</string>
     <string name="act_send">Send to</string>
     <string name="act_close">Revoke</string>
-    <string name="act_add_note">Add None</string>
+    <string name="act_add_note">Add Note</string>
     <string name="act_add_file">Add File</string>
     <string name="claim_number">Number:</string>
     <string name="claim_type">Type:</string>
@@ -61,7 +59,11 @@
     <string name="claim_unit">Unit:</string>
     <string name="claim_unitfunc">Action:</string>
     <string name="claim_release_build">Release.Build:</string>
+    <string name="claim_build">Build:</string>
+    <string name="claim_release">Release:</string>
+    <string name="claim_release_fix">Fix release:</string>
     <string name="claim_state">State:</string>
+    <string name="claim_state_g">State</string>
     <string name="claim_executor">Executor:</string>
     <string name="claim_date_change">since:</string>
     <string name="claim_priority">Priority:</string>
@@ -75,7 +77,22 @@
     <string name="attached_docums">Attached documents</string>
     <string name="exec_type">Executor type</string>
     <string name="title_activity_claim_action">ClaimActionActivity</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="claim_content">Content:</string>
+    <string name="release_where_found">Release where found</string>
+    <string name="release_to_fix">Release to fix</string>
+    <string name="claim_typeh">Type</string>
+    <string name="action_claim_add">Add</string>
+    <string name="deleting">Deleting</string>
+    <string name="delete_confirm">Are you sure you want to delete the claim No. %s?</string>
+    <string name="closing">Revoking</string>
+    <string name="close_confirm">Are you sure you want to revoke the claim No. %s?</string>
+    <string name="editing">Editing</string>
+    <string name="adding">Adding</string>
+    <string name="claim_note">Note</string>
+    <string name="executor">Executor</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_header_general">General</string>
+    <string name="pref_title_user_name">UserName</string>
+    <string name="pref_title_password">Password</string>
 </resources>

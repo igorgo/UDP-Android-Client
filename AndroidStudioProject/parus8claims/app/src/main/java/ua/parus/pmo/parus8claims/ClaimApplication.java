@@ -6,8 +6,6 @@ import android.view.ViewConfiguration;
 
 import java.lang.reflect.Field;
 
-import ua.parus.pmo.parus8claims.om.claim.ClaimListAdapter;
-
 /**
  * Created by igor-go on 09.04.2015.
  * ${PACKAGE_NAME}
@@ -16,9 +14,6 @@ public class ClaimApplication extends Application {
     private String sessionId;
     private boolean isPmoUser;
     private boolean cacheRefreched;
-
-    private ClaimListAdapter mClaimAdapter;
-
 
     private void getOverflowMenu() {
 
@@ -40,10 +35,9 @@ public class ClaimApplication extends Application {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         // Грязный хак для показа трех точек в меню
-        getOverflowMenu();
-
-        //ReleasesORM.RefreshCache(getBaseContext());
-        //BuildsORM.RefreshCache(getBaseContext());
+        this.getOverflowMenu();
+        //Releases.RefreshCache(getBaseContext());
+        //Builds.RefreshCache(getBaseContext());
     }
 
     public String getSessionId() {
@@ -54,8 +48,9 @@ public class ClaimApplication extends Application {
         this.sessionId = sessionId;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public boolean isPmoUser() {
-        return isPmoUser;
+        return this.isPmoUser;
     }
 
     public void setPmoUser(boolean isPmoUser) {
@@ -63,26 +58,11 @@ public class ClaimApplication extends Application {
     }
 
     public boolean isCacheRefreched() {
-        return cacheRefreched;
+        return this.cacheRefreched;
     }
 
     public void setCacheRefreched() {
         this.cacheRefreched = true;
     }
 
-    public ClaimListAdapter getClaimCache() {
-        return mClaimAdapter;
-    }
-
-    public boolean claimsIsCached() {
-        return (mClaimAdapter != null);
-    }
-
-    public void clearClaimsCache() {
-        mClaimAdapter = null;
-    }
-
-    public void saveClaimAdapter(ClaimListAdapter mClaimAdapter) {
-        this.mClaimAdapter = mClaimAdapter;
-    }
 }

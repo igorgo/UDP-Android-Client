@@ -8,9 +8,8 @@
 
 
     <ua.parus.pmo.parus8claims.gui.AutoScrollListView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/lvMaMyClaim"
-        android:layout_weight="1" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lvMaMyClaim" />
 
 </LinearLayout>

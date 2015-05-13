@@ -11,69 +11,60 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
-import ua.parus.pmo.parus8claims.db.ApplistORM;
-import ua.parus.pmo.parus8claims.db.ReleasesORM;
-import ua.parus.pmo.parus8claims.db.UnitsORM;
+import ua.parus.pmo.parus8claims.objects.dicts.Applists;
+import ua.parus.pmo.parus8claims.objects.dicts.Releases;
+import ua.parus.pmo.parus8claims.objects.dicts.Units;
 
-/**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p/>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
- */
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
-    /**
-     * Determines whether to always show the simplified settings UI, where
-     * settings are presented in a single list. When false, settings are shown
-     * as a master/detail two-pane view on tablets. When true, a single pane is
-     * shown on tablets.
-     */
+    public static final String PREF_PASSWORD = "password";
+    public static final String PREF_USERNAME = "username";
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
+            new Preference.OnPreferenceChangeListener() {
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    String stringValue = value.toString();
 
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
+                    if (preference instanceof ListPreference) {
+                        // For list preferences, look up the correct display value in
+                        // the preference's 'entries' list.
+                        ListPreference listPreference = (ListPreference) preference;
+                        int index = listPreference.findIndexOfValue(stringValue);
 
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                if (preference.getKey().equals("password")) {
-                    EditText edit = ((EditTextPreference) preference).getEditText();
-                    String pref = edit.getTransformationMethod().getTransformation(stringValue, edit).toString();
-                    preference.setSummary(pref);
-                } else {
+                        // Set the summary to reflect the new value.
+                        preference.setSummary(
+                                index >= 0
+                                        ? listPreference.getEntries()[index]
+                                        : null);
 
-                    preference.setSummary(stringValue);
+                    } else {
+                        // For all other preferences, set the summary to the value's
+                        // simple string representation.
+                        if (preference.getKey().equals(PREF_PASSWORD)) {
+                            EditText edit = ((EditTextPreference) preference).getEditText();
+                            String pref = edit.getTransformationMethod().getTransformation(stringValue, edit).toString();
+                            preference.setSummary(pref);
+                        } else {
+
+                            preference.setSummary(stringValue);
+                        }
+                    }
+                    return true;
                 }
-            }
-            return true;
-        }
-    };
+            };
 
     /**
      * Helper method to determine if the device has an extra-large screen. For
@@ -121,8 +112,16 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
         setupSimplePreferencesScreen();
+        LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+        Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.activity_settings_toolbar, root, false);
+        root.addView(bar, 0); // insert at top
+        bar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
     }
 
@@ -145,8 +144,8 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue(findPreference("username"));
-        bindPreferenceSummaryToValue(findPreference("password"));
+        bindPreferenceSummaryToValue(findPreference(PREF_USERNAME));
+        bindPreferenceSummaryToValue(findPreference(PREF_PASSWORD));
         findPreference("cache").setOnPreferenceClickListener(this);
     }
 
@@ -178,10 +177,9 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     @Override
     public boolean onPreferenceClick(Preference preference) {
         if (preference.getKey().equals("cache")) {
-
-            ReleasesORM.RefreshCache(this);
-            UnitsORM.refreshCache(this);
-            ApplistORM.refreshCache(this);
+            Releases.RefreshCache(this);
+            Units.refreshCache(this);
+            Applists.refreshCache(this);
             ((ClaimApplication) this.getApplication()).setCacheRefreched();
         }
         return false;
@@ -202,8 +200,8 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("username"));
-            bindPreferenceSummaryToValue(findPreference("password"));
+            bindPreferenceSummaryToValue(findPreference(PREF_USERNAME));
+            bindPreferenceSummaryToValue(findPreference(PREF_PASSWORD));
         }
     }
 

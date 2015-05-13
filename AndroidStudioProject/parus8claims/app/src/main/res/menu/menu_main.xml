@@ -8,21 +8,30 @@
         android:title="@string/action_search"
         android:icon="@drawable/ic_action_search"
         android:orderInCategory="10"
-        app:showAsAction="always"
+        app:showAsAction="always|withText"
+        />
+
+    <item
+        android:id="@+id/action_add_claim"
+        android:title="@string/action_claim_add"
+        android:icon="@drawable/ic_action_new"
+        android:orderInCategory="20"
+        app:showAsAction="always|withText"
+        />
+
+    <item
+        android:id="@+id/action_refresh"
+        android:title="@string/action_refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="40"
+        app:showAsAction="always|withText"
         />
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:icon="@drawable/ic_action_settings"
         android:orderInCategory="90"
-        app:showAsAction="ifRoom"
-        />
-    <item
-        android:id="@+id/action_help"
-        android:title="@string/action_help"
-        android:icon="@drawable/ic_action_help"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"
+        app:showAsAction="ifRoom|withText"
         />
 
 

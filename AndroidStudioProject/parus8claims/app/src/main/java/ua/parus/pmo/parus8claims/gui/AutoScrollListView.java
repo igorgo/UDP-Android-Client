@@ -13,10 +13,10 @@ import android.widget.ListView;
 public class AutoScrollListView extends ListView implements AutoScrollListPageListener {
 
     public static final String TAG = AutoScrollListView.class.getSimpleName();
-    private View mLoadingView;
-    private LoadingMode mLoadingMode = LoadingMode.SCROLL_TO_BOTTOM;
-    private StopPosition mStopPosition = StopPosition.REMAIN_UNCHANGED;
-    private boolean mLoadingViewVisible = false;
+    private View loadingView;
+    private LoadingMode loadingMode = LoadingMode.SCROLL_TO_BOTTOM;
+    private StopPosition stopPosition = StopPosition.REMAIN_UNCHANGED;
+    private boolean loadingViewVisible = false;
 
     public AutoScrollListView(Context context) {
         super(context);
@@ -31,30 +31,30 @@ public class AutoScrollListView extends ListView implements AutoScrollListPageLi
     }
 
     public void setLoadingView(View loadingView) {
-        this.mLoadingView = loadingView;
+        this.loadingView = loadingView;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public void setLoadingMode(LoadingMode loadingMode) {
-        this.mLoadingMode = loadingMode;
+        this.loadingMode = loadingMode;
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public void setStopPosition(StopPosition stopPosition) {
-        this.mStopPosition = stopPosition;
+        this.stopPosition = stopPosition;
     }
 
     private void addLoadingView(ListView listView, View loadingView) {
         if (listView == null || loadingView == null) {
             return;
         }
-        if (!mLoadingViewVisible) {
-            if (mLoadingMode == LoadingMode.SCROLL_TO_BOTTOM) {
+        if (!this.loadingViewVisible) {
+            if (this.loadingMode == LoadingMode.SCROLL_TO_BOTTOM) {
                 listView.addFooterView(loadingView);
             } else {
                 listView.addHeaderView(loadingView);
             }
-            mLoadingViewVisible = true;
+            this.loadingViewVisible = true;
         }
     }
 
@@ -62,13 +62,13 @@ public class AutoScrollListView extends ListView implements AutoScrollListPageLi
         if (listView == null || loadingView == null) {
             return;
         }
-        if (mLoadingViewVisible) {
-            if (mLoadingMode == LoadingMode.SCROLL_TO_BOTTOM) {
+        if (this.loadingViewVisible) {
+            if (this.loadingMode == LoadingMode.SCROLL_TO_BOTTOM) {
                 listView.removeFooterView(loadingView);
             } else {
                 listView.removeHeaderView(loadingView);
             }
-            mLoadingViewVisible = false;
+            this.loadingViewVisible = false;
         }
     }
 
@@ -78,8 +78,8 @@ public class AutoScrollListView extends ListView implements AutoScrollListPageLi
             throw new IllegalArgumentException(AutoScrollListAdapter.class.getSimpleName() + " expected");
         }
         AutoScrollListAdapter autoScrollListAdapter = (AutoScrollListAdapter) adapter;
-        autoScrollListAdapter.setLoadingMode(mLoadingMode);
-        autoScrollListAdapter.setStopPosition(mStopPosition);
+        autoScrollListAdapter.setLoadingMode(this.loadingMode);
+        autoScrollListAdapter.setStopPosition(this.stopPosition);
         autoScrollListAdapter.setAutoScrollListPageListener(this);
         this.setOnScrollListener(autoScrollListAdapter);
         View dummy = new View(getContext());
@@ -90,16 +90,16 @@ public class AutoScrollListView extends ListView implements AutoScrollListPageLi
 
     @Override
     public void onListEnd() {
-        removeLoadingView(this, mLoadingView);
+        removeLoadingView(this, this.loadingView);
     }
 
     @Override
     public void onHasMore() {
-        addLoadingView(AutoScrollListView.this, mLoadingView);
+        addLoadingView(AutoScrollListView.this, this.loadingView);
     }
 
-    public static enum LoadingMode {SCROLL_TO_TOP, SCROLL_TO_BOTTOM}
+    public enum LoadingMode {SCROLL_TO_TOP, SCROLL_TO_BOTTOM}
 
-    public static enum StopPosition {START_OF_LIST, END_OF_LIST, REMAIN_UNCHANGED}
+    public enum StopPosition {START_OF_LIST, END_OF_LIST, REMAIN_UNCHANGED}
 
 }

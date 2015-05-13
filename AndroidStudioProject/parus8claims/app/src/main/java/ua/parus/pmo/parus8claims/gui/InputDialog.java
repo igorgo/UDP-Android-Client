@@ -13,34 +13,35 @@ import ua.parus.pmo.parus8claims.R;
 
 /**
  * Created by igorgo on 19.04.2015.
+ *
  */
 public class InputDialog {
 
     public InputDialog(Context context, String prompt, String value, final ResultListener resultListener) {
         @SuppressLint("InflateParams")
-        View lPromptsView = LayoutInflater.from(context).inflate(R.layout.input_dialog, null);
-        AlertDialog.Builder lBuilder = new AlertDialog.Builder(context);
-        lBuilder.setView(lPromptsView);
-        final EditText lInput = (EditText) lPromptsView.findViewById(R.id.editTextDialogUserInput);
+        View promptView = LayoutInflater.from(context).inflate(R.layout.dialog_input, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(promptView);
+        final EditText editText = (EditText) promptView.findViewById(R.id.editTextDialogUserInput);
         if (value != null && !value.isEmpty())
-            lInput.setText(value);
-        ((TextView) lPromptsView.findViewById(R.id.prompt_label)).setText(prompt);
-        lBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            editText.setText(value);
+        ((TextView) promptView.findViewById(R.id.prompt_label)).setText(prompt);
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                resultListener.onSetResult(false, lInput.getText().toString());
+                resultListener.onSetResult(false, editText.getText().toString());
             }
         });
 
-        lBuilder.setPositiveButton(android.R.string.ok,
+        builder.setPositiveButton(android.R.string.ok,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        resultListener.onSetResult(true, lInput.getText().toString());
+                        resultListener.onSetResult(true, editText.getText().toString());
                     }
                 }
         );
-        lBuilder.setNegativeButton(android.R.string.cancel,
+        builder.setNegativeButton(android.R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -48,9 +49,9 @@ public class InputDialog {
                     }
                 }
         );
-        AlertDialog lDialog = lBuilder.create();
-        //lDialog.set
-        lDialog.show();
+        AlertDialog alertDialog = builder.create();
+        //alertDialog.set
+        alertDialog.show();
     }
 
     public interface ResultListener {

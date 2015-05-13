@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ua.parus.pmo.parus8claims.FiltersActivity">
+    tools:context="ua.parus.pmo.parus8claims.objects.filter.FiltersActivity">
     <item
         android:id="@+id/action_add_query"
         android:title="@string/add_query"
@@ -9,12 +9,6 @@
         android:orderInCategory="10"
         app:showAsAction="always|withText"
         />
-    <item
-        android:id="@+id/action_help_queries"
-        android:title="@string/action_help"
-        android:icon="@drawable/ic_action_help"
-        android:orderInCategory="100"
-        app:showAsAction="ifRoom"
-        />
+
 
 </menu>

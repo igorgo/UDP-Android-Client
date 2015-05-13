@@ -1,13 +1,14 @@
 package ua.parus.pmo.parus8claims;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,170 +16,186 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.HeaderViewListAdapter;
 import android.widget.Toast;
 
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 
-import ua.parus.pmo.parus8claims.db.ApplistORM;
-import ua.parus.pmo.parus8claims.db.ReleasesORM;
-import ua.parus.pmo.parus8claims.db.UnitsORM;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
-import ua.parus.pmo.parus8claims.om.claim.Claim;
-import ua.parus.pmo.parus8claims.om.claim.ClaimListAdapter;
-import ua.parus.pmo.parus8claims.om.filter.Filter;
+import ua.parus.pmo.parus8claims.objects.claim.Claim;
+import ua.parus.pmo.parus8claims.objects.claim.ClaimActivity;
+import ua.parus.pmo.parus8claims.objects.claim.ClaimListAdapter;
+import ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity;
+import ua.parus.pmo.parus8claims.objects.dicts.Applists;
+import ua.parus.pmo.parus8claims.objects.dicts.Releases;
+import ua.parus.pmo.parus8claims.objects.dicts.Units;
+import ua.parus.pmo.parus8claims.objects.filter.Filter;
+import ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity;
+import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
-
 
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
-
-    private static final int REQUEST_SETTINGS = 1;
-    private static final int REQUEST_FILTERS = 2;
-    public static final int REQUEST_FILTER_ADD_NEW = 3;
-    public static final int REQUEST_FILTER_EDIT = 4;
-    private static final int REQUEST_CLAIM_VIEW = 5;
-    public static final int RESULT_CANCEL = 1;
-    public static final int RESULT_FILTERS_SELECT = 2;
-    public static final int RESULT_FILTERS_ADD_NEW = 3;
-    public static final int RESULT_FILTER_SAVE = 4;
-    public static final int RESULT_FILTER_EXEC = 5;
-    //public static final String SELF_REQUEST_EXTRA = "self-request";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String KEY_CONDITION = "CURRENT_CONDITION";
-    private static final String TAG = "MainActivity";
-    //public static final int RESULT_FILTER_EDIT_OK = 5;
-    private static final String NEXT_PROC1 = "GET_MY";
-    private ClaimApplication mApplication;
-    private AutoScrollListView mClaimsListView;
-    private Long mCurrentConditionRn = null;
+    private ClaimApplication application;
+    private AutoScrollListView claimsListView;
+    private Long currentConditionRn = null;
+    private String session;
 
-    @Override
+    @SuppressLint("InflateParams") @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.i(TAG, "OnCreate started...");
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
-        Log.i(TAG, "Setting content layout");
         setContentView(R.layout.activity_main);
-
         if (savedInstanceState != null) {
-            mCurrentConditionRn = savedInstanceState.getLong(KEY_CONDITION, 0);
+            this.currentConditionRn = savedInstanceState.getLong(KEY_CONDITION, 0);
         }
-
-
-        Log.i(TAG, "Adding Logo to action bar");
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.pmo_logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        mClaimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setLogo(R.drawable.pmo_logo);
+        actionBar.setDisplayUseLogoEnabled(true);
+        this.claimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mClaimsListView.setLoadingView(layoutInflater.inflate(R.layout.loading_view_row, null));
-        mClaimsListView.setOnItemClickListener(this);
-
-
-        mApplication = (ClaimApplication) this.getApplication();
-        if (!mApplication.isCacheRefreched()) {
-            ReleasesORM.RefreshCache(this);
-            UnitsORM.checkCache(this);
-            ApplistORM.checkCache(this);
-            mApplication.setCacheRefreched();
+        this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
+        this.claimsListView.setOnItemClickListener(this);
+        this.application = (ClaimApplication) this.getApplication();
+        if (!this.application.isCacheRefreched()) {
+            Releases.RefreshCache(this);
+            Units.checkCache(this);
+            Applists.checkCache(this);
+            this.application.setCacheRefreched();
         }
-
         Log.i(TAG, "Call login to UDP");
-        loginUdp();
-        //getMyClaims();
-
+        this.loginToUdp();
     }
 
-
-    void getMyClaims(Long cond, Long newrn) {
-        Log.i(TAG, "getMyClaims started...");
-        //ListView lvMaMyClaim = (ListView) findViewById(R.id.lvMaMyClaim);
-        if (mApplication.claimsIsCached()) {
-            Log.i(TAG, "Load Claims From Cache");
-            ClaimListAdapter lClaimAdapter = mApplication.getClaimCache();
-            mClaimsListView.setAdapter(lClaimAdapter);
-        } else {
-            try {
-                Log.i(TAG, "Load Claims From Inet");
-                ClaimListAdapter lClaimAdapter = new ClaimListAdapter(this, cond, newrn);
-                mClaimsListView.setAdapter(lClaimAdapter);
-                lClaimAdapter.onScrollNext();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+    private void getClaims(Long cond, Long newrn) {
+        try {
+            Log.i(TAG, "Load Claims From Inet");
+            ClaimListAdapter claimListAdapter = new ClaimListAdapter(this, cond, newrn);
+            this.claimsListView.setAdapter(claimListAdapter);
+            claimListAdapter.onScrollNext();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
     }
 
-    private void loginUdp() {
-        Log.i(TAG, "loginUdp started");
-        if (mApplication.getSessionId() == null) {
+    private void loginToUdp() {
+        if (this.application.getSessionId() == null) {
             Log.i(TAG, "Session not set.");
             SharedPreferences sharedPrefs = PreferenceManager
                     .getDefaultSharedPreferences(this);
-            Log.i(TAG, "Read preferences.");
-            if ((sharedPrefs.getString("username", null) == null) || (sharedPrefs.getString("password", null) == null)
-                    || (sharedPrefs.getString("username", null).isEmpty()) || (sharedPrefs.getString("password", null).isEmpty())
-                    ) {
+            String user = sharedPrefs.getString(SettingsActivity.PREF_USERNAME, "");
+            String pass = sharedPrefs.getString(SettingsActivity.PREF_PASSWORD, "");
+
+            if ((user == null) || (pass == null) || (user.isEmpty()) || (pass).isEmpty()) {
                 Log.i(TAG, "Some preferences not set.");
-                Intent i = new Intent(this, SettingsActivity.class);
-                Log.i(TAG, "Intent to start SettingsActivity (reguest REQUEST_SETTINGS).");
-                startActivityForResult(i, REQUEST_SETTINGS);
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intent, Intents.REQUEST_SETTINGS);
                 return;
             }
-            Log.i(TAG, "All preferences are set. Call async Login.");
-            new AsyncLogin().execute(sharedPrefs.getString("username", null), sharedPrefs.getString("password", null), NEXT_PROC1);
+            new LoginAsyncTask().execute(user, pass, null);
         } else {
             Log.i(TAG, "Session are set yet. Call next process.");
-            if (MainActivity.NEXT_PROC1.equals(NEXT_PROC1)) getMyClaims(mCurrentConditionRn, null);
+            this.getClaims(this.currentConditionRn, null);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "Activity result returned.");
         switch (requestCode) {
-            case REQUEST_SETTINGS:
-                Log.i(TAG, "It's from SettingsActivity. Call loginUdp.");
-                loginUdp();
+            case Intents.REQUEST_SETTINGS:
+                Log.i(TAG, "It's from SettingsActivity. Call loginToUdp.");
+                this.loginToUdp();
                 break;
-            case REQUEST_FILTERS:
+            case Intents.REQUEST_FILTERS_VIEW:
                 Log.i(TAG, "It's from FiltersActivity.");
                 switch (resultCode) {
-                    case RESULT_FILTERS_ADD_NEW:
+                    case Intents.RESULT_NEED_ADD_NEW_FILTER:
                         Log.i(TAG, "Request for new query has been received.");
-                        Intent iFilterAdd = new Intent(this, FilterOneActivity.class);
-                        iFilterAdd.putExtra(FilterOneActivity.EXTRA_REQUEST_KEY, REQUEST_FILTER_ADD_NEW);
-                        Log.i(TAG, "Intent to start FilterOneActivity (reguest REQUEST_FILTER_ADD_NEW).");
-                        startActivityForResult(iFilterAdd, REQUEST_FILTER_ADD_NEW);
+                        Intent intentAddFilter = new Intent(this, FilterOneActivity.class);
+                        intentAddFilter.putExtra(Intents.EXTRA_KEY_REQUEST,
+                                Intents.REQUEST_FILTER_ADD_NEW);
+                        startActivityForResult(intentAddFilter, Intents.REQUEST_FILTER_ADD_NEW);
                         break;
-                    case RESULT_FILTERS_SELECT:
-                        mCurrentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
-                        if (mCurrentConditionRn == 0) mCurrentConditionRn = null;
-                        getMyClaims(mCurrentConditionRn, null);
+                    case Intents.RESULT_FILTER_SELECTED:
+                        Log.i(TAG, "Request for existing query has been received.");
+                        this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
+                        if (this.currentConditionRn == 0) this.currentConditionRn = null;
+                        this.getClaims(this.currentConditionRn, null);
                         break;
                 }
                 break;
-            case REQUEST_FILTER_ADD_NEW:
+            case Intents.REQUEST_FILTER_ADD_NEW:
                 Log.i(TAG, "It's from FilterEditorActivity.");
                 switch (resultCode) {
-                    case RESULT_FILTER_SAVE:
-                    case RESULT_FILTER_EXEC:
+                    case Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER:
+                    case Intents.RESULT_NEED_EXECUTE_FILTER:
                         Log.i(TAG, "Request for save and exec query has been received.");
-                        mCurrentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
-                        if (mCurrentConditionRn == 0) mCurrentConditionRn = null;
-                        Log.i(TAG, "Query has been stored with RN " + String.valueOf(mCurrentConditionRn));
-                        Log.i(TAG, "Clear Claims cache");
-                        //mApplication.clearClaimsCache();
-                        getMyClaims(mCurrentConditionRn, null);
+                        this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
+                        if (this.currentConditionRn == 0) this.currentConditionRn = null;
+                        this.getClaims(this.currentConditionRn, null);
                         break;
                 }
+            case Intents.REQUEST_CLAIM_ADD:
+                if (resultCode == Intents.RESULT_CLAIM_ADDED) {
+                    Long newrn = data.getLongExtra(Intents.EXTRA_KEY_RN, 0);
+                    if (newrn != 0) {
+                        this.getClaims(this.currentConditionRn, newrn);
+                    }
+                }
+                break;
+            case Intents.REQUEST_CLAIM_VIEW:
+                if (resultCode == Intents.RESULT_CLAIM_DELETED) {
+                    this.getClaims(this.currentConditionRn, null);
+                }
+                if (resultCode == Intents.RESULT_CANCEL) {
+                    int listPos = data.getIntExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, -1);
+                    if (listPos > -1) {
+                        Claim claim = (Claim) data.getSerializableExtra(Intents.EXTRA_KEY_CLAIM);
+                        Claim oldClaim = (Claim) claimsListView.getAdapter().getItem(listPos);
+                        if (claim.releaseFix != null) {
+                            if (claim.buildFix != null) {
+                                oldClaim.releaseDisplayed = claim.buildFix.displayName;
+                            } else {
+                                oldClaim.releaseDisplayed = claim.releaseFix.name;
+                            }
+                        } else {
+                            if (claim.releaseFound != null) {
+                                if (claim.buildFound != null) {
+                                    oldClaim.releaseDisplayed = claim.buildFound.displayName;
+                                } else {
+                                    oldClaim.releaseDisplayed = claim.releaseFound.name;
+                                }
+                            }
+                        }
+                        oldClaim.hasReleaseFix = claim.buildFix != null;
+                        oldClaim.unit = claim.unit;
+                        oldClaim.state = claim.state;
+                        oldClaim.stateType = claim.stateType;
+                        oldClaim.description = claim.description;
+                        oldClaim.hasAttach = claim.hasAttach;
+                        oldClaim.priority = claim.priority;
+                        oldClaim.executorType = claim.executorType;
+                        oldClaim.executor = claim.executor;
+                        oldClaim.changeDate = claim.changeDate;
+                        ((ClaimListAdapter) ((HeaderViewListAdapter) claimsListView.getAdapter()).getWrappedAdapter())
+                                .setItem(listPos, oldClaim);
+                        View row = claimsListView.getChildAt(listPos - claimsListView.getFirstVisiblePosition());
+                        ClaimListAdapter.ClaimHolder holder = new ClaimListAdapter.ClaimHolder();
+                        ClaimListAdapter.initHolder(holder, row);
+                        ClaimListAdapter.populateHolder(this,holder,oldClaim);
+                    }
+                    //this.getClaims(this.currentConditionRn, null);
+                }
+                break;
+
         }
     }
 
@@ -194,79 +211,79 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Log.i(TAG, "The «Settings» menu item selected");
-                Intent iSettings = new Intent(this, SettingsActivity.class);
-                Log.i(TAG, "Intent to start SettingsActivity (reguest REQUEST_SETTINGS).");
-                startActivityForResult(iSettings, REQUEST_SETTINGS);
+                Intent intentSettings = new Intent(this, SettingsActivity.class);
+                startActivityForResult(intentSettings, Intents.REQUEST_SETTINGS);
                 return true;
             case R.id.action_search:
                 Log.i(TAG, "The «Search» menu item selected");
-                Intent iFilters = new Intent(this, FiltersActivity.class);
-                Log.i(TAG, "Intent to start FiltersActivity (reguest REQUEST_FILTERS).");
-                startActivityForResult(iFilters, REQUEST_FILTERS);
+                Intent intentSearch = new Intent(this, FiltersActivity.class);
+                startActivityForResult(intentSearch, Intents.REQUEST_FILTERS_VIEW);
                 return true;
-            //TODO: добавление рекламации
+            case R.id.action_refresh:
+                Log.i(TAG, "The «Refresh» menu item selected");
+                this.getClaims(this.currentConditionRn, null);
+                return true;
+            case R.id.action_add_claim:
+                Log.i(TAG, "The «Search» menu item selected");
+                Intent intentAdd = new Intent(this, ClaimActionActivity.class);
+                intentAdd.putExtra(Intents.EXTRA_KEY_CLAIM, new Claim());
+                intentAdd.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_CLAIM_ADD);
+                intentAdd.putExtra(Intents.EXTRA_KEY_SESSION, this.application.getSessionId());
+                startActivityForResult(intentAdd, Intents.REQUEST_CLAIM_ADD);
+                return true;
+
         }
-
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        Log.i(TAG, "Save Claims To Cache");
-        mApplication.saveClaimAdapter((ClaimListAdapter) mClaimsListView.getAdapter());
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Claim lClaim = (Claim) adapterView.getAdapter().getItem(i);
-        long lRn = lClaim.rn;
-        boolean lHd = lClaim.hasAttach;
-        if (lRn > 0) {
-            Intent lClaimViewIntent = new Intent(this, ClaimActivity.class);
-            lClaimViewIntent.putExtra(ClaimActivity.EXTRA_RN_KEY, lRn);
-            lClaimViewIntent.putExtra(ClaimActivity.EXTRA_HAS_DOCS_KEY, lHd);
-            startActivityForResult(lClaimViewIntent, MainActivity.REQUEST_CLAIM_VIEW);
+        Claim claim = (Claim) adapterView.getAdapter().getItem(i);
+        long rn = claim.rn;
+        if (rn > 0) {
+            Intent intentViewClaim = new Intent(this, ClaimActivity.class);
+            intentViewClaim.putExtra(Intents.EXTRA_KEY_RN, rn);
+            intentViewClaim.putExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, i);
+            intentViewClaim.putExtra(Intents.EXTRA_KEY_HAS_DOCS, claim.hasAttach);
+            startActivityForResult(intentViewClaim, Intents.REQUEST_CLAIM_VIEW);
         }
     }
 
-
-    private class AsyncLogin extends AsyncTask<String, Void, JSONObject> {
-        final Toast ts = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
-        String nextProc;
+    private class LoginAsyncTask extends AsyncTask<String, Void, JSONObject> {
+        public static final String REST_URL = "login/";
+        final Toast toast = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
+        final MainActivity that = MainActivity.this;
 
         @Override
         protected JSONObject doInBackground(String... params) {
-            nextProc = params[2];
-            ts.show();
+            toast.show();
             JSONObject response = null;
             RestRequest loginRequest;
             try {
-                loginRequest = new RestRequest("login/", "POST");
-                loginRequest.addHeaderParamBase64("P-USER", params[0]);
-                loginRequest.addHeaderParamBase64("P-PASS", params[1]);
+                loginRequest = new RestRequest(REST_URL, "POST");
+                loginRequest.addInParam("user", params[0]);
+                loginRequest.addInParam("pass", params[1]);
+
                 response = loginRequest.getJsonContent();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            ts.cancel();
             return response;
         }
 
         @Override
         protected void onPostExecute(JSONObject response) {
+            toast.cancel();
             if (response == null) return;
             if (response.optString("ERROR") != null && !response.optString("ERROR").isEmpty()) {
-
                 ErrorPopup errorPopup = new ErrorPopup(MainActivity.this);
                 errorPopup.showErrorDialog(getString(R.string.error_title), response.optString("ERROR"));
                 return;
             } else {
-                mApplication.setSessionId(response.optString("SESSONID"));
-                mApplication.setPmoUser(response.optInt("PPP") == 1);
+                that.application.setSessionId(response.optString("SESSONID"));
+                that.application.setPmoUser(response.optInt("PPP") == 1);
             }
-            if (nextProc.equals(NEXT_PROC1)) getMyClaims(mCurrentConditionRn, null);
+            that.getClaims(that.currentConditionRn, null);
         }
     }
 }

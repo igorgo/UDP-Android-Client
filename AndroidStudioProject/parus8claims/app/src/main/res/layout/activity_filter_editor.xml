@@ -1,200 +1,221 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
-    android:layout_height="fill_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="ua.parus.pmo.parus8claims.FilterOneActivity">
+    tools:context="ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity">
 
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView" >
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
             <TextView
+                android:id="@+id/feGrHeadGeneral"
+                style="@style/form_group_header_first"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/general"
-                android:id="@+id/feGrHeadGeneral"
-                style="@style/form_group_header_first"/>
+                android:text="@string/general" />
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/feNumberLabel"
+                    style="@style/form_label"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="@string/number"
-                    android:id="@+id/feNumberLabel"
                     android:gravity="bottom"
-                    style="@style/form_label"/>
+                    android:text="@string/number" />
+
                 <EditText
+                    android:id="@+id/feNumberEdit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/feNumberEdit"
                     android:gravity="end"
+                    style="@style/small"
                     android:inputType="text"
-                    tools:ignore="TextFields"/>
+                    tools:ignore="TextFields" />
 
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/feGrHeadSystem"
+                style="@style/form_group_header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/system"
-                style="@style/form_group_header"
-                android:id="@+id/feGrHeadSystem"/>
+                android:text="@string/system" />
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/unit"
                     android:id="@+id/feUnitsLabel"
                     style="@style/form_label"
-                    android:gravity="bottom" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:text="@string/unit" />
+
                 <MultiAutoCompleteTextView
+                    android:id="@+id/feUnitsText"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/feUnitsText"
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/app"
                     android:id="@+id/feAppLabel"
                     style="@style/form_label"
-                    android:gravity="bottom" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:text="@string/app" />
+
                 <MultiAutoCompleteTextView
+                    android:id="@+id/feAppText"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/feAppText"
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
             <TextView
+                android:id="@+id/feGrHeadRelease"
+                style="@style/form_group_header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/release"
-                style="@style/form_group_header"
-                android:id="@+id/feGrHeadRelease"/>
+                android:text="@string/release" />
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/version"
                     android:id="@+id/feVersionLabel"
                     style="@style/form_label"
-                    android:gravity="bottom" />
-                <ua.parus.pmo.parus8claims.gui.MultiSpinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/feVersionSpinner"
-                    android:spinnerMode="dropdown"
-                    android:gravity="end"
-                    android:layout_gravity="end" />
-
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="@string/release"
+                    android:gravity="bottom"
+                    android:text="@string/version" />
+
+                <ua.parus.pmo.parus8claims.gui.MultiSpinner
+                    android:id="@+id/feVersionSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    style="@style/small"
+                    android:gravity="end"
+                    android:spinnerMode="dialog" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
                     android:id="@+id/feReleaseLabel"
                     style="@style/form_label"
-                    android:gravity="bottom" />
-                <ua.parus.pmo.parus8claims.gui.MultiSpinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/feReleaseSpinner"
-                    android:spinnerMode="dropdown"
-                    android:gravity="end"
-                    android:layout_gravity="end" />
-
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="@string/build"
-                    android:id="@+id/feBuildLabel"
-                    style="@style/form_label"
-                    android:gravity="bottom" />
+                    android:gravity="bottom"
+                    android:text="@string/release" />
+
                 <ua.parus.pmo.parus8claims.gui.MultiSpinner
+                    android:id="@+id/feReleaseSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/feBuildSpinner"
-                    android:spinnerMode="dropdown"
+                    android:layout_gravity="end"
                     android:gravity="end"
-                    android:layout_gravity="end" />
+                    style="@style/small"
+                    android:spinnerMode="dialog" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/feBuildLabel"
+                    style="@style/form_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:text="@string/build" />
+
+                <ua.parus.pmo.parus8claims.gui.MultiSpinner
+                    android:id="@+id/feBuildSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    style="@style/small"
+                    android:gravity="end"
+                    android:spinnerMode="dialog" />
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/feGrHeadMine"
+                style="@style/form_group_header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/header_mine"
-                style="@style/form_group_header"
-                android:id="@+id/feGrHeadMine"/>
+                android:text="@string/header_mine" />
 
             <CheckBox
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/im_init"
                 android:id="@+id/feImInit"
-                style="@style/check_box" />
-            <CheckBox
+                style="@style/check_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/im_exec"
+                android:text="@string/im_init" />
+
+            <CheckBox
                 android:id="@+id/feImExec"
-                style="@style/check_box" />
+                style="@style/check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/im_exec" />
+
             <TextView
+                android:id="@+id/feGrHeadContent"
+                style="@style/form_group_header"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/header_content"
-                style="@style/form_group_header"
-                android:id="@+id/feGrHeadContent"/>
+                android:text="@string/header_content" />
 
             <EditText
+                android:id="@+id/feContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/feContent"
+                style="@style/small"
                 android:inputType="text" />
 
         </LinearLayout>
     </ScrollView>
-
 
 
 </LinearLayout>

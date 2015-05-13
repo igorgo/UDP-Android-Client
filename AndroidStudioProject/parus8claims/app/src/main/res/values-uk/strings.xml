@@ -73,4 +73,26 @@
     <string name="act_sinsert">додав(ла) рекламацію</string>
     <string name="attached_docums">Прикріплені документи</string>
     <string name="exec_type">Тип виконавця</string>
+    <string name="claim_release">Реліз:</string>
+    <string name="claim_build">Зборка:</string>
+    <string name="claim_release_fix">Реліз виправлення:</string>
+    <string name="claim_content">Зміст:</string>
+    <string name="action_claim_add">Додати</string>
+    <string name="claim_typeh">Тип</string>
+    <string name="release_to_fix">Реліз випралення</string>
+    <string name="release_where_found">Реліз виявлення</string>
+    <string name="deleting">Видалення</string>
+    <string name="delete_confirm">Ви дійсно бажаєте видалити рекламацію № %s?</string>
+    <string name="close_confirm">Ви дійсно бажаєте скасувати рекламацію № %s?</string>
+    <string name="closing">Скасування</string>
+    <string name="adding">Додавання</string>
+    <string name="editing">Виправлення</string>
+    <string name="claim_note">Примітка</string>
+    <string name="executor">Виконавець</string>
+    <string name="claim_state_g">Стан</string>
+    <string name="action_refresh">Оновити</string>
+    <string name="title_activity_claim">Рекламація</string>
+    <string name="title_activity_claim_action">Рекламація</string>
+    <string name="title_activity_filter_editor">Запит</string>
+    <string name="title_activity_filters">Запити</string>
 </resources>

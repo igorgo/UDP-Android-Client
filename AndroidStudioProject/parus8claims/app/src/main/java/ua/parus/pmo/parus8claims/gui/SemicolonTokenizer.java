@@ -3,7 +3,7 @@ package ua.parus.pmo.parus8claims.gui;
 import android.widget.MultiAutoCompleteTextView;
 
 /**
- * Created by igorgo on 18.04.2015.
+ * Created by  igorgo on 18.04.2015.
  */
 public class SemicolonTokenizer implements MultiAutoCompleteTextView.Tokenizer {
     /**

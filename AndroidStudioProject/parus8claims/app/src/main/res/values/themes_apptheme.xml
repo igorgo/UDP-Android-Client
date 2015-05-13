@@ -8,7 +8,7 @@
   <style name="_AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
 
           <item name="android:actionBarStyle">@style/udp_action_bar</item>
-        <item name="actionBarStyle">@style/udp_action_bar</item>
+          <item name="actionBarStyle">@style/udp_action_bar</item>
         <!--item name="android:spinnerStyle">@style/SpinnerTheme</item-->
 
   

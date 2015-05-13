@@ -1,7 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ua.parus.pmo.parus8claims.ClaimActionActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    tools:context="ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity">
+    <item
+        android:id="@+id/action_cancel"
+        android:orderInCategory="90"
+        android:title="@android:string/cancel"
+        android:icon="@drawable/ic_action_cancel"
+        app:showAsAction="always|withText" />
+    <item
+        android:id="@+id/action_ok"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_accept"
+        android:title="@android:string/ok"
+        app:showAsAction="always|withText" />
 </menu>

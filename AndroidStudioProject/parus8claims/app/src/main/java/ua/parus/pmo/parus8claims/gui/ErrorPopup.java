@@ -11,24 +11,24 @@ import android.view.KeyEvent;
  */
 public class ErrorPopup implements DialogInterface.OnKeyListener {
 
-    private final Context mContext;
+    private final Context context;
 
     public ErrorPopup(final Context context) {
-        this.mContext = context;
+        this.context = context;
     }
 
     public void showErrorDialog(final String title, final String message) {
-        AlertDialog.Builder lAlertDialog = new AlertDialog.Builder(mContext);
-        lAlertDialog.setTitle(title);
-        lAlertDialog.setMessage(message);
-        lAlertDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this.context);
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
         });
-        lAlertDialog.setOnKeyListener(this);
-        lAlertDialog.show();
+        alertDialog.setOnKeyListener(this);
+        alertDialog.show();
     }
 
 

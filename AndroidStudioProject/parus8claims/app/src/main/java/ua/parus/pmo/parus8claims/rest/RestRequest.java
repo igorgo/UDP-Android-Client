@@ -1,7 +1,6 @@
 package ua.parus.pmo.parus8claims.rest;
 
 import android.os.Environment;
-import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -14,11 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,99 +31,104 @@ public class RestRequest {
     private static final String DEFAULT_HTTP_METHOD = "GET";
     private static final String UNICODE_CHARSET_NAME = "UTF-8";
     private static final String TAG = RestRequest.class.getSimpleName();
-    private static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
+    public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
+//    public static final String BASE_URL = "http://192.168.7.4:7777/apex/rest/udp/";
     private static final String TAG_ITEMS = "items";
     private static final String TAG_NEXT = "next";
     private static final String ITEM_REF = "$ref";
     private static final int MEGABYTE = 1024 * 1024;
-    private URL mStartUrl;
-    private URL mNextUrl;
-    private String mHttpMethod;
-    private int mPageSize;
-    private boolean mFirstTime;
-    private Map<String, String> mHeaderMap;
+    private URL startUrl;
+    private URL nextUrl;
+    private String httpMethod;
+    private int pageSize;
+    private boolean firstTime;
+    private Map<String, String> inParams;
 
     public RestRequest(String url, String httpMethod) throws MalformedURLException {
         this(url);
-        mHttpMethod = httpMethod;
+        this.httpMethod = httpMethod;
     }
 
     public RestRequest(String url, int pageSize) throws MalformedURLException {
         this(url, DEFAULT_HTTP_METHOD);
-        mPageSize = pageSize;
+        this.pageSize = pageSize;
     }
 
     public RestRequest(String url) throws MalformedURLException {
-        mStartUrl = new URL(BASE_URL + url);
-        mHeaderMap = new HashMap<>();
-        mPageSize = 50;
-        mHttpMethod = DEFAULT_HTTP_METHOD;
-        resetPagination();
+        this.startUrl = new URL(BASE_URL + url);
+        this.inParams = new HashMap<>();
+        this.pageSize = 50;
+        this.httpMethod = DEFAULT_HTTP_METHOD;
+        this.resetPagination();
     }
 
     @SuppressWarnings("WeakerAccess")
     public boolean hasNextPage() {
-        return mNextUrl != null;
+        return this.nextUrl != null;
     }
 
     private void resetPagination() {
-        mNextUrl = null;
-        mFirstTime = true;
+        this.nextUrl = null;
+        this.firstTime = true;
     }
 
     boolean valueIsNull(String value) {
         return value == null || value.isEmpty() || value.toUpperCase().equals("NULL");
     }
 
-    public void addHeaderParamBase64(String paramName, String value) {
-        if (valueIsNull(value)) return;
-        byte[] lData = new byte[0];
-        try {
-            lData = value.getBytes(UNICODE_CHARSET_NAME);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String lValueBase64 = Base64.encodeToString(lData, Base64.DEFAULT);
-        addHeaderParam(paramName, lValueBase64);
-    }
-
-    public void addHeaderParam(String paramName, String value) {
-        if (valueIsNull(value)) return;
-        mHeaderMap.put(paramName, value);
+    public void addInParam(String paramName, String value) {
+        if (this.valueIsNull(value)) return;
+        this.inParams.put(paramName, value);
     }
 
     private HttpURLConnection getHttpConnection() throws IOException {
-        HttpURLConnection lConnection = null;
-        if (mFirstTime || hasNextPage()) {
-            if (hasNextPage()) {
-                lConnection = (HttpURLConnection) mNextUrl.openConnection();
+        HttpURLConnection connection = null;
+        if (this.firstTime || this.hasNextPage()) {
+
+            if (this.hasNextPage()) {
+                connection = (HttpURLConnection) this.nextUrl.openConnection();
             } else {
-                lConnection = (HttpURLConnection) mStartUrl.openConnection();
+                connection = (HttpURLConnection) this.startUrl.openConnection();
             }
-            lConnection.setRequestMethod(mHttpMethod);
-            for (Map.Entry<String, String> iEntry : mHeaderMap.entrySet()) {
-                lConnection.addRequestProperty(iEntry.getKey(), iEntry.getValue());
+            connection.setRequestMethod(this.httpMethod);
+
+            if (this.httpMethod.equals(DEFAULT_HTTP_METHOD)) {
+                for (Map.Entry<String, String> iEntry : this.inParams.entrySet()) {
+                    connection.addRequestProperty(iEntry.getKey(), URLEncoder.encode(iEntry.getValue(), UNICODE_CHARSET_NAME));
+                }
+            } else {
+                String params = "";
+                for (Map.Entry<String, String> iEntry : this.inParams.entrySet()) {
+                    if (!params.isEmpty()) params = params + "&";
+                    params = params + iEntry.getKey() + "=" + URLEncoder.encode(iEntry.getValue(), UNICODE_CHARSET_NAME);
+                }
+                connection.setDoOutput(true); // Triggers POST.
+                connection.setRequestProperty("Accept-Charset", UNICODE_CHARSET_NAME);
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + UNICODE_CHARSET_NAME);
+                OutputStream output = connection.getOutputStream();
+                output.write(params.getBytes(UNICODE_CHARSET_NAME));
             }
         }
-        return lConnection;
+        return connection;
     }
 
     @SuppressWarnings("WeakerAccess")
     public String getStringContent() {
-        HttpURLConnection lConnection;
-        StringBuilder lContent = new StringBuilder();
+        HttpURLConnection connection;
+        StringBuilder content = new StringBuilder();
         try {
-            if ((lConnection = getHttpConnection()) != null) {
+            if ((connection = this.getHttpConnection()) != null) {
                 // заворачиваем ответ HttpURLConnection в BufferedReader
-                BufferedReader lReader = new BufferedReader(
-                        new InputStreamReader(lConnection.getInputStream())
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream())
                 );
-                String lLine;
+                String line;
                 // читаем ответ HttpURLConnection через BufferedReader
-                while ((lLine = lReader.readLine()) != null) {
-                    lContent.append(lLine);
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
                 }
-                lReader.close();
+                reader.close();
+                connection.disconnect();
             }
         } catch (ConnectException e) {
             e.printStackTrace();
@@ -134,42 +139,43 @@ public class RestRequest {
             Log.e(TAG, "other exception", e);
             e.printStackTrace();
         }
-        return lContent.toString();
+        return content.toString();
     }
 
     public JSONObject getJsonContent() {
-        JSONObject lJsonContent = null;
-        String lStringContent = getStringContent();
-        if (lStringContent != null) {
+        JSONObject jsonContent = null;
+        String stringContent = this.getStringContent();
+        if (stringContent != null) {
             try {
-                lJsonContent = new JSONObject(lStringContent);
+                jsonContent = new JSONObject(stringContent);
             } catch (JSONException e) {
                 e.printStackTrace();
+                return null;
             }
         }
-        return lJsonContent;
+        return jsonContent;
     }
 
     public JSONArray getPageRows() {
-        JSONObject lNextPageReference;
-        JSONArray lRows = null;
-        JSONObject lJsonContent = getJsonContent();
-        if (lJsonContent != null) {
+        JSONObject nextPageReference;
+        JSONArray rows = null;
+        JSONObject jsonContent = this.getJsonContent();
+        if (jsonContent != null) {
             try {
-                lNextPageReference = lJsonContent.optJSONObject(TAG_NEXT);
-                lRows = lJsonContent.getJSONArray(TAG_ITEMS);
-                if (lNextPageReference != null && lRows.length() == mPageSize) {
-                    mNextUrl = new URL(lNextPageReference.getString(ITEM_REF));
+                nextPageReference = jsonContent.optJSONObject(TAG_NEXT);
+                rows = jsonContent.getJSONArray(TAG_ITEMS);
+                if (nextPageReference != null && rows.length() == this.pageSize) {
+                    this.nextUrl = new URL(nextPageReference.getString(ITEM_REF));
                 } else {
-                    mNextUrl = null;
+                    this.nextUrl = null;
                 }
             } catch (JSONException | MalformedURLException e) {
                 e.printStackTrace();
             }
         } else {
-            mNextUrl = null;
+            this.nextUrl = null;
         }
-        return lRows;
+        return rows;
     }
 
     private JSONArray concatJsonArrays(JSONArray toArray, JSONArray fromArray) throws JSONException {
@@ -180,45 +186,46 @@ public class RestRequest {
     }
 
     public JSONArray getAllRows() {
-        JSONArray lRows = null;
+        JSONArray rows = null;
         try {
-            lRows = getPageRows();
-            while (hasNextPage()) {
-                lRows = concatJsonArrays(lRows, getPageRows());
+            rows = this.getPageRows();
+            while (this.hasNextPage()) {
+                rows = this.concatJsonArrays(rows, this.getPageRows());
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return lRows;
+        return rows;
     }
 
     public File getFile(String aFileName) {
-        HttpURLConnection lConnection;
-        File lPath = Environment.getExternalStoragePublicDirectory(
+        HttpURLConnection connection;
+        File path = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS);
-        File lFile = new File(lPath, aFileName);
+        File file = new File(path, aFileName);
         try {
-            if ((lConnection = getHttpConnection()) != null) {
-                lConnection.connect();
+            if ((connection = this.getHttpConnection()) != null) {
+                connection.connect();
                 //noinspection ResultOfMethodCallIgnored
-                lPath.mkdirs();
+                path.mkdirs();
                 //noinspection ResultOfMethodCallIgnored
-                lFile.createNewFile();
-                InputStream lInputStream = lConnection.getInputStream();
-                FileOutputStream lFileOutputStream = new FileOutputStream(lFile);
-                //int lTotalSize = lConnection.getContentLength();
-                byte[] lBuffer = new byte[MEGABYTE];
-                int lBufferLength;
-                while ((lBufferLength = lInputStream.read(lBuffer)) > 0) {
-                    lFileOutputStream.write(lBuffer, 0, lBufferLength);
+                file.createNewFile();
+                InputStream inputStream = connection.getInputStream();
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                //int totalSize = connection.getContentLength();
+                byte[] buffer = new byte[MEGABYTE];
+                int bufferLength;
+                while ((bufferLength = inputStream.read(buffer)) > 0) {
+                    fileOutputStream.write(buffer, 0, bufferLength);
                 }
-                lFileOutputStream.close();
+                fileOutputStream.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return lFile;
+        return file;
     }
+
 }
 
 

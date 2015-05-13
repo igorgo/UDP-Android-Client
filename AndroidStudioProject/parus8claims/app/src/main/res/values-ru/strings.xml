@@ -73,4 +73,26 @@
     <string name="act_sinsert">добавил(а) рекламацию</string>
     <string name="attached_docums">Прикрепленные документы</string>
     <string name="exec_type">Тип исполнителя</string>
+    <string name="claim_release">Релиз:</string>
+    <string name="claim_build">Сборка:</string>
+    <string name="claim_release_fix">Релиз исправления:</string>
+    <string name="claim_content">Содержание:</string>
+    <string name="action_claim_add">Добавить</string>
+    <string name="claim_typeh">Тип</string>
+    <string name="release_to_fix">Релиз исправления</string>
+    <string name="release_where_found">Релиз обнаружения</string>
+    <string name="deleting">Удаление</string>
+    <string name="delete_confirm">Вы действительно хотите удалить рекламацию № %s?</string>
+    <string name="close_confirm">Вы действительно хотите аннулировать рекламацию № %s?</string>
+    <string name="closing">Аннулирование</string>
+    <string name="adding">Добавление</string>
+    <string name="editing">Исправление</string>
+    <string name="claim_note">Примечание</string>
+    <string name="executor">Исполнитель</string>
+    <string name="claim_state_g">Состояние</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="title_activity_claim">Рекламация</string>
+    <string name="title_activity_claim_action">Рекламация</string>
+    <string name="title_activity_filter_editor">Запрос</string>
+    <string name="title_activity_filters">Запросы</string>
 </resources>

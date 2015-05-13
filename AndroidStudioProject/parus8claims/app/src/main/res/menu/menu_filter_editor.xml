@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ua.parus.pmo.parus8claims.FilterOneActivity">
+    tools:context="ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity">
     <item
         android:id="@+id/action_save_query"
         android:title="@string/save_n_exec"
@@ -29,13 +29,6 @@
         android:icon="@drawable/ic_action_discard"
         android:orderInCategory="40"
         app:showAsAction="always|withText"
-        />
-    <item
-        android:id="@+id/action_help_query"
-        android:title="@string/action_help"
-        android:icon="@drawable/ic_action_help"
-        android:orderInCategory="100"
-        app:showAsAction="never"
         />
 
 </menu>
