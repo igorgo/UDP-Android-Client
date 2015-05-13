@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.HeaderViewListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -42,7 +43,8 @@ import ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, AutoScrollListPageListener {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,
+                                                               AutoScrollListPageListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String KEY_CONDITION = "CURRENT_CONDITION";
@@ -54,6 +56,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private String session;
     private ProgressDialog connectDialog;
     private TextView emptyText;
+    private LinearLayout progress;
 
     @SuppressLint("InflateParams")
     @Override
@@ -71,6 +74,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         actionBar.setDisplayUseLogoEnabled(true);
         this.claimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
         this.emptyText = (TextView) findViewById(R.id.nodata);
+        this.progress = (LinearLayout) findViewById(R.id.progress_container);
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
@@ -80,15 +84,64 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        connectDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
-        new RefreshCacheAsync().execute();
+        connectDialog = ProgressDialog
+                .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
+        //   new RefreshCacheAsync().execute();
+        boolean rc = true;
+        if (!application.isCacheRefreched()) {
+            //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
+            try {
+                rc = false;
+                Releases.RefreshCache(MainActivity.this);
+                rc = true;
+            } catch (ConnectException e) {
+                e.printStackTrace();
+            }
+            if (connectDialog.isShowing()) connectDialog.dismiss();
+            if (rc) {
+/*
+                ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this,
+                        getString(R.string.please_wait),
+                        getString(R.string.loading_unitlist), true);
+*/
 
+                Units.checkCache(MainActivity.this);
+/*
+                loadDialog.dismiss();
+                loadDialog = ProgressDialog
+                        .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.loading_applist),
+                                true);
+*/
+                Applists.checkCache(MainActivity.this);
+/*
+                loadDialog.dismiss();
+*/
+                application.setCacheRefreched();
+            }
+        }
+        if (connectDialog.isShowing()) connectDialog.dismiss();
+        if (rc) {
+            Log.i(TAG, "Call login to UDP");
+            loginToUdp();
+        } else {
+            ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                    System.exit(0);
+                }
+            });
+            errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
+        }
 
     }
 
     private void getClaims(Long cond, Long newrn) {
         try {
             Log.i(TAG, "Load Claims From Inet");
+            claimsListView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
             ClaimListAdapter claimListAdapter = new ClaimListAdapter(this, cond, newrn);
             this.claimsListView.setAdapter(claimListAdapter);
             claimListAdapter.setAutoScrollListPageListener(this);
@@ -276,11 +329,13 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public void onEmptyList(boolean empty) {
         this.claimsListView.onEmptyList(empty);
         if (empty) {
-            Log.i(TAG,"List is empty");
+            Log.i(TAG, "List is empty");
+            this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.GONE);
             this.emptyText.setVisibility(View.VISIBLE);
-        }else{
-            Log.i(TAG,"List not empty");
+        } else {
+            Log.i(TAG, "List not empty");
+            this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.VISIBLE);
             this.emptyText.setVisibility(View.GONE);
         }
@@ -300,9 +355,18 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 } catch (ConnectException e) {
                     e.printStackTrace();
                 }
+                if (connectDialog.isShowing()) connectDialog.dismiss();
                 if (rc) {
+                    ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this,
+                            getString(R.string.please_wait),
+                            getString(R.string.loading_unitlist), true);
+
                     Units.checkCache(MainActivity.this);
+                    loadDialog.dismiss();
+                    loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait),
+                            getString(R.string.loading_applist), true);
                     Applists.checkCache(MainActivity.this);
+                    loadDialog.dismiss();
                     application.setCacheRefreched();
                 }
             }
@@ -311,7 +375,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(Boolean result) {
-            connectDialog.dismiss();
+            if (connectDialog.isShowing()) connectDialog.dismiss();
             if (result) {
                 Log.i(TAG, "Call login to UDP");
                 loginToUdp();
@@ -333,7 +397,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         public static final String REST_URL = "login/";
         //final Toast toast = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
         final MainActivity that = MainActivity.this;
-        final ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.authorizing), true);
+        final ProgressDialog loadDialog = ProgressDialog
+                .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.authorizing), true);
 
         @Override
         protected JSONObject doInBackground(String... params) {

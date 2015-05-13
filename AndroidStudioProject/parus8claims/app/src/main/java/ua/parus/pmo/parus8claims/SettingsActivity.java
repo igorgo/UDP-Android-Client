@@ -1,6 +1,7 @@
 package ua.parus.pmo.parus8claims;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -192,8 +193,15 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                 });
                 errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
             }
+            ProgressDialog loadDialog = ProgressDialog.show(SettingsActivity.this,
+                    getString(R.string.please_wait),
+                    getString(R.string.loading_unitlist), true);
+
             Units.refreshCache(this);
+            loadDialog.dismiss();
+            loadDialog = ProgressDialog.show(SettingsActivity.this, getString(R.string.please_wait), getString(R.string.loading_applist), true);
             Applists.refreshCache(this);
+            loadDialog.dismiss();
             ((ClaimApplication) this.getApplication()).setCacheRefreched();
         }
         return false;

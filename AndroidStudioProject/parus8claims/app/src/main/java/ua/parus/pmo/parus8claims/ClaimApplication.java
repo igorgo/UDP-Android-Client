@@ -43,7 +43,6 @@ public class ClaimApplication extends Application {
         //Releases.RefreshCache(getBaseContext());
         //Builds.RefreshCache(getBaseContext());
     }
-
     public String getSessionId() {
         return this.sessionId;
     }
