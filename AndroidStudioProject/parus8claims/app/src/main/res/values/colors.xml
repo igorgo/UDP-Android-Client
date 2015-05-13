@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<color name="transparent">#00000000</color>
+	<color name="theme_main">#ff6a97bf</color>
+	<color name="RelAccepted">#ff206cff</color>
+	<color name="RelNotAccepted">#ff006c00</color>
+    <color name="NegoSatate">#ffBB0000</color>
+    <color name="black">#ff000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="priority_bg">#ffFFFFCC</color>
+    <color name="priority_brd">#ffAAAAAA</color>
+
+</resources>

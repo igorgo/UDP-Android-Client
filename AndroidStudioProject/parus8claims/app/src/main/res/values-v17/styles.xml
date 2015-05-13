@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="label_v17" parent="label_base">
+        <item name="android:layout_marginEnd">@dimen/label_right_margin</item>
+    </style>
+    <style name="form_label_v17" parent="label_base" >
+        <item name="android:layout_marginEnd">@dimen/label_right_margin</item>
+    </style>
+</resources>

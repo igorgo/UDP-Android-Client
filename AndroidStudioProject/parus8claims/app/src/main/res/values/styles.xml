@@ -1,0 +1,102 @@
+<resources>
+
+    <style name="udp_action_bar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/action_bar_bg</item>
+        <item name="android:titleTextStyle">@style/action_bar_title</item>
+        <!-- Support library compatibility -->
+        <item name="background">@drawable/action_bar_bg</item>
+        <item name="titleTextStyle">@style/action_bar_title</item>
+    </style>
+    <style name="action_bar_title" parent="medium_bold">
+        <item name="android:textColor">#EFEFEF</item>
+    </style>
+
+    <style name="bubble_base" parent="small">
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">0.1</item>
+    </style>
+    <style name="buble_author" parent="bubble_base">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:shadowColor">@color/NegoSatate</item>
+    </style>
+    <style name="buble_nonauthor" parent="bubble_base">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:shadowColor">@color/priority_brd</item>
+    </style>
+
+    <style name="release_base" parent="small">
+        <item name="android:textColor">@android:color/holo_orange_light</item>
+        <item name="android:paddingLeft">@dimen/release_rl_padding</item>
+        <item name="android:paddingRight">@dimen/release_rl_padding</item>
+        <item name="android:gravity">center_vertical|center</item>
+    </style>
+    <style name="release_fixed" parent="release_base">
+        <item name="android:background">@drawable/release_bg_accept</item>
+    </style>
+    <style name="release_found" parent="release_base">
+        <item name="android:background">@drawable/release_bg_notaccept</item>
+    </style>
+
+    <style name="small_base" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/small_font</item>
+    </style>
+    <style name="small_v16" parent="small_base" />
+    <style name="small" parent="small_v16" />
+    <style name="small_bold" parent="small">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="medium_base" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="medium_v16" parent="medium_base" />
+    <style name="medium" parent="medium_v16" />
+    <style name="medium_bold" parent="medium">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+    <style name="claim_state" parent="small" />
+    <style name="claim_state_wait" parent="claim_state">
+        <item name="android:textColor">@color/RelAccepted</item>
+    </style>
+    <style name="claim_state_negotive" parent="claim_state">
+        <item name="android:textColor">@color/NegoSatate</item>
+    </style>
+    <style name="claim_state_done" parent="claim_state">
+        <item name="android:textColor">@color/RelNotAccepted</item>
+    </style>
+    <style name="claim_state_work" parent="claim_state">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="label_base" parent="small_bold">
+        <item name="android:layout_marginRight">@dimen/label_right_margin</item>
+    </style>
+    <style name="label_v17" parent="label_base" />
+    <style name="label" parent="label_v17" />
+
+    <style name="form_label_base" parent="small">
+        <item name="android:layout_marginRight">@dimen/label_right_margin</item>
+    </style>
+    <style name="form_label_v17" parent="label_base" />
+    <style name="form_label" parent="form_label_v17" />
+
+    <style name="form_group_header" parent="medium_bold">
+        <item name="android:background">@drawable/border_bottom</item>
+        <item name="android:textColor">@color/theme_main</item>
+        <item name="android:paddingTop">@dimen/group_top_margin</item>
+    </style>
+    <style name="form_group_header_first" parent="form_group_header">
+        <item name="android:paddingTop">0dp</item>
+    </style>
+
+    <style name="check_box_base" parent="CheckBoxAppTheme">
+        <item name="android:textSize">@dimen/small_font</item>
+    </style>
+    <style name="check_box_v16" parent="check_box_base" />
+    <style name="check_box" parent="check_box_v16" />
+
+
+</resources>

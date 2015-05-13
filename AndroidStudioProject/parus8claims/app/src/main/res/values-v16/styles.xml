@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="small_v16" parent="small_base" >
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+    <style name="medium_v16" parent="medium_base" >
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+    <style name="check_box_v16" parent="check_box_base">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+</resources>
