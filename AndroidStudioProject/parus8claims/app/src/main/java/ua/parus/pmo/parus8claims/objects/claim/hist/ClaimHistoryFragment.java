@@ -93,8 +93,8 @@ public class ClaimHistoryFragment extends ListFragment implements View.OnClickLi
         this.docsLoaded = !this.hasDocs;
 
         this.claim = new Claim();
-        new GetHistAsyncTask().execute(this.claimRn);
         new GetClaimAsyncTask().execute(this.claimRn);
+        new GetHistAsyncTask().execute(this.claimRn);
         if (this.hasDocs) new GetDocsAsyncTask().execute(this.claimRn);
     }
 

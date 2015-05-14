@@ -100,4 +100,5 @@
     <string name="refreshing_cache">Обновление кеша…</string>
     <string name="connect_to_server">Соединение с сервером…</string>
     <string name="no_datafound">По заданным условиям отбора данных не найдено.</string>
+    <string name="uploading_file">Отправка файла…</string>
 </resources>
