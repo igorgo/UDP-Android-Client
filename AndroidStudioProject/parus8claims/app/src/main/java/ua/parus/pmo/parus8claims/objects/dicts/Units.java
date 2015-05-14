@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -44,6 +45,18 @@ public class Units {
     public static final String SQL_DROP_TABLE =
             "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+    private static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+                    + COLUMN_NAME + COMMA_SEP
+                    + COLUMN_DEPS_CACHED
+                    + ") VALUES (?,0)";
+
+    private static final String SQL_UPDATE =
+            "UPDATE " + TABLE_NAME
+                    + " SET " + COLUMN_DEPS_CACHED + "=1"
+                    + " WHERE " + COLUMN_ID + "=?";
+
+
     private static final String URL_DEPS = "dicts/units/deps/";
     private static final String URL_UNITS = "dicts/units/";
     private static final String REST_PARAM_PEPS_UNIT =  "unitname";
@@ -65,24 +78,31 @@ public class Units {
                                 db.delete(TABLE_NAME, null, null);
                                 db.delete(UnitApplists.TABLE_NAME, null, null);
                                 db.delete(UnitFuncs.TABLE_NAME, null, null);
-                                for (int i = 0; i < response.length(); i++) {
-                                    try {
-                                        JSONObject c = response.getJSONObject(i);
-                                        ContentValues values = new ContentValues();
-                                        values.put(COLUMN_NAME, c.getString("n"));
-                                        values.put(COLUMN_DEPS_CACHED, 0);
-                                        long unitId = db.insert(TABLE_NAME, "null", values);
-                                        Log.i(TAG, "Inserted new Unit with ID: " + unitId + " NAME: " + c.getString("n"));
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                db.beginTransaction();
+                                try {
+                                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
+                                    for (int i = 0; i < response.length(); i++) {
+                                        try {
+                                            JSONObject c = response.getJSONObject(i);
+                                            statement.bindString(1, c.getString("n"));
+                                            statement.execute();
+                                            statement.clearBindings();
+                                            //Log.i(TAG, "Inserted new Unit with NAME: " + c.getString("n"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
+                                    db.setTransactionSuccessful();
+                                } finally {
+                                    db.endTransaction();
                                 }
                             }
                         } catch (MalformedURLException | ConnectException e) {
                             e.printStackTrace();
+                        } finally {
+                            db.close();
+                            loadDialog.dismiss();
                         }
-                        db.close();
-                        loadDialog.dismiss();
                     }
                 }
         ).start();
@@ -149,39 +169,69 @@ public class Units {
             restRequest.addInParam(REST_PARAM_PEPS_UNIT, unit.name);
             Log.i(TAG,"Request depends for " + unit.name);
             JSONArray items = restRequest.getAllRows();
-            Applist app;
+            long app;
             ContentValues values;
             long newId;
             if (items != null) {
-                Log.i(TAG,"Response has " + items.length() + " items;");
-                for (int i = 0; i < items.length(); i++) {
-                    try {
-                        JSONObject item = items.getJSONObject(i);
-                        if (item.getString("s01").equals("A")) {
-                           app = Applists.getAppByName(context, item.getString("s02")) ;
-                            if (app.id > 0) {
-                                values = new ContentValues();
-                                values.put(UnitApplists.COLUMN_APP, app.id);
-                                values.put(UnitApplists.COLUMN_UNIT, unit.id);
-                                newId = db.insert(UnitApplists.TABLE_NAME, "null", values);
-                                Log.i(TAG, "Inserted new Application dependency - " + values);
+                Log.i(TAG, "Response has " + items.length() + " items;");
+                List<Applist> apps = Applists.getApplistAll(context);
+                db.beginTransaction();
+                try {
+                    SQLiteStatement stInsertApp = db.compileStatement(UnitApplists.SQL_INSERT);
+                    SQLiteStatement stInsertFunc = db.compileStatement(UnitFuncs.SQL_INSERT);
+                    for (int i = 0; i < items.length(); i++) {
+                        try {
+                            JSONObject item = items.getJSONObject(i);
+                            if (item.getString("s01").equals("A")) {
+                                app = -1;
+                                for (int j = 0; j < apps.size(); j++) {
+                                    if (apps.get(j).name.equals(item.getString("s02"))) {
+                                        app = apps.get(j).id;
+                                        break;
+                                    }
+                                }
+                                //app = Applists.getAppByName(context, item.getString("s02"));
+                                if (app >= 0) {
+                                    stInsertApp.bindLong(1, unit.id);
+                                    stInsertApp.bindLong(2, app);
+                                    stInsertApp.execute();
+                                    stInsertApp.clearBindings();
+                                    /*values = new ContentValues();
+                                    values.put(UnitApplists.COLUMN_APP, app.id);
+                                    values.put(UnitApplists.COLUMN_UNIT, unit.id);
+                                    newId = db.insert(UnitApplists.TABLE_NAME, "null", values);
+                                    Log.i(TAG, "Inserted new Application dependency - " + values);*/
+                                }
                             }
+                            if (item.getString("s01").equals("F")) {
+                                stInsertFunc.bindLong(1, unit.id);
+                                stInsertFunc.bindString(2, item.getString("s02"));
+                                stInsertFunc.execute();
+                                stInsertFunc.clearBindings();
+                               /* values = new ContentValues();
+                                values.put(UnitFuncs.COLUMN_UNIT, unit.id);
+                                values.put(UnitFuncs.COLUMN_FUNC, item.getString("s02"));
+                                newId = db.insert(UnitFuncs.TABLE_NAME, "null", values);
+                                Log.i(TAG, "Inserted new Unit function - " + values);*/
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        if (item.getString("s01").equals("F")) {
-                            values = new ContentValues();
-                            values.put(UnitFuncs.COLUMN_UNIT, unit.id);
-                            values.put(UnitFuncs.COLUMN_FUNC, item.getString("s02"));
-                            newId = db.insert(UnitFuncs.TABLE_NAME, "null", values);
-                            Log.i(TAG, "Inserted new Unit function - " + values);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
+                    Log.i(TAG, "Set unit cached ");
+                    SQLiteStatement stUpdateUnit = db.compileStatement(SQL_UPDATE);
+                    stUpdateUnit.bindLong(1,unit.id);
+                    stUpdateUnit.execute();
+                    stUpdateUnit.clearBindings();
+                    db.setTransactionSuccessful();
+/*
+                    values = new ContentValues();
+                    values.put(COLUMN_DEPS_CACHED, 1);
+                    db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(unit.id)});
+*/
+                } finally {
+                    db.endTransaction();
                 }
-                Log.i(TAG,"Set unit cached ");
-                values = new ContentValues();
-                values.put(COLUMN_DEPS_CACHED, 1);
-                db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(unit.id)});
             }
         } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();

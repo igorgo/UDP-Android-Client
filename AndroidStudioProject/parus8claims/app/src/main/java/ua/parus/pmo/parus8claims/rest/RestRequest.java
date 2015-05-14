@@ -89,10 +89,10 @@ public class RestRequest {
 
             if (this.hasNextPage()) {
                 connection = (HttpURLConnection) this.nextUrl.openConnection();
-                Log.i(TAG,"Open connection to " + this.nextUrl.toString());
+                Log.d(TAG,"Open connection to " + this.nextUrl.toString());
             } else {
                 connection = (HttpURLConnection) this.startUrl.openConnection();
-                Log.i(TAG,"Open connection to " + this.startUrl.toString());
+                Log.d(TAG,"Open connection to " + this.startUrl.toString());
             }
             connection.setConnectTimeout(3000);
             connection.setRequestMethod(this.httpMethod);
@@ -124,7 +124,7 @@ public class RestRequest {
         try {
             if ((connection = this.getHttpConnection()) != null) {
                 // заворачиваем ответ HttpURLConnection в BufferedReader
-                Log.i(TAG,"Fetching data from " + connection.getURL().toString());
+                Log.d(TAG,"Fetching data from " + connection.getURL().toString());
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream())
                 );
@@ -134,7 +134,7 @@ public class RestRequest {
                     content.append(line);
                 }
                 reader.close();
-                Log.i(TAG, "The data is fetched from " + connection.getURL().toString());
+                Log.d(TAG, "The data is fetched from " + connection.getURL().toString());
                 connection.disconnect();
             }
         } catch (ConnectException e) {

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -43,6 +44,14 @@ public class Builds {
                     COLUMN_CODE + " " + COLUMN_CODE_TYPE + COMMA_SEP +
                     COLUMN_DATE + " " + COLUMN_DATE_TYPE +
                     ")";
+    private static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+                    + COLUMN_RN + COMMA_SEP
+                    + COLUMN_PRN + COMMA_SEP
+                    + COLUMN_CODE + COMMA_SEP
+                    + COLUMN_DATE
+                    + ") VALUES (?,?,?,?)";
+
     private static final String REST_URL = "dicts/builds/";
     private static final String FIELD_RN = "r";
     private static final String FIELD_PRN = "p";
@@ -59,31 +68,45 @@ public class Builds {
             JSONArray items = restRequest.getAllRows();
             if (items != null) {
                 //db.delete(TABLE_NAME, null, null);
-                for (int i = 0; i < items.length(); i++) {
-                    try {
-                        JSONObject item = items.getJSONObject(i);
-                        Build build = new Build();
-                        build.rn = item.getLong(FIELD_RN);
-                        build.prn = item.getLong(FIELD_PRN);
-                        build.mnemo = item.getString(FIELD_MNEMO);
-                        build.buildDate = item.getString(FIELD_BUILD_DATE);
-                        ContentValues values = new ContentValues();
-                        values.put(COLUMN_RN, build.rn);
-                        values.put(COLUMN_PRN, build.prn);
-                        values.put(COLUMN_CODE, build.mnemo);
-                        values.put(COLUMN_DATE, build.buildDate);
-                        long buildId = db.insert(TABLE_NAME, NULL_COLUMN_HACK, values);
-                        Log.i(TAG, "Inserted Build with RN: " + buildId);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                db.beginTransaction();
+                try {
+                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
+                    for (int i = 0; i < items.length(); i++) {
+                        try {
+                            JSONObject item = items.getJSONObject(i);
+                            statement.bindLong(1,item.getLong(FIELD_RN));
+                            statement.bindLong(2,item.getLong(FIELD_PRN));
+                            statement.bindString(3, item.getString(FIELD_MNEMO));
+                            statement.bindString(4, item.getString(FIELD_BUILD_DATE));
+                            statement.execute();
+                            statement.clearBindings();
+                            /*Build build = new Build();
+                            build.rn = item.getLong(FIELD_RN);
+                            build.prn = item.getLong(FIELD_PRN);
+                            build.mnemo = item.getString(FIELD_MNEMO);
+                            build.buildDate = item.getString(FIELD_BUILD_DATE);
+                            ContentValues values = new ContentValues();
+                            values.put(COLUMN_RN, build.rn);
+                            values.put(COLUMN_PRN, build.prn);
+                            values.put(COLUMN_CODE, build.mnemo);
+                            values.put(COLUMN_DATE, build.buildDate);
+                            long buildId = db.insert(TABLE_NAME, NULL_COLUMN_HACK, values);
+                            Log.i(TAG, "Inserted Build with RN: " + buildId);*/
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    successFlag = true;
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
                 }
-                successFlag = true;
             }
         } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();
+        } finally {
+            db.close();
         }
-        db.close();
         if (successFlag) Releases.setReleaseCached(context, releaseRn);
     }
 

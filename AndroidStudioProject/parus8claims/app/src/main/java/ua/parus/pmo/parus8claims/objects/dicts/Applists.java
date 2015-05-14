@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -43,6 +44,12 @@ public class Applists {
                     COLUMN_ID + " " + COLUMN_ID_TYPE + COMMA_SEP +
                     COLUMN_NAME + " " + COLUMN_NAME_TYPE +
                     ")";
+
+    private static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+                    + COLUMN_NAME
+                    + ") VALUES (?)";
+
     private static final String REST_URL = "dicts/applist/";
 
     public static void refreshCache(Context context) {
@@ -59,23 +66,34 @@ public class Applists {
                             JSONArray items = restRequest.getAllRows();
                             if (items != null) {
                                 db.delete(TABLE_NAME, null, null);
-                                for (int i = 0; i < items.length(); i++) {
-                                    try {
-                                        JSONObject item = items.getJSONObject(i);
-                                        ContentValues values = new ContentValues();
-                                        values.put(COLUMN_NAME, item.getString(FIELD_NAME));
-                                        long lAppId = db.insert(TABLE_NAME, "null", values);
-                                        Log.i(TAG, "Inserted new Application with ID: " + lAppId + " NAME: " + item.getString("n"));
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                db.beginTransaction();
+                                try {
+                                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
+                                    for (int i = 0; i < items.length(); i++) {
+                                        try {
+                                            JSONObject item = items.getJSONObject(i);
+                                            statement.bindString(1, item.getString(FIELD_NAME));
+                                            statement.execute();
+                                            statement.clearBindings();
+                                            /*ContentValues values = new ContentValues();
+                                            values.put(COLUMN_NAME, item.getString(FIELD_NAME));
+                                            long lAppId = db.insert(TABLE_NAME, "null", values);
+                                            Log.i(TAG, "Inserted new Application with ID: " + lAppId + " NAME: " + item.getString("n"));*/
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
+                                    db.setTransactionSuccessful();
+                                } finally {
+                                    db.endTransaction();
                                 }
                             }
                         } catch (MalformedURLException | ConnectException e) {
                             e.printStackTrace();
+                        } finally {
+                            db.close();
+                            loadDialog.dismiss();
                         }
-                        db.close();
-                        loadDialog.dismiss();
                     }
                 }
         ).start();
@@ -111,6 +129,28 @@ public class Applists {
         db.close();
         return appList;
     }
+
+    public static List<Applist> getApplistAll(Context context) {
+        checkCache(context);
+        List<Applist> appList = new ArrayList<>();
+        DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
+        SQLiteDatabase db = databaseWrapper.getReadableDatabase();
+        String SQL = "SELECT " + COLUMN_ID + COMMA_SEP +COLUMN_NAME +
+                " FROM " + TABLE_NAME;
+        Cursor cursor = db.rawQuery(SQL, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Applist app = new Applist();
+            app.id = cursor.getInt(0);
+            app.name =  cursor.getString(1);
+            appList.add(app);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+        return appList;
+    }
+
 
     public static Applist getAppByName(Context context, String name) {
         Applist app = new Applist();

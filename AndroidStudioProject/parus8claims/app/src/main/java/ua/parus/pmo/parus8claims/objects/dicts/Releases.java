@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -44,7 +45,17 @@ public class Releases {
                     COLUMN_BUILDS_CACHED + " " + TYPE_BUILDS_CACHED +
                     ")";
 
+    public static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+                    + COLUMN_RN + COMMA_SEP
+                    + COLUMN_VERSION + COMMA_SEP
+                    + COLUMN_NAME + COMMA_SEP
+                    + COLUMN_BUILDS_CACHED
+                    + ") VALUES (?,?,?,0)";
+
+
     public static void RefreshCache(Context context) throws ConnectException {
+
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();
         try {
@@ -53,33 +64,36 @@ public class Releases {
             if (response != null) {
                 db.delete(TABLE_NAME, null, null);
                 db.delete(Builds.TABLE_NAME, null, null);
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        JSONObject c = response.getJSONObject(i);
-                        Release rel = new Release();
-                        rel.rn = c.getLong("rn");
-                        rel.version = c.getString("v");
-                        rel.name = c.getString("r");
-                        ContentValues values = new ContentValues();
-                        values.put(COLUMN_RN, rel.rn);
-                        values.put(COLUMN_VERSION, rel.version);
-                        values.put(COLUMN_NAME, rel.name);
-                        values.put(COLUMN_BUILDS_CACHED, 0);
-                        long relId = db.insert(TABLE_NAME, "null", values);
-                        Log.i(TAG, "Inserted new Release with RN: " + relId);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                db.beginTransaction();
+                try {
+                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
+                    for (int i = 0; i < response.length(); i++) {
+                        try {
+                            JSONObject c = response.getJSONObject(i);
+                            statement.bindLong(1, c.getLong("rn"));
+                            statement.bindString(2, c.getString("v"));
+                            statement.bindString(3, c.getString("r"));
+                            statement.execute();
+                            statement.clearBindings();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
                 }
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
+        } finally {
+            db.close();
         }
-        db.close();
     }
 
 
-    @SuppressWarnings("SameParameterValue") public static List<String> getVersions(Context context, boolean mandatory, String nulltext) {
+    @SuppressWarnings("SameParameterValue")
+    public static List<String> getVersions(Context context, boolean mandatory, String nulltext) {
         List<String> versions = new ArrayList<>();
         if (!mandatory) versions.add(nulltext);
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
@@ -145,7 +159,6 @@ public class Releases {
         db.close();
         return releases;
     }
-
 
 
     public static void setReleaseCached(Context context, long releaseRn) {

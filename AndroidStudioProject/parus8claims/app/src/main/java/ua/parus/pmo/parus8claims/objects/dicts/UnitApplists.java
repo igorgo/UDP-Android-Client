@@ -24,4 +24,10 @@ public class UnitApplists {
     public static final String SQL_DROP_TABLE =
             "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+    public static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+            + COLUMN_UNIT + COMMA_SEP
+            + COLUMN_APP
+            + ") VALUES (?,?)";
+
 }
