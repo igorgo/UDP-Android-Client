@@ -1,42 +1,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-
     <PreferenceCategory
-        android:title="@string/pref_header_account"
-
-    />
-
-
-    <EditTextPreference
-        android:key="username"
-        android:title="@string/pref_title_user_name"
-        android:selectAllOnFocus="true"
-        android:inputType="textNoSuggestions"
-        android:capitalize="none"
-        android:singleLine="true"
-        android:maxLines="1" />
-
-    <EditTextPreference
-        android:key="password"
-        android:title="@string/pref_title_password"
-        android:selectAllOnFocus="true"
-        android:inputType="textPassword"
-        android:capitalize="none"
-        android:singleLine="true"
-        android:password="true"
-        android:maxLines="1" />
-
+        android:title="@string/pref_header_account">
+        <EditTextPreference
+            android:capitalize="none"
+            android:inputType="textNoSuggestions"
+            android:key="username"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_user_name"/>
+        <EditTextPreference
+            android:capitalize="none"
+            android:inputType="textPassword"
+            android:key="password"
+            android:maxLines="1"
+            android:password="true"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_password"/>
+    </PreferenceCategory>
     <PreferenceCategory
-        android:title="@string/pref_header_cache"
-
-        />
-    <Preference
-        android:title="@string/refresh_cache"
-        android:key="cache"
-    />
-
+        android:title="@string/pref_header_cache">
+        <Preference
+            android:key="cache"
+            android:title="@string/refresh_cache"/>
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -6,13 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -52,10 +52,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
-    private ActionBar actionBar;
-    private Drawable actionBarBackGround;
-    private String session;
-    private ProgressDialog connectDialog;
     private TextView emptyText;
     private LinearLayout progress;
 
@@ -69,7 +65,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         if (savedInstanceState != null) {
             this.currentConditionRn = savedInstanceState.getLong(KEY_CONDITION, 0);
         }
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setLogo(R.drawable.pmo_logo);
@@ -87,12 +83,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        connectDialog = ProgressDialog
+        ProgressDialog connectDialog = ProgressDialog
                 .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
-        //   new RefreshCacheAsync().execute();
         boolean rc = true;
         if (application.isNotCacheRefreched()) {
-            //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
             try {
                 rc = false;
                 Releases.RefreshCache(MainActivity.this);
@@ -102,29 +96,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             }
             if (connectDialog.isShowing()) connectDialog.dismiss();
             if (rc) {
-/*
-                ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this,
-                        getString(R.string.please_wait),
-                        getString(R.string.loading_unitlist), true);
-*/
-
                 Units.checkCache(MainActivity.this);
-/*
-                loadDialog.dismiss();
-                loadDialog = ProgressDialog
-                        .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.loading_applist),
-                                true);
-*/
                 Applists.checkCache(MainActivity.this);
-/*
-                loadDialog.dismiss();
-*/
                 application.setCacheRefreched();
             }
         }
         if (connectDialog.isShowing()) connectDialog.dismiss();
         if (rc) {
-            Log.i(TAG, "Call login to UDP");
+            Log.d(TAG, "Call login to UDP");
             loginToUdp();
         } else {
             ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
@@ -141,7 +120,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     private void getClaims(Long cond, Long newrn) {
         try {
-            Log.i(TAG, "Load Claims From Inet");
+            Log.d(TAG, "Load Claims From Inet");
             claimsListView.setVisibility(View.GONE);
             emptyText.setVisibility(View.GONE);
             progress.setVisibility(View.VISIBLE);
@@ -156,7 +135,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     private void loginToUdp() {
         if (this.application.getSessionId() == null) {
-            Log.i(TAG, "Session not set.");
+            Log.d(TAG, "Session not set.");
             SharedPreferences sharedPrefs = PreferenceManager
                     .getDefaultSharedPreferences(this);
             String user = sharedPrefs.getString(SettingsActivity.PREF_USERNAME, "");
@@ -170,7 +149,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             }
             new LoginAsyncTask().execute(user, pass, null);
         } else {
-            Log.i(TAG, "Session are set yet. Call next process.");
+            Log.d(TAG, "Session are set yet. Call next process.");
             this.getClaims(this.currentConditionRn, null);
         }
     }
@@ -180,21 +159,21 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Intents.REQUEST_SETTINGS:
-                Log.i(TAG, "It's from SettingsActivity. Call loginToUdp.");
+                Log.d(TAG, "It's from SettingsActivity. Call loginToUdp.");
                 this.loginToUdp();
                 break;
             case Intents.REQUEST_FILTERS_VIEW:
-                Log.i(TAG, "It's from FiltersActivity.");
+                Log.d(TAG, "It's from FiltersActivity.");
                 switch (resultCode) {
                     case Intents.RESULT_NEED_ADD_NEW_FILTER:
-                        Log.i(TAG, "Request for new query has been received.");
+                        Log.d(TAG, "Request for new query has been received.");
                         Intent intentAddFilter = new Intent(this, FilterOneActivity.class);
                         intentAddFilter.putExtra(Intents.EXTRA_KEY_REQUEST,
                                 Intents.REQUEST_FILTER_ADD_NEW);
                         startActivityForResult(intentAddFilter, Intents.REQUEST_FILTER_ADD_NEW);
                         break;
                     case Intents.RESULT_FILTER_SELECTED:
-                        Log.i(TAG, "Request for existing query has been received.");
+                        Log.d(TAG, "Request for existing query has been received.");
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
@@ -202,11 +181,11 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 }
                 break;
             case Intents.REQUEST_FILTER_ADD_NEW:
-                Log.i(TAG, "It's from FilterEditorActivity.");
+                Log.d(TAG, "It's from FilterEditorActivity.");
                 switch (resultCode) {
                     case Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER:
                     case Intents.RESULT_NEED_EXECUTE_FILTER:
-                        Log.i(TAG, "Request for save and exec query has been received.");
+                        Log.d(TAG, "Request for save and exec query has been received.");
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
@@ -261,7 +240,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                         ClaimListAdapter.initHolder(holder, row);
                         ClaimListAdapter.populateHolder(this, holder, oldClaim);
                     }
-                    //this.getClaims(this.currentConditionRn, null);
                 }
                 break;
 
@@ -279,21 +257,21 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Log.i(TAG, "The «Settings» menu item selected");
+                Log.d(TAG, "The «Settings» menu item selected");
                 Intent intentSettings = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intentSettings, Intents.REQUEST_SETTINGS);
                 return true;
             case R.id.action_search:
-                Log.i(TAG, "The «Search» menu item selected");
+                Log.d(TAG, "The «Search» menu item selected");
                 Intent intentSearch = new Intent(this, FiltersActivity.class);
                 startActivityForResult(intentSearch, Intents.REQUEST_FILTERS_VIEW);
                 return true;
             case R.id.action_refresh:
-                Log.i(TAG, "The «Refresh» menu item selected");
+                Log.d(TAG, "The «Refresh» menu item selected");
                 this.getClaims(this.currentConditionRn, null);
                 return true;
             case R.id.action_add_claim:
-                Log.i(TAG, "The «Search» menu item selected");
+                Log.d(TAG, "The «Search» menu item selected");
                 Intent intentAdd = new Intent(this, ClaimActionActivity.class);
                 intentAdd.putExtra(Intents.EXTRA_KEY_CLAIM, new Claim());
                 intentAdd.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_CLAIM_ADD);
@@ -332,73 +310,27 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public void onEmptyList(boolean empty) {
         this.claimsListView.onEmptyList(empty);
         if (empty) {
-            Log.i(TAG, "List is empty");
+            Log.d(TAG, "List is empty");
             this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.GONE);
             this.emptyText.setVisibility(View.VISIBLE);
         } else {
-            Log.i(TAG, "List not empty");
+            Log.d(TAG, "List not empty");
             this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.VISIBLE);
             this.emptyText.setVisibility(View.GONE);
         }
     }
 
-    private class RefreshCacheAsync extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            boolean rc = true;
-            if (application.isNotCacheRefreched()) {
-                //ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait), getString(R.string.refreshing_cache), true);
-                try {
-                    rc = false;
-                    Releases.RefreshCache(MainActivity.this);
-                    rc = true;
-                } catch (ConnectException e) {
-                    e.printStackTrace();
-                }
-                if (connectDialog.isShowing()) connectDialog.dismiss();
-                if (rc) {
-                    ProgressDialog loadDialog = ProgressDialog.show(MainActivity.this,
-                            getString(R.string.please_wait),
-                            getString(R.string.loading_unitlist), true);
-
-                    Units.checkCache(MainActivity.this);
-                    loadDialog.dismiss();
-                    loadDialog = ProgressDialog.show(MainActivity.this, getString(R.string.please_wait),
-                            getString(R.string.loading_applist), true);
-                    Applists.checkCache(MainActivity.this);
-                    loadDialog.dismiss();
-                    application.setCacheRefreched();
-                }
-            }
-            return rc;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (connectDialog.isShowing()) connectDialog.dismiss();
-            if (result) {
-                Log.i(TAG, "Call login to UDP");
-                loginToUdp();
-            } else {
-                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                        System.exit(0);
-                    }
-                });
-                errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
-            }
-        }
-    }
-
 
     private class LoginAsyncTask extends AsyncTask<String, Void, JSONObject> {
         public static final String REST_URL = "login/";
-        //final Toast toast = Toast.makeText(getApplicationContext(), getText(R.string.authorizing), Toast.LENGTH_SHORT);
+        public static final String HTTP_METHOD = "POST";
+        public static final String REST_PARAM_USER = "user";
+        public static final String REST_PARAM_PASSWORD = "pass";
+        public static final String REST_RESPONSE_FIELD_ERROR = "ERROR";
+        public static final String REST_RESPONSE_FIELD_SESSION_ID = "SESSONID";
+        public static final String REST_RESPONSE_FIELD_PMO_FLAG = "PPP";
         final MainActivity that = MainActivity.this;
         final ProgressDialog loadDialog = ProgressDialog
                 .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.authorizing), true);
@@ -409,9 +341,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             JSONObject response = null;
             RestRequest loginRequest;
             try {
-                loginRequest = new RestRequest(REST_URL, "POST");
-                loginRequest.addInParam("user", params[0]);
-                loginRequest.addInParam("pass", params[1]);
+                loginRequest = new RestRequest(REST_URL, HTTP_METHOD);
+                loginRequest.addInParam(REST_PARAM_USER, params[0]);
+                loginRequest.addInParam(REST_PARAM_PASSWORD, params[1]);
 
                 response = loginRequest.getJsonContent();
             } catch (MalformedURLException | ConnectException e) {
@@ -428,13 +360,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.connection_time_out));
                 return;
             }
-            if (response.optString("ERROR") != null && !response.optString("ERROR").isEmpty()) {
+            String error = response.optString(REST_RESPONSE_FIELD_ERROR);
+            if (!TextUtils.isEmpty(error)) {
                 ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
-                errorPopup.showErrorDialog(getString(R.string.error_title), response.optString("ERROR"));
+                errorPopup.showErrorDialog(getString(R.string.error_title), error);
                 return;
             } else {
-                that.application.setSessionId(response.optString("SESSONID"));
-                that.application.setPmoUser(response.optInt("PPP") == 1);
+                that.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
+                that.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
             }
             that.getClaims(that.currentConditionRn, null);
         }

@@ -8,10 +8,6 @@ import java.lang.reflect.Field;
 
 import ua.parus.pmo.parus8claims.objects.filter.FilterListAdapter;
 
-/**
- * Created by igor-go on 09.04.2015.
- * ${PACKAGE_NAME}
- */
 public class ClaimApplication extends Application {
     private String sessionId;
     private boolean isPmoUser;
@@ -40,8 +36,6 @@ public class ClaimApplication extends Application {
         // Грязный хак для показа трех точек в меню
         this.getOverflowMenu();
         this.filters = null;
-        //Releases.RefreshCache(getBaseContext());
-        //Builds.RefreshCache(getBaseContext());
     }
     public String getSessionId() {
         return this.sessionId;
@@ -51,7 +45,6 @@ public class ClaimApplication extends Application {
         this.sessionId = sessionId;
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public boolean isPmoUser() {
         return this.isPmoUser;
     }
