@@ -23,16 +23,12 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by igorgo on 13.04.2015.
- * ${PACKAGE_NAME}
- */
 public class RestRequest {
 
+    public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
     private static final String DEFAULT_HTTP_METHOD = "GET";
     private static final String UNICODE_CHARSET_NAME = "UTF-8";
     private static final String TAG = RestRequest.class.getSimpleName();
-    public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
 //    public static final String BASE_URL = "http://192.168.7.4:7777/apex/rest/udp/";
     private static final String TAG_ITEMS = "items";
     private static final String TAG_NEXT = "next";
@@ -51,7 +47,8 @@ public class RestRequest {
         this.httpMethod = httpMethod;
     }
 
-    @SuppressWarnings("SameParameterValue") public RestRequest(String url, int pageSize) throws MalformedURLException {
+    @SuppressWarnings("SameParameterValue")
+    public RestRequest(String url, int pageSize) throws MalformedURLException {
         this(url, DEFAULT_HTTP_METHOD);
         this.pageSize = pageSize;
     }
@@ -89,10 +86,10 @@ public class RestRequest {
 
             if (this.hasNextPage()) {
                 connection = (HttpURLConnection) this.nextUrl.openConnection();
-                Log.d(TAG,"Open connection to " + this.nextUrl.toString());
+                Log.d(TAG, "Open connection to " + this.nextUrl.toString());
             } else {
                 connection = (HttpURLConnection) this.startUrl.openConnection();
-                Log.d(TAG,"Open connection to " + this.startUrl.toString());
+                Log.d(TAG, "Open connection to " + this.startUrl.toString());
             }
             connection.setConnectTimeout(3000);
             connection.setRequestMethod(this.httpMethod);
@@ -118,13 +115,13 @@ public class RestRequest {
     }
 
     @SuppressWarnings("WeakerAccess")
-    public String getStringContent() throws ConnectException{
+    public String getStringContent() throws ConnectException {
         HttpURLConnection connection;
         StringBuilder content = new StringBuilder();
         try {
             if ((connection = this.getHttpConnection()) != null) {
                 // заворачиваем ответ HttpURLConnection в BufferedReader
-                Log.d(TAG,"Fetching data from " + connection.getURL().toString());
+                Log.d(TAG, "Fetching data from " + connection.getURL().toString());
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream())
                 );
@@ -221,7 +218,6 @@ public class RestRequest {
                 file.createNewFile();
                 InputStream inputStream = connection.getInputStream();
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
-                //int totalSize = connection.getContentLength();
                 byte[] buffer = new byte[MEGABYTE];
                 int bufferLength;
                 while ((bufferLength = inputStream.read(buffer)) > 0) {

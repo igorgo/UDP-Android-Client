@@ -53,6 +53,7 @@ public class ClaimActivity extends ActionBarActivity
         implements
         ClaimHistoryFragment.ClaimHistoryFragmentInterface {
 
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimActivity.class.getSimpleName();
     private static final String REST_PARAM_ERROR = "error";
     private String session;
@@ -65,7 +66,6 @@ public class ClaimActivity extends ActionBarActivity
     private boolean needsRefreshParent = false;
     private ActionBar actionBar;
     private ProgressDialog loadDialog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,42 +107,34 @@ public class ClaimActivity extends ActionBarActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_claim_edit) {
-            startActionActivity(Intents.REQUEST_CLAIM_EDIT);
-            return true;
-        }
-        if (id == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        if (id == R.id.action_claim_send) {
-            startActionActivity(Intents.REQUEST_CLAIM_SEND);
-            return true;
-        }
-        if (id == R.id.action_claim_return) {
-            startActionActivity(Intents.REQUEST_CLAIM_RETURN);
-            return true;
-        }
-        if (id == R.id.action_claim_forward) {
-            startActionActivity(Intents.REQUEST_CLAIM_FORWARD);
-            return true;
-        }
-        if (id == R.id.action_claim_delete) {
-            doSimpleAction("claim/delete/", R.string.deleting, R.string.delete_confirm, Intents.RESULT_CLAIM_DELETED);
-            return true;
-        }
-        if (id == R.id.action_claim_close) {
-            doSimpleAction("claim/close/", R.string.closing, R.string.close_confirm, Intents.RESULT_CLAIM_DELETED);
-            return true;
-        }
-        if (id == R.id.action_claim_add_note) {
-            startActionActivity(Intents.REQUEST_CLAIM_NOTE);
-            return true;
-        }
-        if (id == R.id.action_claim_add_file) {
-            selectFile();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_claim_edit:
+                startActionActivity(Intents.REQUEST_CLAIM_EDIT);
+                break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case R.id.action_claim_send:
+                startActionActivity(Intents.REQUEST_CLAIM_SEND);
+                break;
+            case R.id.action_claim_return:
+                startActionActivity(Intents.REQUEST_CLAIM_RETURN);
+                break;
+            case R.id.action_claim_forward:
+                startActionActivity(Intents.REQUEST_CLAIM_FORWARD);
+                break;
+            case R.id.action_claim_delete:
+                doSimpleAction("claim/delete/", R.string.deleting, R.string.delete_confirm, Intents.RESULT_CLAIM_DELETED);
+                break;
+            case R.id.action_claim_close:
+                doSimpleAction("claim/close/", R.string.closing, R.string.close_confirm, Intents.RESULT_CLAIM_DELETED);
+                break;
+            case R.id.action_claim_add_note:
+                startActionActivity(Intents.REQUEST_CLAIM_NOTE);
+                break;
+            case R.id.action_claim_add_file:
+                selectFile();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -155,8 +147,7 @@ public class ClaimActivity extends ActionBarActivity
         startActivityForResult(action, request);
     }
 
-    private void doSimpleAction(final String url, int titleId, int confirmTextId, @SuppressWarnings(
-            "SameParameterValue") final int resultCode) {
+    private void doSimpleAction(final String url, int titleId, int confirmTextId, final int resultCode) {
         new AlertDialog.Builder(this)
                 .setTitle(titleId)
                 .setMessage(getString(confirmTextId, claim.number))
@@ -189,7 +180,7 @@ public class ClaimActivity extends ActionBarActivity
                                 }
                             }
                         }
-                                  )
+                )
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
@@ -225,26 +216,24 @@ public class ClaimActivity extends ActionBarActivity
         if (attach == null) {
             return;
         }
-        Log.i(TAG, "DocumDownloadRequest: Rn=" + String.valueOf(attach.getFileRn()) + "; FileName=" +
-                   attach.getFileName());
         new GetDocumentAsyncTask().execute(attach);
     }
 
-    private String fileExtention(String url) {
+    private String fileExtension(String url) {
         if (url.contains("?")) {
             url = url.substring(0, url.indexOf("?"));
         }
         if (url.lastIndexOf(".") == -1) {
             return null;
         } else {
-            String extention = url.substring(url.lastIndexOf("."));
+            String extension = url.substring(url.lastIndexOf("."));
             if (url.contains("%")) {
-                extention = extention.substring(0, extention.indexOf("%"));
+                extension = extension.substring(0, extension.indexOf("%"));
             }
             if (url.contains("/")) {
-                extention = extention.substring(0, extention.indexOf("/"));
+                extension = extension.substring(0, extension.indexOf("/"));
             }
-            return extention.toLowerCase();
+            return extension.toLowerCase();
         }
     }
 
@@ -278,7 +267,8 @@ public class ClaimActivity extends ActionBarActivity
         loadDialog.show();
 
         final Handler handler = new Handler(new Handler.Callback() {
-            @Override public boolean handleMessage(Message msg) {
+            @Override
+            public boolean handleMessage(Message msg) {
                 loadDialog.dismiss();
                 if (msg.what == 0) {
                     Bundle bundle = msg.getData();
@@ -290,9 +280,9 @@ public class ClaimActivity extends ActionBarActivity
             }
         });
 
-
         Runnable upload = new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 try {
                     String fullFileName = getFullFileName(fileUri);
                     File sourceFile = new File(fullFileName);
@@ -343,7 +333,7 @@ public class ClaimActivity extends ActionBarActivity
                         if (!TextUtils.isEmpty(content.toString())) {
                             JSONObject jsonContent = new JSONObject(content.toString());
                             if (jsonContent.optString(REST_PARAM_ERROR) != null &&
-                                !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
+                                    !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
                                 Bundle b = new Bundle(1);
                                 b.putString(REST_PARAM_ERROR, jsonContent.optString(REST_PARAM_ERROR));
                                 Message msg = handler.obtainMessage();
@@ -395,8 +385,6 @@ public class ClaimActivity extends ActionBarActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i(TAG, "onActivityResult{\n\trequestCode: " + requestCode + "\n\tresultCode: " + resultCode + "\n\tdata: " +
-                   data + "\n}");
         if (resultCode == Intents.RESULT_CANCEL) return;
         switch (requestCode) {
             case Intents.REQUEST_CLAIM_EDIT:
@@ -404,13 +392,11 @@ public class ClaimActivity extends ActionBarActivity
             case Intents.REQUEST_CLAIM_SEND:
             case Intents.REQUEST_CLAIM_RETURN:
             case Intents.REQUEST_CLAIM_FORWARD:
-                Log.i(TAG, "claim updated");
                 needsRefresh = true;
                 needsRefreshParent = true;
                 break;
             case Intents.REQUEST_SELECT_FILE:
                 if (resultCode == RESULT_OK) {
-                    Log.i(TAG, "FileSelected");
                     Uri selectedFileUri = data.getData();
                     try {
                         uploadAttach(selectedFileUri);
@@ -464,9 +450,9 @@ public class ClaimActivity extends ActionBarActivity
                 Uri path = Uri.fromFile(aFile);
                 MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
                 String mimeType = null;
-                String extention = fileExtention(aFile.getName());
-                if (extention != null) {
-                    mimeType = mimeTypeMap.getMimeTypeFromExtension(extention.substring(1));
+                String extension = fileExtension(aFile.getName());
+                if (extension != null) {
+                    mimeType = mimeTypeMap.getMimeTypeFromExtension(extension.substring(1));
                 }
                 Intent viewIntent = new Intent(Intent.ACTION_VIEW);
                 if (mimeType == null) {

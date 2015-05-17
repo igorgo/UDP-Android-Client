@@ -5,10 +5,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 
-/**
- * Created by igor-go on 20.04.2015.
- * ua.parus.pmo.parus8claims.gui
- */
 public abstract class AutoScrollListAdapter extends BaseAdapter implements AbsListView.OnScrollListener {
 
     protected static final String TAG = AutoScrollListAdapter.class.getSimpleName();

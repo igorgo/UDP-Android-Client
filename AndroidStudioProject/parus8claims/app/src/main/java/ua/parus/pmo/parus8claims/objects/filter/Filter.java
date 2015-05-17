@@ -13,10 +13,6 @@ import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created by igor-go on 22.04.2015.
- * ua.parus.pmo.parus8claims.objects.filter
- */
 public class Filter {
 
     public static final String PARAM_FILTER_RN = "filterrn";
@@ -62,7 +58,7 @@ public class Filter {
             JSONObject item = restRequest.getJsonContent();
             if (item == null) return;
             if (item.optString(PARAM_ERROR) != null && !item.optString(PARAM_ERROR).isEmpty()) {
-                ErrorPopup errorPopup = new ErrorPopup(context,null);
+                ErrorPopup errorPopup = new ErrorPopup(context, null);
                 errorPopup.showErrorDialog(context.getString(R.string.error_title), item.optString(PARAM_ERROR));
             } else {
                 this.filter_name = item.optString(PARAM_FILTER_NAME);
@@ -115,7 +111,7 @@ public class Filter {
             JSONObject response = restRequest.getJsonContent();
             if (response == null) return;
             if (response.optString(PARAM_ERROR) != null && !response.optString(PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(context,null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
+                new ErrorPopup(context, null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
             } else {
                 this.filter_rn = response.optLong(PARAM_OUT_RN);
             }
@@ -136,7 +132,7 @@ public class Filter {
             if (response == null) return;
             if (response.optString(PARAM_ERROR) != null
                     && !response.optString(PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(context,null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
+                new ErrorPopup(context, null).showErrorDialog(context.getString(R.string.error_title), response.optString(PARAM_ERROR));
             }
         } catch (MalformedURLException | ConnectException e) {
             e.printStackTrace();

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -18,24 +17,25 @@ import java.util.List;
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.objects.dicts.Applists;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
 import ua.parus.pmo.parus8claims.gui.InputDialog;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
+import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 
 
 @SuppressWarnings("deprecation")
-public class FilterOneActivity extends ActionBarActivity
+public class FilterEditActivity extends ActionBarActivity
         implements MultiSpinner.OnSetItemValueListener,
-                   MultiSpinner.OnValueChangedListener {
+        MultiSpinner.OnValueChangedListener {
 
     private static final String SPINNER_BUILD_TAGNAME = "build8";
     private static final String SPINNER_RELEASE_TAGNAME = "release8";
     private static final String SPINNER_VERSION_TAGNAME = "version8";
-    private static final String TAG = "FilterOneActivity";
+    @SuppressWarnings("unused")
+    private static final String TAG = FilterEditActivity.class.getSimpleName();
     private Holder holder;
     private Intent resultIntent;
     private Filter filter;
@@ -44,15 +44,11 @@ public class FilterOneActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.i(TAG, "Creating activity...");
         super.onCreate(savedInstanceState);
         selfRequest = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
         setContentView(R.layout.activity_filter_editor);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-        /*actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.pmo_logo);
-        actionBar.setDisplayUseLogoEnabled(true);*/
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(R.string.query_editor);
         }
@@ -72,7 +68,6 @@ public class FilterOneActivity extends ActionBarActivity
         setAdapters();
         setFromFilterValues();
         this.holder.number.requestFocus();
-        Log.i(TAG, "Activity created");
 
     }
 
@@ -90,30 +85,30 @@ public class FilterOneActivity extends ActionBarActivity
 
     private void setupVersions() {
         this.holder.version8.setItems(
-                Releases.getVersions(this, true, ""),
+                ReleaseHelper.getVersions(this, true, ""),
                 true
-                                     );
+        );
 
     }
 
     private void setupReleases() {
         List<String> items = new ArrayList<>();
         if (this.holder.version8.isSingleSelected()) {
-            items = Releases.getReleasesNames(this, holder.version8.getValue(), true, null);
+            items = ReleaseHelper.getReleasesNames(this, holder.version8.getValue(), true, null);
         }
         this.holder.release8.setItems(
                 items, true
-                                     );
+        );
     }
 
     private void setupBuilds() {
         List<String> items = new ArrayList<>();
         if (this.holder.release8.isSingleSelected()) {
-            items = Builds.getBuildsDisplayNames(this, holder.release8.getValue(), true);
+            items = BuildHelper.getBuildsDisplayNames(this, holder.release8.getValue(), true);
         }
         this.holder.build8.setItems(
                 items, true
-                                   );
+        );
     }
 
     private void setupApps() {
@@ -122,9 +117,9 @@ public class FilterOneActivity extends ActionBarActivity
                         this,
                         R.layout.dropdown_multiline_item,
                         R.id.item,
-                        Applists.getAppsAll(this)
+                        ApplistHelper.getAppsAll(this)
                 )
-                                          );
+        );
         this.holder.application.setTokenizer(new SemicolonTokenizer());
     }
 
@@ -134,9 +129,9 @@ public class FilterOneActivity extends ActionBarActivity
                         this,
                         R.layout.dropdown_multiline_item,
                         R.id.item,
-                        Units.getUnits(this)
+                        UnitHelper.getUnits(this)
                 )
-                                   );
+        );
         this.holder.unit.setTokenizer(new SemicolonTokenizer());
     }
 
@@ -150,13 +145,11 @@ public class FilterOneActivity extends ActionBarActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        Log.i(TAG, "Creating Options Menu");
         getMenuInflater().inflate(R.menu.menu_filter_editor, menu);
         menu.findItem(R.id.action_exec_query).setVisible(selfRequest == Intents.REQUEST_FILTER_ADD_NEW);
         menu.findItem(R.id.action_delete_query).setVisible(selfRequest == Intents.REQUEST_FILTER_EDIT);
         menu.findItem(R.id.action_save_query)
-            .setTitle(selfRequest == Intents.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
+                .setTitle(selfRequest == Intents.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
         invalidateOptionsMenu();
         return true;
     }
@@ -190,7 +183,7 @@ public class FilterOneActivity extends ActionBarActivity
                         new InputDialog.ResultListener() {
                             @Override
                             public void onSetResult(boolean isPositive, String userInput) {
-                                FilterOneActivity that = FilterOneActivity.this;
+                                FilterEditActivity that = FilterEditActivity.this;
                                 if (isPositive) {
                                     that.filter.filter_name = userInput;
                                     setFilterFromFields();
@@ -216,7 +209,6 @@ public class FilterOneActivity extends ActionBarActivity
                 if (this.filter.filter_rn > 0) {
                     this.resultIntent.putExtra(Filter.PARAM_FILTER_RN, this.filter.filter_rn);
                 }
-                //setExtraResults();
                 setResult(Intents.RESULT_NEED_EXECUTE_FILTER, this.resultIntent);
                 finish();
                 return true;

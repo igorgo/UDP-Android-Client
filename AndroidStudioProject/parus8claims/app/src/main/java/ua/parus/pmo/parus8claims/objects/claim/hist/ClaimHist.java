@@ -9,12 +9,10 @@ import android.text.style.StyleSpan;
 
 import ua.parus.pmo.parus8claims.R;
 
-/**
- * Created by igorgo on 26.04.2015.
- */
-@SuppressWarnings("DefaultFileTemplate")
 class ClaimHist {
 
+    public static final String FLAG_COMMENT_OTHER = "O";
+    public static final String FLAG_COMMENT_AUTHOR = "A";
     private static final int ACT_NOTE = 1;
     private static final int ACT_FWD = 2;
     private static final int ACT_NULL = 3;
@@ -22,13 +20,6 @@ class ClaimHist {
     private static final int ACT_SEND = 5;
     private static final int ACT_UPD = 6;
     private static final int ACT_INS = 7;
-
-
-    public static final String FLAG_COMMENT_OTHER = "O";
-    // --Commented out by Inspection (13.05.2015 16:03):public static final String FLAG_NOCOMMENT = "N";
-    public static final String FLAG_COMMENT_AUTHOR = "A";
-    // --Commented out by Inspection (13.05.2015 16:03):public static final String FLAG_IGNORE = "I";
-
     private static final String TOKEN_WHO = "@@";
     private static final String TOKEN_WHOM = "$$";
     private static final String TOKEN_STATE = "##";
@@ -43,25 +34,21 @@ class ClaimHist {
     public int action;
 
     private static CharSequence setSpanBetweenTokens(CharSequence text,
-                                                     String token, CharacterStyle... cs) {
+                                                     String token, CharacterStyle... styles) {
         // Start and end refer to the points where the span will apply
-        int tokenLen = token.length();
-        int start = text.toString().indexOf(token) + tokenLen;
+        int tokenLength = token.length();
+        int start = text.toString().indexOf(token) + tokenLength;
         int end = text.toString().indexOf(token, start);
-
         if (start > -1 && end > -1) {
             // Copy the spannable string to a mutable spannable string
-            SpannableStringBuilder ssb = new SpannableStringBuilder(text);
-            for (CharacterStyle c : cs)
-                ssb.setSpan(c, start, end, 0);
-
+            SpannableStringBuilder builder = new SpannableStringBuilder(text);
+            for (CharacterStyle c : styles)
+                builder.setSpan(c, start, end, 0);
             // Delete the tokens before and after the span
-            ssb.delete(end, end + tokenLen);
-            ssb.delete(start - tokenLen, start);
-
-            text = ssb;
+            builder.delete(end, end + tokenLength);
+            builder.delete(start - tokenLength, start);
+            text = builder;
         }
-
         return text;
     }
 
@@ -69,7 +56,6 @@ class ClaimHist {
         CharSequence lText;
         lText = dateHist;
         lText = lText + SPACE + TOKEN_WHO + who + TOKEN_WHO;
-
         switch (action) {
             case ACT_NOTE:
                 lText = lText + SPACE + context.getString(R.string.act_snote);
@@ -103,6 +89,4 @@ class ClaimHist {
         lText = setSpanBetweenTokens(lText, TOKEN_WHOM, new StyleSpan(Typeface.BOLD));
         return lText;
     }
-
-
 }

@@ -40,9 +40,9 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         try {
             FilterListAdapter adapter;
-            if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
+            if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
                 adapter = new FilterListAdapter(this);
-                ((ClaimApplication)getApplication()).setFilters(adapter);
+                ((ClaimApplication) getApplication()).setFilters(adapter);
             }
             this.filtersListView.setAdapter(adapter);
 
@@ -87,10 +87,10 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         long rn = ((Filter) adapterView.getAdapter().getItem(i)).filter_rn;
         if (viewId == R.id.flImageEdit) {
             Log.i("FilterListAct", "Click on Image  " + String.valueOf(rn));
-            Intent intentFilterEdit = new Intent(this, FilterOneActivity.class);
+            Intent intentFilterEdit = new Intent(this, FilterEditActivity.class);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_FILTER_EDIT);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_RN, rn);
-            Log.i(TAG, "Intent to start FilterOneActivity (reguest REQUEST_FILTER_EDIT).");
+            Log.i(TAG, "Intent to start FilterEditActivity (reguest REQUEST_FILTER_EDIT).");
             startActivityForResult(intentFilterEdit, Intents.REQUEST_FILTER_EDIT);
         } else {
             Intent intentResult = new Intent();
@@ -104,17 +104,17 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Intents.REQUEST_FILTER_EDIT)
-        if (resultCode != Intents.RESULT_CANCEL) {
-            try {
-                FilterListAdapter adapter;
-                if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
-                    adapter = new FilterListAdapter(this);
-                    ((ClaimApplication)getApplication()).setFilters(adapter);
+            if (resultCode != Intents.RESULT_CANCEL) {
+                try {
+                    FilterListAdapter adapter;
+                    if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
+                        adapter = new FilterListAdapter(this);
+                        ((ClaimApplication) getApplication()).setFilters(adapter);
+                    }
+                    this.filtersListView.setAdapter(adapter);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
                 }
-                this.filtersListView.setAdapter(adapter);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
             }
-        }
     }
 }

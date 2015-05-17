@@ -13,25 +13,25 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
-
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 
 
-public class ClaimEditFragment extends Fragment  {
+public class ClaimEditFragment extends Fragment {
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimEditFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
+    public Holder holder;
     private Claim claim;
     private View rootView;
-    public Holder holder;
     private boolean isPmoUser;
 
     public ClaimEditFragment() {
@@ -58,14 +58,12 @@ public class ClaimEditFragment extends Fragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         this.rootView = inflater.inflate(R.layout.fragment_claim_edit, container, false);
         this.claim.populateToView(rootView);
         this.holder = new Holder();
         this.holder.populateFromClaim(this.claim);
         return this.rootView;
     }
-
 
     class Holder {
         public final SimpleSpinner release;
@@ -82,7 +80,6 @@ public class ClaimEditFragment extends Fragment  {
         private boolean needRefreshUnitApps = true;
         private boolean needRefreshUnitFunc = true;
 
-
         public Holder() {
             View view = ClaimEditFragment.this.rootView;
             that = ClaimEditFragment.this;
@@ -96,7 +93,7 @@ public class ClaimEditFragment extends Fragment  {
             this.unit = (MultiAutoCompleteTextView) view.findViewById(R.id.unitsText);
             this.unitApp = (MultiSpinner) view.findViewById(R.id.appSpinner);
             this.unitFunc = (SimpleSpinner) view.findViewById(R.id.funcSpinner);
-            this.groupFix = (LinearLayout)  view.findViewById(R.id.groupFix);
+            this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
         private void populateFromClaim(Claim claim) {
@@ -105,15 +102,15 @@ public class ClaimEditFragment extends Fragment  {
                         @Override
                         public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
                             build.setItemsStringVals(
-                                    Builds.getBuildsDisplayNames(getActivity(), release.getValueString(), true),
-                                    Builds.getBuildsCodes(getActivity(), release.getValueString(), true),
-                                    Builds.buildName(release.getValueString(), that.claim.buildFound)
+                                    BuildHelper.getBuildsDisplayNames(getActivity(), release.getValueString(), true),
+                                    BuildHelper.getBuildsCodes(getActivity(), release.getValueString(), true),
+                                    BuildHelper.buildName(release.getValueString(), that.claim.buildFound)
                             );
                         }
                     }
             );
             this.release.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, true, ""),
                     claim.releaseFound.name);
             this.releaseFix.setOnValueChangedListener(
@@ -126,16 +123,16 @@ public class ClaimEditFragment extends Fragment  {
                             } else {
                                 buildFix.setEnabled(true);
                                 buildFix.setItemsStringVals(
-                                        Builds.getBuildsDisplayNames(getActivity(), valueString, false),
-                                        Builds.getBuildsCodes(getActivity(), valueString, false),
-                                        that.claim.buildFix == null ? "" : Builds.buildName(valueString, that.claim.buildFix)
+                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
+                                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
+                                        that.claim.buildFix == null ? "" : BuildHelper.buildName(valueString, that.claim.buildFix)
                                 );
                             }
                         }
                     }
             );
             this.releaseFix.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, false, ""),
                     claim.releaseFix == null ? null : claim.releaseFix.name);
             this.priority.setText(String.valueOf(claim.priority));
@@ -144,7 +141,7 @@ public class ClaimEditFragment extends Fragment  {
                             that.getActivity(),
                             R.layout.dropdown_multiline_item,
                             R.id.item,
-                            Units.getUnits(that.getActivity())
+                            UnitHelper.getUnits(that.getActivity())
                     )
             );
             this.unit.setTokenizer(new SemicolonTokenizer());
@@ -175,10 +172,9 @@ public class ClaimEditFragment extends Fragment  {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitApps && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitApp.getValue();
-                                unitApp.setItems(Units.getUnitApps(getActivity(), unit.getText().toString()), true);
+                                unitApp.setItems(UnitHelper.getUnitApps(getActivity(), unit.getText().toString()), true);
                                 unitApp.setValue(s);
                                 needRefreshUnitApps = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
@@ -191,10 +187,8 @@ public class ClaimEditFragment extends Fragment  {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitFunc && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitFunc.getValueString();
-                                unitFunc.setItems(Units.getUnitFuncs(getActivity(), unit.getText().toString()), s);
-                                //unitFunc.setValue(s);
+                                unitFunc.setItems(UnitHelper.getUnitFuncs(getActivity(), unit.getText().toString()), s);
                                 needRefreshUnitFunc = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
@@ -202,14 +196,7 @@ public class ClaimEditFragment extends Fragment  {
             );
             this.unitFunc.setValue(claim.unitFunc);
             this.content.setText(claim.description);
-            if (!isPmoUser) {
-                this.groupFix.setVisibility(View.GONE);
-            } else {
-                this.groupFix.setVisibility(View.VISIBLE);
-            }
-
-
+            this.groupFix.setVisibility(isPmoUser ? View.VISIBLE : View.GONE);
         }
     }
-
 }

@@ -3,7 +3,6 @@ package ua.parus.pmo.parus8claims.objects.filter;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +24,13 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created by igor-go on 23.04.2015.
- * ua.parus.pmo.parus8claims.objects.filter
- */
 public class FilterListAdapter extends BaseAdapter {
 
     private static final String FIELD_RN = "n01";
     private static final String FIELD_NAME = "s01";
     private static final String FIELD_EDITABLE = "s02";
     private static final String FIELD_EDITABLE_POSITIVE_VALUE = "Y";
+    @SuppressWarnings("unused")
     private static final String TAG = FilterListAdapter.class.getSimpleName();
     private static final String PARAM_SESSION = "session";
     private static final String REST_URL = "filters/";
@@ -49,7 +45,6 @@ public class FilterListAdapter extends BaseAdapter {
                 PARAM_SESSION,
                 ((ClaimApplication) this.context.getApplicationContext()).getSessionId()
         );
-        Log.i(TAG,"Created");
         new FetchAsyncTask().execute();
     }
 
@@ -91,50 +86,49 @@ public class FilterListAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View view) {
                     ((ListView) parent).performItemClick(view, position, 0);
-                    Log.i("FilterList", "ClickOnButton");
                 }
             });
         } else holder.flImageEdit.setVisibility(View.INVISIBLE);
         return row;
     }
 
-    static class FilterHolder {
-        TextView filterName;
-        ImageView flImageEdit;
-    }
-
     public void deleteFilter(Filter filter) {
         if (filter.filter_rn > 0) {
-            int j =-1;
+            int j = -1;
             for (int i = 0; i < entries.size(); i++) {
                 if (entries.get(i).filter_rn == filter.filter_rn) {
-                    j=i;
+                    j = i;
                     break;
                 }
             }
-            if (j>=0) {
+            if (j >= 0) {
                 entries.remove(j);
             }
         }
 
     }
 
-    public void addReplaceFilter(Filter filter){
+    public void addReplaceFilter(Filter filter) {
         if (filter.filter_rn > 0) {
-            int j =-1;
+            int j = -1;
             for (int i = 0; i < entries.size(); i++) {
                 if (entries.get(i).filter_rn == filter.filter_rn) {
-                    j=i;
+                    j = i;
                     break;
                 }
             }
             filter.filter_editable = true;
-            if (j>=0) {
-                entries.set(j,filter);
+            if (j >= 0) {
+                entries.set(j, filter);
             } else {
                 entries.add(filter);
             }
         }
+    }
+
+    static class FilterHolder {
+        TextView filterName;
+        ImageView flImageEdit;
     }
 
     private class FetchAsyncTask extends AsyncTask<Void, Void, JSONArray> {

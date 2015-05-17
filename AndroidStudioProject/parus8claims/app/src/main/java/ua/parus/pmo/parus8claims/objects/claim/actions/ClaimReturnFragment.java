@@ -1,8 +1,7 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 public class ClaimReturnFragment extends Fragment {
 
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimReturnFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
     private static final String ARG_PARAM2 = "session";
@@ -60,20 +60,20 @@ public class ClaimReturnFragment extends Fragment {
         return rootView;
     }
 
-
     class Holder {
         public final EditText note;
         public final TextView message;
+
         public Holder() {
             note = (EditText) rootView.findViewById(R.id.noteEdit);
             message = (TextView) rootView.findViewById(R.id.returnMessage);
-            RestRequest restRequest = null;
+            RestRequest restRequest;
             try {
-                restRequest = new RestRequest("return/","GET");
+                restRequest = new RestRequest("return/", "GET");
                 restRequest.addInParam("session", session);
                 restRequest.addInParam("rn", String.valueOf(claim.rn));
                 JSONArray items = restRequest.getAllRows();
-                if (items != null && items.length()>0 ) {
+                if (items != null && items.length() > 0) {
                     JSONObject item = items.getJSONObject(0);
                     message.setText(item.optString("s01"));
                 }
@@ -82,6 +82,4 @@ public class ClaimReturnFragment extends Fragment {
             }
         }
     }
-
-
 }

@@ -8,13 +8,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import org.json.JSONObject;
-
 import java.net.ConnectException;
 import java.net.MalformedURLException;
-
-import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
@@ -64,7 +60,6 @@ public class ClaimActionActivity extends ActionBarActivity {
         this.session = getIntent().getStringExtra(Intents.EXTRA_KEY_SESSION);
         setContentView(R.layout.activity_claim);
         if (savedInstanceState == null) {
-            FragmentTransaction fragmentTransaction;
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) {
                 if (this.request == Intents.REQUEST_CLAIM_EDIT) {
@@ -117,8 +112,6 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        //Intent intent = new Intent();
-        //setResult(Intents.RESULT_CANCEL, intent);
         //super.onBackPressed();
     }
 
@@ -129,9 +122,9 @@ public class ClaimActionActivity extends ActionBarActivity {
         boolean unitNotSet = fragment.holder.unit.getText().toString().isEmpty();
         boolean contentNotSet = fragment.holder.content.getText().toString().isEmpty();
         boolean relNotSet = (fragment.holder.release.getValueString() == null)
-                            || fragment.holder.release.getValueString().isEmpty();
+                || fragment.holder.release.getValueString().isEmpty();
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
-                            || fragment.holder.build.getValueString().isEmpty();
+                || fragment.holder.build.getValueString().isEmpty();
         if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
         try {
             RestRequest restRequest = new RestRequest(REST_ADD_URL, REST_POST_METHOD);
@@ -187,9 +180,7 @@ public class ClaimActionActivity extends ActionBarActivity {
             setResult(Intents.RESULT_CLAIM_ADDED, intent);
             finish();
         }
-
     }
-
 
     private void editClaim() {
         ClaimEditFragment fragment = (ClaimEditFragment) getSupportFragmentManager()
@@ -197,9 +188,9 @@ public class ClaimActionActivity extends ActionBarActivity {
         boolean unitNotSet = fragment.holder.unit.getText().toString().isEmpty();
         boolean contentNotSet = fragment.holder.content.getText().toString().isEmpty();
         boolean relNotSet = (fragment.holder.release.getValueString() == null)
-                            || fragment.holder.release.getValueString().isEmpty();
+                || fragment.holder.release.getValueString().isEmpty();
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
-                            || fragment.holder.build.getValueString().isEmpty();
+                || fragment.holder.build.getValueString().isEmpty();
         if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
         try {
             RestRequest restRequest = new RestRequest(REST_EDIT_URL, REST_POST_METHOD);
@@ -228,7 +219,6 @@ public class ClaimActionActivity extends ActionBarActivity {
             e.printStackTrace();
         }
         finishUpdated();
-
     }
 
     private void finishUpdated() {
@@ -238,7 +228,7 @@ public class ClaimActionActivity extends ActionBarActivity {
     }
 
     private boolean doRestForError(RestRequest restRequest) {
-        JSONObject response = null;
+        JSONObject response;
         try {
             response = restRequest.getJsonContent();
         } catch (ConnectException e) {
@@ -335,40 +325,35 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_cancel) {
-            Intent intent = new Intent();
-            setResult(Intents.RESULT_CANCEL, intent);
-            finish();
-            return true;
+        switch (item.getItemId()) {
+            case  R.id.action_cancel:
+                Intent intent = new Intent();
+                setResult(Intents.RESULT_CANCEL, intent);
+                finish();
+                break;
+            case  R.id.action_ok:
+                switch (this.request) {
+                    case Intents.REQUEST_CLAIM_EDIT:
+                        editClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_ADD:
+                        addClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_NOTE:
+                        addNote();
+                        break;
+                    case Intents.REQUEST_CLAIM_SEND:
+                        sendClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_RETURN:
+                        returnClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_FORWARD:
+                        forwardClaim();
+                        break;
+                }
+                break;
         }
-        if (id == R.id.action_ok) {
-            if (this.request == Intents.REQUEST_CLAIM_EDIT) {
-                editClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_ADD) {
-                addClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_NOTE) {
-                addNote();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_SEND) {
-                sendClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_RETURN) {
-                returnClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_FORWARD) {
-                forwardClaim();
-                return true;
-            }
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

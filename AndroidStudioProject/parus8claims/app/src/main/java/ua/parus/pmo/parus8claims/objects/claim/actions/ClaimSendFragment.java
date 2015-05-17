@@ -29,8 +29,12 @@ public class ClaimSendFragment extends Fragment {
     private static final String ARG_PARAM2 = "session";
     private static Claim claim;
     private static String session;
-    private View rootView;
     public Holder holder;
+    private View rootView;
+
+    public ClaimSendFragment() {
+        // Required empty public constructor
+    }
 
     public static ClaimSendFragment newInstance(Claim claim, String session) {
         ClaimSendFragment fragment = new ClaimSendFragment();
@@ -41,8 +45,23 @@ public class ClaimSendFragment extends Fragment {
         return fragment;
     }
 
-    public ClaimSendFragment() {
-        // Required empty public constructor
+    private static List<String> getExecutors() {
+        List<String> executors = new ArrayList<>();
+        try {
+            RestRequest restRequest = new RestRequest("send/", "GET");
+            restRequest.addInParam("session", session);
+            restRequest.addInParam("rn", String.valueOf(claim.rn));
+            JSONArray items = restRequest.getAllRows();
+            if (items != null) {
+                for (int i = 0; i < items.length(); i++) {
+                    JSONObject item = items.getJSONObject(i);
+                    executors.add(item.getString("s01"));
+                }
+            }
+        } catch (MalformedURLException | JSONException | ConnectException e) {
+            e.printStackTrace();
+        }
+        return executors;
     }
 
     @Override
@@ -62,36 +81,17 @@ public class ClaimSendFragment extends Fragment {
         return rootView;
     }
 
-    private static List<String> getExecutors() {
-        List<String> executors = new ArrayList<>();
-        try {
-            RestRequest restRequest = new RestRequest("send/","GET");
-            restRequest.addInParam("session", session);
-            restRequest.addInParam("rn", String.valueOf(claim.rn));
-            JSONArray items = restRequest.getAllRows();
-            if (items != null) {
-                for (int i = 0; i < items.length(); i++) {
-                    JSONObject item = items.getJSONObject(i);
-                    executors.add(item.getString("s01"));
-                }
-            }
-        } catch (MalformedURLException | JSONException | ConnectException e) {
-            e.printStackTrace();
-        }
-        return executors;
-    }
-
-
     class Holder {
         public final SimpleSpinner send;
         public final EditText note;
+
         public Holder() {
             send = (SimpleSpinner) rootView.findViewById(R.id.sendSpinner);
-            note = (EditText)  rootView.findViewById(R.id.noteEdit);
+            note = (EditText) rootView.findViewById(R.id.noteEdit);
             List<String> executorsV = new ArrayList<>();
             List<String> executorsD = new ArrayList<>();
             try {
-                RestRequest restRequest = new RestRequest("send/","GET");
+                RestRequest restRequest = new RestRequest("send/", "GET");
                 restRequest.addInParam("session", session);
                 restRequest.addInParam("rn", String.valueOf(claim.rn));
                 JSONArray items = restRequest.getAllRows();
@@ -106,10 +106,8 @@ public class ClaimSendFragment extends Fragment {
                 e.printStackTrace();
             }
             if (executorsV.size() > 0) {
-                send.setItemsStringVals(executorsD,executorsV, executorsV.get(0));
+                send.setItemsStringVals(executorsD, executorsV, executorsV.get(0));
             }
         }
     }
-
-
 }

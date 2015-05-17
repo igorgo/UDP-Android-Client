@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,16 +31,9 @@ import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 import static android.widget.LinearLayout.LayoutParams;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * <p/>
- * Activities containing this fragment MUST implement the {@link ClaimHistoryFragmentInterface}
- * interface.
- */
 public class ClaimHistoryFragment extends ListFragment implements View.OnClickListener {
 
-
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimHistoryFragment.class.getSimpleName();
     private static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
     private static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
@@ -91,7 +83,6 @@ public class ClaimHistoryFragment extends ListFragment implements View.OnClickLi
         this.histLoaded = false;
         this.infoLoaded = false;
         this.docsLoaded = !this.hasDocs;
-
         this.claim = new Claim();
         new GetClaimAsyncTask().execute(this.claimRn);
         new GetHistAsyncTask().execute(this.claimRn);
@@ -143,7 +134,6 @@ public class ClaimHistoryFragment extends ListFragment implements View.OnClickLi
             if (this.claimHistoryFragmentInterface != null) {
                 this.claimHistoryFragmentInterface.onDocumDownloadRequest((Attach) v.getTag());
             }
-            Log.i(TAG, "Click on image of doc rn=" + String.valueOf(v.getTag()));
         }
     }
 
@@ -297,7 +287,6 @@ public class ClaimHistoryFragment extends ListFragment implements View.OnClickLi
             }
             ClaimHistoryFragment.this.docsLoaded = true;
             ClaimHistoryFragment.this.preListener();
-            //mCallback.onClaimRead(ClaimInfoFragment.this,this.claim);
         }
     }
 

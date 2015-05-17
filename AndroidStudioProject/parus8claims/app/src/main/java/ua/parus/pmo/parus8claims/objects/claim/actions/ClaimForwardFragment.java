@@ -22,20 +22,25 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 public class ClaimForwardFragment extends Fragment {
 
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimSendFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
     private static final String ARG_PARAM2 = "session";
     private static Claim claim;
     private static String session;
-    private View rootView;
     public Holder holder;
+    private View rootView;
 
+
+    public ClaimForwardFragment() {
+        // Required empty public constructor
+    }
 
     public static ClaimForwardFragment newInstance(Claim claim, String session) {
         ClaimForwardFragment fragment = new ClaimForwardFragment();
@@ -44,10 +49,6 @@ public class ClaimForwardFragment extends Fragment {
         args.putString(ARG_PARAM2, session);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public ClaimForwardFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -76,18 +77,15 @@ public class ClaimForwardFragment extends Fragment {
         public final SimpleSpinner buildFix;
         public final EditText priority;
 
-
         public Holder() {
             state = (SimpleSpinner) rootView.findViewById(R.id.stateSpinner);
             send = (SimpleSpinner) rootView.findViewById(R.id.sendSpinner);
             note = (EditText) rootView.findViewById(R.id.noteEdit);
-            groupFix = (LinearLayout)  rootView.findViewById(R.id.groupFix);
+            groupFix = (LinearLayout) rootView.findViewById(R.id.groupFix);
             releaseFix = (SimpleSpinner) rootView.findViewById(R.id.releaseFixSpinner);
             buildFix = (SimpleSpinner) rootView.findViewById(R.id.buildFixSpinner);
             priority = (EditText) rootView.findViewById(R.id.priorityEdit);
             groupFix.setVisibility(View.GONE);
-
-
             state.setOnValueChangedListener(
                     new SimpleSpinner.OnValueChangedListener() {
                         @Override
@@ -95,7 +93,7 @@ public class ClaimForwardFragment extends Fragment {
                             List<String> execsD = new ArrayList<>();
                             List<String> execsV = new ArrayList<>();
                             try {
-                                RestRequest restRequest = new RestRequest("nextsend/","GET");
+                                RestRequest restRequest = new RestRequest("nextsend/", "GET");
                                 restRequest.addInParam("session", session);
                                 restRequest.addInParam("rn", String.valueOf(claim.rn));
                                 restRequest.addInParam("point", String.valueOf(valueLong));
@@ -113,7 +111,6 @@ public class ClaimForwardFragment extends Fragment {
                             if (execsV.size() > 0) {
                                 send.setItemsStringVals(execsD, execsV, execsV.get(0));
                             }
-
                             releaseFix.setOnValueChangedListener(
                                     new SimpleSpinner.OnValueChangedListener() {
                                         @Override
@@ -124,39 +121,35 @@ public class ClaimForwardFragment extends Fragment {
                                             } else {
                                                 buildFix.setEnabled(true);
                                                 buildFix.setItemsStringVals(
-                                                        Builds.getBuildsDisplayNames(getActivity(), valueString, false),
-                                                        Builds.getBuildsCodes(getActivity(), valueString, false),
-                                                        claim.buildFix == null ? "" : Builds.buildName(valueString, claim.buildFix)
+                                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
+                                                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
+                                                        claim.buildFix == null ? "" : BuildHelper.buildName(valueString, claim.buildFix)
                                                 );
                                             }
                                         }
                                     }
                             );
                             releaseFix.setItems(
-                                    Releases.getReleasesNames(
+                                    ReleaseHelper.getReleasesNames(
                                             getActivity(), null, false, ""),
                                     claim.releaseFix == null ? null : claim.releaseFix.name);
                             priority.setText(String.valueOf(claim.priority));
-
-
                             boolean isPmo = ((ClaimApplication) getActivity().getApplication()).isPmoUser();
                             boolean toInstall = state.getValueDisplay().equals("Включ в ИНСТ");
                             boolean toReview = state.getValueDisplay().equals("На рассмотрении");
                             boolean toTest = state.getValueDisplay().equals("ТестПроверка");
                             boolean fromInit = claim.state.equals("Инициировано");
-
-                            boolean needSetRelFix = fromInit && (toReview || toTest ) && isPmo;
+                            boolean needSetRelFix = fromInit && (toReview || toTest) && isPmo;
                             boolean needSetBldFix = toInstall && isPmo;
-
-                            groupFix.setVisibility(needSetRelFix  || needSetBldFix ?   View.VISIBLE : View.GONE);
-                            buildFix.setEnabled( needSetBldFix );
+                            groupFix.setVisibility(needSetRelFix || needSetBldFix ? View.VISIBLE : View.GONE);
+                            buildFix.setEnabled(needSetBldFix);
                         }
                     }
             );
             List<String> statesD = new ArrayList<>();
             List<Long> statesV = new ArrayList<>();
             try {
-                RestRequest restRequest = new RestRequest("nextpoint/","GET");
+                RestRequest restRequest = new RestRequest("nextpoint/", "GET");
                 restRequest.addInParam("session", session);
                 restRequest.addInParam("rn", String.valueOf(claim.rn));
                 JSONArray items = restRequest.getAllRows();
@@ -173,8 +166,6 @@ public class ClaimForwardFragment extends Fragment {
             if (statesV.size() > 0) {
                 state.setItemsLongVals(statesD, statesV, statesV.get(0));
             }
-
         }
     }
-
 }

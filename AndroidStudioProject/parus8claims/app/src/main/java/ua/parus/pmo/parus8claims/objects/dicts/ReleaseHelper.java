@@ -4,25 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.ConnectException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
-import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created  by igor-go on 14.04.2015.
- */
-public class Releases {
+public class ReleaseHelper {
 
     public static final String TABLE_NAME = "releases";
     public static final String SQL_DROP_TABLE =
@@ -31,8 +19,16 @@ public class Releases {
     public static final String COLUMN_NAME = "name";
     private static final String COLUMN_VERSION = "version";
     private static final String COLUMN_BUILDS_CACHED = "builds_cached";
-    private static final String TAG = Releases.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ReleaseHelper.class.getSimpleName();
     private static final String COMMA_SEP = ", ";
+    public static final String SQL_INSERT =
+            "INSERT INTO " + TABLE_NAME + "("
+                    + COLUMN_RN + COMMA_SEP
+                    + COLUMN_VERSION + COMMA_SEP
+                    + COLUMN_NAME + COMMA_SEP
+                    + COLUMN_BUILDS_CACHED
+                    + ") VALUES (?,?,?,0)";
     private static final String TYPE_RN = "INTEGER PRIMARY KEY ";
     private static final String TYPE_VERSION = "TEXT";
     private static final String TYPE_RELEASE = "TEXT";
@@ -45,57 +41,10 @@ public class Releases {
                     COLUMN_BUILDS_CACHED + " " + TYPE_BUILDS_CACHED +
                     ")";
 
-    public static final String SQL_INSERT =
-            "INSERT INTO " + TABLE_NAME + "("
-                    + COLUMN_RN + COMMA_SEP
-                    + COLUMN_VERSION + COMMA_SEP
-                    + COLUMN_NAME + COMMA_SEP
-                    + COLUMN_BUILDS_CACHED
-                    + ") VALUES (?,?,?,0)";
 
-
-    public static void RefreshCache(Context context) throws ConnectException {
-
-        DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
-        SQLiteDatabase db = databaseWrapper.getWritableDatabase();
-        try {
-            RestRequest restRequest = new RestRequest("dicts/releases/");
-            JSONArray response = restRequest.getAllRows();
-            if (response != null) {
-                db.delete(TABLE_NAME, null, null);
-                db.delete(Builds.TABLE_NAME, null, null);
-                db.beginTransaction();
-                try {
-                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
-                    for (int i = 0; i < response.length(); i++) {
-                        try {
-                            JSONObject c = response.getJSONObject(i);
-                            statement.bindLong(1, c.getLong("rn"));
-                            statement.bindString(2, c.getString("v"));
-                            statement.bindString(3, c.getString("r"));
-                            statement.execute();
-                            statement.clearBindings();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-            }
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } finally {
-            db.close();
-        }
-    }
-
-
-    @SuppressWarnings("SameParameterValue")
-    public static List<String> getVersions(Context context, boolean mandatory, String nulltext) {
+    public static List<String> getVersions(Context context, boolean mandatory, String nullText) {
         List<String> versions = new ArrayList<>();
-        if (!mandatory) versions.add(nulltext);
+        if (!mandatory) versions.add(nullText);
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT DISTINCT " + COLUMN_VERSION + " FROM " + TABLE_NAME + " ORDER BY " + COLUMN_VERSION + " DESC", null);
@@ -108,7 +57,6 @@ public class Releases {
         db.close();
         return versions;
     }
-
 
     private static List<Release> getReleases(Context context, String version, boolean mandatory, String nulltext) {
         List<Release> releases = new ArrayList<>();
@@ -133,17 +81,17 @@ public class Releases {
         }
         selectClause = "SELECT " + selectClause.substring(0, selectClause.length() - COMMA_SEP.length());
         String lFromClause = " FROM " + TABLE_NAME;
-        String lWhereClouse;
+        String lWhereClause;
         String[] queryParams;
         if (version != null) {
-            lWhereClouse = " WHERE " + COLUMN_VERSION + "= ?";
+            lWhereClause = " WHERE " + COLUMN_VERSION + "= ?";
             queryParams = new String[]{version};
         } else {
-            lWhereClouse = "";
+            lWhereClause = "";
             queryParams = new String[]{};
         }
         String lOrderClause = " ORDER BY " + COLUMN_NAME + " DESC";
-        String SQL = selectClause + lFromClause + lWhereClouse + lOrderClause;
+        String SQL = selectClause + lFromClause + lWhereClause + lOrderClause;
         Cursor cursor = db.rawQuery(SQL, queryParams);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -159,7 +107,6 @@ public class Releases {
         db.close();
         return releases;
     }
-
 
     public static void setReleaseCached(Context context, long releaseRn) {
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);

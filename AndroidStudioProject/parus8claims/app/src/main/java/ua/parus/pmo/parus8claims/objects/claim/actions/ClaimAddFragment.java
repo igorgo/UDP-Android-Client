@@ -15,32 +15,31 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
-
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 
 
 public class ClaimAddFragment extends Fragment {
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimAddFragment.class.getSimpleName();
     private static final int DEFAULT_PRIORITY = 5;
-    private View rootView;
     public Holder holder;
+    private View rootView;
     private boolean isPmoUser;
-
-    public static ClaimAddFragment newInstance() {
-        ClaimAddFragment fragment = new ClaimAddFragment();
-        return fragment;
-    }
 
     public ClaimAddFragment() {
         // Required empty public constructor
+    }
+
+    public static ClaimAddFragment newInstance() {
+        return new ClaimAddFragment() ;
     }
 
     @Override
@@ -52,14 +51,11 @@ public class ClaimAddFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         this.rootView = inflater.inflate(R.layout.fragment_claim_add, container, false);
         this.holder = new Holder();
         this.holder.initFields();
         return this.rootView;
     }
-
-
 
     class Holder {
         public final RadioGroup type;
@@ -77,7 +73,6 @@ public class ClaimAddFragment extends Fragment {
         private boolean needRefreshUnitApps = true;
         private boolean needRefreshUnitFunc = true;
 
-
         public Holder() {
             View view = ClaimAddFragment.this.rootView;
             that = ClaimAddFragment.this;
@@ -92,12 +87,10 @@ public class ClaimAddFragment extends Fragment {
             this.unit = (MultiAutoCompleteTextView) view.findViewById(R.id.unitsText);
             this.unitApp = (MultiSpinner) view.findViewById(R.id.appSpinner);
             this.unitFunc = (SimpleSpinner) view.findViewById(R.id.funcSpinner);
-            this.groupFix = (LinearLayout)  view.findViewById(R.id.groupFix);
+            this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
-
-
-        private void initFields () {
+        private void initFields() {
             this.release.setOnValueChangedListener(
                     new SimpleSpinner.OnValueChangedListener() {
                         @Override
@@ -108,31 +101,30 @@ public class ClaimAddFragment extends Fragment {
                             } else {
                                 build.setEnabled(true);
                                 build.setItemsStringVals(
-                                        Builds.getBuildsDisplayNames(getActivity(), valueString, true),
-                                        Builds.getBuildsCodes(getActivity(), valueString, true),
+                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, true),
+                                        BuildHelper.getBuildsCodes(getActivity(), valueString, true),
                                         ""
                                 );
                             }
                         }
                     }
             );
-
             this.release.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, true, ""),
                     "");
             this.releaseFix.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, false, ""),
                     "");
-            ((View)this.buildFix.getParent()).setVisibility(View.GONE);
+            ((View) this.buildFix.getParent()).setVisibility(View.GONE);
             this.priority.setText(String.valueOf(DEFAULT_PRIORITY));
             this.unit.setAdapter(
                     new ArrayAdapter<>(
                             that.getActivity(),
                             R.layout.dropdown_multiline_item,
                             R.id.item,
-                            Units.getUnits(that.getActivity())
+                            UnitHelper.getUnits(that.getActivity())
                     )
             );
             this.unit.setTokenizer(new SemicolonTokenizer());
@@ -162,10 +154,9 @@ public class ClaimAddFragment extends Fragment {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitApps && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitApp.getValue();
-                                unitApp.setItems(Units.getUnitApps(getActivity(), unit.getText().toString()), true);
+                                unitApp.setItems(UnitHelper.getUnitApps(getActivity(), unit.getText().toString()), true);
                                 unitApp.setValue(s);
                                 needRefreshUnitApps = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
@@ -177,25 +168,18 @@ public class ClaimAddFragment extends Fragment {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitFunc && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitFunc.getValueString();
-                                unitFunc.setItems(Units.getUnitFuncs(getActivity(), unit.getText().toString()), s);
-                                //unitFunc.setValue(s);
+                                unitFunc.setItems(UnitHelper.getUnitFuncs(getActivity(), unit.getText().toString()), s);
                                 needRefreshUnitFunc = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
                     }
             );
-            if (!isPmoUser) {
-                this.groupFix.setVisibility(View.GONE);
-            } else {
-                this.groupFix.setVisibility(View.VISIBLE);
-            }
+            this.groupFix.setVisibility(isPmoUser ? View.VISIBLE : View.GONE);
 
 
         }
     }
-
 }
 
 

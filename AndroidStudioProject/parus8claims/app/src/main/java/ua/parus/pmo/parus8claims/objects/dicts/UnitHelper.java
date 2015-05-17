@@ -1,12 +1,9 @@
 package ua.parus.pmo.parus8claims.objects.dicts;
 
-import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,17 +14,17 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created  by igorgo on 18.04.2015.
- */
 
-public class Units {
-    private static final String TAG = Units.class.getSimpleName();
-    private static final String TABLE_NAME = "units";
+public class UnitHelper {
+    public static final String TABLE_NAME = "units";
+    public static final String SQL_DROP_TABLE =
+            "DROP TABLE IF EXISTS " + TABLE_NAME;
+    public static final String URL_UNITS = "dicts/units/";
+    @SuppressWarnings("unused")
+    private static final String TAG = UnitHelper.class.getSimpleName();
     private static final String COLUMN_ID = "id";
     private static final String TYPE_ID = "INTEGER PRIMARY KEY AUTOINCREMENT";
     private static final String COLUMN_NAME = "uname";
@@ -41,74 +38,19 @@ public class Units {
                     COLUMN_NAME + " " + TYPE_NAME + COMMA_SEP +
                     COLUMN_DEPS_CACHED + " " + TYPE_DEPS_CACHED +
                     ")";
-
-    public static final String SQL_DROP_TABLE =
-            "DROP TABLE IF EXISTS " + TABLE_NAME;
-
-    private static final String SQL_INSERT =
+    public static final String SQL_INSERT =
             "INSERT INTO " + TABLE_NAME + "("
                     + COLUMN_NAME + COMMA_SEP
                     + COLUMN_DEPS_CACHED
                     + ") VALUES (?,0)";
-
     private static final String SQL_UPDATE =
             "UPDATE " + TABLE_NAME
                     + " SET " + COLUMN_DEPS_CACHED + "=1"
                     + " WHERE " + COLUMN_ID + "=?";
-
-
     private static final String URL_DEPS = "dicts/units/deps/";
-    private static final String URL_UNITS = "dicts/units/";
-    private static final String REST_PARAM_PEPS_UNIT =  "unitname";
+    private static final String REST_PARAM_PEPS_UNIT = "unitname";
 
-    public static void refreshCache(Context context) {
-        final Context lContext = context;
-        final ProgressDialog loadDialog = ProgressDialog.show(lContext, lContext.getString(R.string.please_wait),
-                lContext.getString(R.string.loading_unitlist), true);
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        DatabaseWrapper databaseWrapper = new DatabaseWrapper(lContext);
-                        SQLiteDatabase db = databaseWrapper.getWritableDatabase();
-                        try {
-                            RestRequest restRequest = new RestRequest(URL_UNITS);
-                            JSONArray response = restRequest.getAllRows();
-                            if (response != null) {
-                                db.delete(TABLE_NAME, null, null);
-                                db.delete(UnitApplists.TABLE_NAME, null, null);
-                                db.delete(UnitFuncs.TABLE_NAME, null, null);
-                                db.beginTransaction();
-                                try {
-                                    SQLiteStatement statement = db.compileStatement(SQL_INSERT);
-                                    for (int i = 0; i < response.length(); i++) {
-                                        try {
-                                            JSONObject c = response.getJSONObject(i);
-                                            statement.bindString(1, c.getString("n"));
-                                            statement.execute();
-                                            statement.clearBindings();
-                                            //Log.i(TAG, "Inserted new Unit with NAME: " + c.getString("n"));
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    db.setTransactionSuccessful();
-                                } finally {
-                                    db.endTransaction();
-                                }
-                            }
-                        } catch (MalformedURLException | ConnectException e) {
-                            e.printStackTrace();
-                        } finally {
-                            db.close();
-                            loadDialog.dismiss();
-                        }
-                    }
-                }
-        ).start();
-    }
-
-    public static void checkCache(Context context) {
+    public static boolean isUnitsCached(Context context) {
         String SQL = "SELECT COUNT(*) FROM " + TABLE_NAME;
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getReadableDatabase();
@@ -117,11 +59,10 @@ public class Units {
         int counter = cursor.getInt(0);
         cursor.close();
         db.close();
-        if (counter == 0) refreshCache(context);
+        return counter > 0;
     }
 
     public static List<String> getUnits(Context context) {
-        checkCache(context);
         List<String> unitsList = new ArrayList<>();
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getReadableDatabase();
@@ -139,7 +80,7 @@ public class Units {
         return unitsList;
     }
 
-    private static Unit getUnitByName(Context context, String name){
+    private static Unit getUnitByName(Context context, String name) {
         Unit unit = new Unit();
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();
@@ -167,14 +108,10 @@ public class Units {
         try {
             RestRequest restRequest = new RestRequest(URL_DEPS);
             restRequest.addInParam(REST_PARAM_PEPS_UNIT, unit.name);
-            Log.i(TAG,"Request depends for " + unit.name);
             JSONArray items = restRequest.getAllRows();
             long app;
-            ContentValues values;
-            long newId;
             if (items != null) {
-                Log.i(TAG, "Response has " + items.length() + " items;");
-                List<Applist> apps = Applists.getApplistAll(context);
+                List<Applist> apps = ApplistHelper.getApplistAll(context);
                 db.beginTransaction();
                 try {
                     SQLiteStatement stInsertApp = db.compileStatement(UnitApplists.SQL_INSERT);
@@ -190,17 +127,11 @@ public class Units {
                                         break;
                                     }
                                 }
-                                //app = Applists.getAppByName(context, item.getString("s02"));
                                 if (app >= 0) {
                                     stInsertApp.bindLong(1, unit.id);
                                     stInsertApp.bindLong(2, app);
                                     stInsertApp.execute();
                                     stInsertApp.clearBindings();
-                                    /*values = new ContentValues();
-                                    values.put(UnitApplists.COLUMN_APP, app.id);
-                                    values.put(UnitApplists.COLUMN_UNIT, unit.id);
-                                    newId = db.insert(UnitApplists.TABLE_NAME, "null", values);
-                                    Log.i(TAG, "Inserted new Application dependency - " + values);*/
                                 }
                             }
                             if (item.getString("s01").equals("F")) {
@@ -208,27 +139,16 @@ public class Units {
                                 stInsertFunc.bindString(2, item.getString("s02"));
                                 stInsertFunc.execute();
                                 stInsertFunc.clearBindings();
-                               /* values = new ContentValues();
-                                values.put(UnitFuncs.COLUMN_UNIT, unit.id);
-                                values.put(UnitFuncs.COLUMN_FUNC, item.getString("s02"));
-                                newId = db.insert(UnitFuncs.TABLE_NAME, "null", values);
-                                Log.i(TAG, "Inserted new Unit function - " + values);*/
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
-                    Log.i(TAG, "Set unit cached ");
                     SQLiteStatement stUpdateUnit = db.compileStatement(SQL_UPDATE);
-                    stUpdateUnit.bindLong(1,unit.id);
+                    stUpdateUnit.bindLong(1, unit.id);
                     stUpdateUnit.execute();
                     stUpdateUnit.clearBindings();
                     db.setTransactionSuccessful();
-/*
-                    values = new ContentValues();
-                    values.put(COLUMN_DEPS_CACHED, 1);
-                    db.update(TABLE_NAME, values, COLUMN_ID + " = ?", new String[]{String.valueOf(unit.id)});
-*/
                 } finally {
                     db.endTransaction();
                 }
@@ -240,26 +160,24 @@ public class Units {
         }
     }
 
-    public static List<String> getUnitApps (Context context, String unitname) {
+    public static List<String> getUnitApps(Context context, String unitname) {
         List<String> appList = new ArrayList<>();
         Unit unit = getUnitByName(context, unitname);
-        Log.i(TAG,"unit:" + unit.id + ", depsCashed:" + unit.depsCashed);
-        if (unit.id >=0 ) {
+        if (unit.id >= 0) {
             if (!unit.depsCashed) {
                 loadDepsFromServer(context, unit);
             }
             DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
             SQLiteDatabase db = databaseWrapper.getReadableDatabase();
-            String SQL = "SELECT " + Applists.COLUMN_NAME +
-                    " FROM " + Applists.TABLE_NAME +
-                    " WHERE " + Applists.COLUMN_ID + " IN (" +
+            String SQL = "SELECT " + ApplistHelper.COLUMN_NAME +
+                    " FROM " + ApplistHelper.TABLE_NAME +
+                    " WHERE " + ApplistHelper.COLUMN_ID + " IN (" +
                     " SELECT " + UnitApplists.COLUMN_APP +
                     " FROM " + UnitApplists.TABLE_NAME +
                     " WHERE " + UnitApplists.COLUMN_UNIT + "=?" +
-                    " ) ORDER BY " + Applists.COLUMN_NAME;
+                    " ) ORDER BY " + ApplistHelper.COLUMN_NAME;
             Cursor cursor = db.rawQuery(SQL, new String[]{String.valueOf(unit.id)});
             cursor.moveToFirst();
-            Log.i(TAG,"Quering Apps:\n\tSQL: " + SQL + "\n\tcursor: " + cursor.getCount());
             while (!cursor.isAfterLast()) {
                 appList.add(cursor.getString(0));
                 cursor.moveToNext();
@@ -270,10 +188,10 @@ public class Units {
         return appList;
     }
 
-    public static List<String> getUnitFuncs (Context context, String unitname) {
+    public static List<String> getUnitFuncs(Context context, String unitname) {
         List<String> funcList = new ArrayList<>();
-        Unit unit = getUnitByName(context,unitname);
-        if (unit.id >=0 ) {
+        Unit unit = getUnitByName(context, unitname);
+        if (unit.id >= 0) {
             if (!unit.depsCashed) {
                 loadDepsFromServer(context, unit);
             }
@@ -295,4 +213,55 @@ public class Units {
         return funcList;
     }
 
+    public static class UnitFuncs {
+
+        public static final String TABLE_NAME = "unitfunc";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_UNIT = "unit";
+        public static final String COLUMN_FUNC = "func";
+        public static final String SQL_DROP_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
+        private static final String COLUMN_ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+        private static final String COLUMN_UNIT_TYPE = "INTEGER";
+        private static final String COLUMN_FUNC_TYPE = "TEXT";
+        private static final String COMMA_SEP = ", ";
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        COLUMN_ID + " " + COLUMN_ID_TYPE + COMMA_SEP +
+                        COLUMN_UNIT + " " + COLUMN_UNIT_TYPE + COMMA_SEP +
+                        COLUMN_FUNC + " " + COLUMN_FUNC_TYPE +
+                        ")";
+        public static final String SQL_INSERT =
+                "INSERT INTO " + TABLE_NAME + "("
+                        + COLUMN_UNIT + COMMA_SEP
+                        + COLUMN_FUNC
+                        + ") VALUES (?,?)";
+    }
+
+
+    public static class UnitApplists {
+
+        public static final String TABLE_NAME = "unitapps";
+        public static final String COLUMN_UNIT = "unit";
+        public static final String COLUMN_APP = "app";
+        public static final String SQL_DROP_TABLE =
+                "DROP TABLE IF EXISTS " + TABLE_NAME;
+        private static final String COLUMN_ID = "id";
+        private static final String COLUMN_ID_TYPE = "INTEGER PRIMARY KEY AUTOINCREMENT";
+        private static final String COLUMN_UNIT_TYPE = "INTEGER";
+        private static final String COLUMN_APP_TYPE = "INTEGER";
+        private static final String COMMA_SEP = ", ";
+        public static final String SQL_CREATE_TABLE =
+                "CREATE TABLE " + TABLE_NAME + " (" +
+                        COLUMN_ID + " " + COLUMN_ID_TYPE + COMMA_SEP +
+                        COLUMN_UNIT + " " + COLUMN_UNIT_TYPE + COMMA_SEP +
+                        COLUMN_APP + " " + COLUMN_APP_TYPE +
+                        ")";
+        public static final String SQL_INSERT =
+                "INSERT INTO " + TABLE_NAME + "("
+                        + COLUMN_UNIT + COMMA_SEP
+                        + COLUMN_APP
+                        + ") VALUES (?,?)";
+
+    }
 }
