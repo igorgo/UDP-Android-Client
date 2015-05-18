@@ -62,8 +62,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private static final int MSG_DICTIONARIES_HAVE_CACHED = 2;
     private static final int MSG_AUTH_ERROR = 3;
     private static final int MSG_LOGGED = 4;
-    ProgressDialog progressDialog;
-    Handler handler;
+    private ProgressDialog progressDialog;
+    private Handler handler;
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
-        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog = new ProgressDialog(this);
         if (SettingsActivity.isCredentialsSet(this)) {
             cacheRelease();
         } else {

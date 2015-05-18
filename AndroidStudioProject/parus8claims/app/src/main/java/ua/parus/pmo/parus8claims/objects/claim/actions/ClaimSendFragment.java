@@ -1,6 +1,7 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 public class ClaimSendFragment extends Fragment {
 
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimSendFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
     private static final String ARG_PARAM2 = "session";
@@ -31,6 +33,7 @@ public class ClaimSendFragment extends Fragment {
     private static String session;
     public Holder holder;
     private View rootView;
+    private ProgressDialog progressDialog;
 
     public ClaimSendFragment() {
         // Required empty public constructor
@@ -45,25 +48,6 @@ public class ClaimSendFragment extends Fragment {
         return fragment;
     }
 
-    private static List<String> getExecutors() {
-        List<String> executors = new ArrayList<>();
-        try {
-            RestRequest restRequest = new RestRequest("send/", "GET");
-            restRequest.addInParam("session", session);
-            restRequest.addInParam("rn", String.valueOf(claim.rn));
-            JSONArray items = restRequest.getAllRows();
-            if (items != null) {
-                for (int i = 0; i < items.length(); i++) {
-                    JSONObject item = items.getJSONObject(i);
-                    executors.add(item.getString("s01"));
-                }
-            }
-        } catch (MalformedURLException | JSONException | ConnectException e) {
-            e.printStackTrace();
-        }
-        return executors;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +55,9 @@ public class ClaimSendFragment extends Fragment {
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
+        this.progressDialog = new ProgressDialog(getActivity());
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -78,6 +65,7 @@ public class ClaimSendFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_claim_send, container, false);
         this.holder = new Holder();
+        new GetExecutorsTask().execute();
         return rootView;
     }
 
@@ -88,8 +76,19 @@ public class ClaimSendFragment extends Fragment {
         public Holder() {
             send = (SimpleSpinner) rootView.findViewById(R.id.sendSpinner);
             note = (EditText) rootView.findViewById(R.id.noteEdit);
-            List<String> executorsV = new ArrayList<>();
-            List<String> executorsD = new ArrayList<>();
+        }
+    }
+
+    private class GetExecutorsTask extends AsyncTask<Void, Void, Integer> {
+        final List<String> executorsV = new ArrayList<>();
+        final List<String> executorsD = new ArrayList<>();
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Integer doInBackground(Void... voids) {
             try {
                 RestRequest restRequest = new RestRequest("send/", "GET");
                 restRequest.addInParam("session", session);
@@ -102,12 +101,19 @@ public class ClaimSendFragment extends Fragment {
                         executorsD.add(item.getString("s02"));
                     }
                 }
+                return 0;
             } catch (MalformedURLException | JSONException | ConnectException e) {
                 e.printStackTrace();
+                return -1;
             }
-            if (executorsV.size() > 0) {
-                send.setItemsStringVals(executorsD, executorsV, executorsV.get(0));
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == 0 && executorsV.size() > 0) {
+                holder.send.setItemsStringVals(executorsD, executorsV, executorsV.get(0));
             }
+            super.onPostExecute(result);
         }
     }
 }

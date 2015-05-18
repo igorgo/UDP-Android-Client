@@ -124,7 +124,8 @@ public class ClaimActivity extends ActionBarActivity
                 startActionActivity(Intents.REQUEST_CLAIM_FORWARD);
                 break;
             case R.id.action_claim_delete:
-                doSimpleAction("claim/delete/", R.string.deleting, R.string.delete_confirm, Intents.RESULT_CLAIM_DELETED);
+                doSimpleAction("claim/delete/", R.string.deleting, R.string.delete_confirm,
+                        Intents.RESULT_CLAIM_DELETED);
                 break;
             case R.id.action_claim_close:
                 doSimpleAction("claim/close/", R.string.closing, R.string.close_confirm, Intents.RESULT_CLAIM_DELETED);
@@ -157,30 +158,11 @@ public class ClaimActivity extends ActionBarActivity
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    RestRequest restRequest = new RestRequest(url, "POST");
-                                    restRequest.addInParam("session", session);
-                                    restRequest.addInParam("rn", String.valueOf(claim.rn));
-                                    JSONObject response = restRequest.getJsonContent();
-                                    if (response != null) {
-                                        String error = response.optString("error");
-                                        if (error != null && !error.isEmpty()) {
-                                            dialog.dismiss();
-                                            new ErrorPopup(ClaimActivity.this, null)
-                                                    .showErrorDialog(getString(R.string.error_title), error);
-                                            return;
-                                        }
-                                    }
-                                    dialog.dismiss();
-                                    Intent intent = new Intent();
-                                    setResult(resultCode, intent);
-                                    finish();
-                                } catch (MalformedURLException | ConnectException e) {
-                                    e.printStackTrace();
-                                }
+                                dialog.dismiss();
+                                new SampleActionTask().execute(new SimpleAction(url, resultCode));
                             }
                         }
-                )
+                                  )
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
@@ -259,6 +241,7 @@ public class ClaimActivity extends ActionBarActivity
         return fileName;
     }
 
+    //todo:async
     private void uploadAttach(final Uri fileUri) throws IOException, JSONException {
         loadDialog = new ProgressDialog(this);
         loadDialog.setIndeterminate(true);
@@ -333,7 +316,7 @@ public class ClaimActivity extends ActionBarActivity
                         if (!TextUtils.isEmpty(content.toString())) {
                             JSONObject jsonContent = new JSONObject(content.toString());
                             if (jsonContent.optString(REST_PARAM_ERROR) != null &&
-                                    !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
+                                !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
                                 Bundle b = new Bundle(1);
                                 b.putString(REST_PARAM_ERROR, jsonContent.optString(REST_PARAM_ERROR));
                                 Message msg = handler.obtainMessage();
@@ -405,6 +388,61 @@ public class ClaimActivity extends ActionBarActivity
                     }
                 }
                 break;
+        }
+    }
+
+    private class SimpleAction {
+        String url;
+        int resultCode;
+
+        public SimpleAction(String url, int resultCode) {
+            this.url = url;
+            this.resultCode = resultCode;
+        }
+    }
+
+    private class SampleActionTask extends AsyncTask<SimpleAction, Void, Integer> {
+        private ProgressDialog progressDialog;
+        private String error;
+
+        @Override protected void onPreExecute() {
+            progressDialog = new ProgressDialog(ClaimActivity.this);
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Integer doInBackground(SimpleAction... actions) {
+            try {
+                RestRequest restRequest = new RestRequest(actions[0].url, "POST");
+                restRequest.addInParam("session", session);
+                restRequest.addInParam("rn", String.valueOf(claim.rn));
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString("error");
+                    return TextUtils.isEmpty(error) ? actions[0].resultCode : -1;
+                } else {
+                    return actions[0].resultCode;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                Intent intent = new Intent();
+                setResult(result, intent);
+                finish();
+            }
         }
     }
 

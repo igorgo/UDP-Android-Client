@@ -48,6 +48,7 @@ public class Filter {
     public boolean condImExecutor;
     public String condContent;
 
+    //todo:async
     public void readFromServer(Context context) {
         try {
             RestRequest restRequest = new RestRequest(REST_READ_URL, REST_READ_METHOD);
@@ -89,6 +90,7 @@ public class Filter {
         this.condContent = null;
     }
 
+    //todo:async
     public void saveToServer(Context context) {
         try {
             RestRequest restRequest = new RestRequest(REST_SAVE_URL, REST_SAVE_METHOD);
@@ -120,6 +122,7 @@ public class Filter {
         }
     }
 
+    //todo:async
     public void deleteOnServer(Context context) {
         try {
             RestRequest restRequest = new RestRequest(REST_DELETE_URL, REST_DELETE_METHOD);

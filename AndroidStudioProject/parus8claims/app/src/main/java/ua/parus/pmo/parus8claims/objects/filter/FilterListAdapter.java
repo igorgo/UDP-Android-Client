@@ -2,7 +2,6 @@ package ua.parus.pmo.parus8claims.objects.filter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,18 +35,33 @@ public class FilterListAdapter extends BaseAdapter {
     private static final String REST_URL = "filters/";
     private final List<Filter> entries = new ArrayList<>();
     private final Context context;
-    private RestRequest filtersRequest;
 
-    // TODO: UnAsync creation
-
-    public FilterListAdapter(Context context) throws MalformedURLException {
+    public FilterListAdapter(Context context) {
         this.context = context;
-        this.filtersRequest = new RestRequest(REST_URL);
-        this.filtersRequest.addInParam(
-                PARAM_SESSION,
-                ((ClaimApplication) this.context.getApplicationContext()).getSessionId()
-        );
-        new FetchAsyncTask().execute();
+    }
+
+    //todo:async
+    public void loadFromServer() {
+        try {
+            RestRequest filtersRequest = new RestRequest(REST_URL);
+            filtersRequest.addInParam(
+                    PARAM_SESSION,
+                    ((ClaimApplication) this.context.getApplicationContext()).getSessionId()
+                                     );
+            JSONArray response = filtersRequest.getAllRows();
+            if (response == null) return;
+            for (int i = 0; i < response.length(); i++) {
+                JSONObject item = response.getJSONObject(i);
+                Filter filter = new Filter();
+                filter.filter_rn = item.getLong(FIELD_RN);
+                filter.filter_name = item.getString(FIELD_NAME);
+                filter.filter_editable = item.getString(FIELD_EDITABLE).equals(FIELD_EDITABLE_POSITIVE_VALUE);
+                FilterListAdapter.this.entries.add(filter);
+            }
+            notifyDataSetChanged();
+        } catch (MalformedURLException | ConnectException | JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -90,7 +104,9 @@ public class FilterListAdapter extends BaseAdapter {
                     ((ListView) parent).performItemClick(view, position, 0);
                 }
             });
-        } else holder.flImageEdit.setVisibility(View.INVISIBLE);
+        } else {
+            holder.flImageEdit.setVisibility(View.INVISIBLE);
+        }
         return row;
     }
 
@@ -132,34 +148,4 @@ public class FilterListAdapter extends BaseAdapter {
         ImageView flImageEdit;
     }
 
-    private class FetchAsyncTask extends AsyncTask<Void, Void, JSONArray> {
-        @Override
-        protected JSONArray doInBackground(Void... voids) {
-            try {
-                return FilterListAdapter.this.filtersRequest.getAllRows();
-            } catch (ConnectException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(JSONArray response) {
-            super.onPostExecute(response);
-            if (response == null) return;
-            for (int i = 0; i < response.length(); i++) {
-                try {
-                    JSONObject item = response.getJSONObject(i);
-                    Filter filter = new Filter();
-                    filter.filter_rn = item.getLong(FIELD_RN);
-                    filter.filter_name = item.getString(FIELD_NAME);
-                    filter.filter_editable = item.getString(FIELD_EDITABLE).equals(FIELD_EDITABLE_POSITIVE_VALUE);
-                    FilterListAdapter.this.entries.add(filter);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            notifyDataSetChanged();
-        }
-    }
 }

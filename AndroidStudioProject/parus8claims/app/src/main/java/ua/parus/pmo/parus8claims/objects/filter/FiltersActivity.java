@@ -1,29 +1,34 @@
 package ua.parus.pmo.parus8claims.objects.filter;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.net.MalformedURLException;
-
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 
-//TODO: set filter on AsyncTask
 
 @SuppressWarnings("deprecation")
-public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, Handler.Callback {
 
+    private static final int MSG_ADAPTER_READY = 1;
+    @SuppressWarnings("unused")
     private static final String TAG = FiltersActivity.class.getSimpleName();
     private ListView filtersListView;
+    private FilterListAdapter adapter;
+    private ProgressDialog progressDialog;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +39,21 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(R.string.stores_queries);
         }
+        this.handler = new Handler(this);
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         this.filtersListView.setOnItemClickListener(this);
-        try {
-            FilterListAdapter adapter;
-            if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
-                adapter = new FilterListAdapter(this);
-                ((ClaimApplication) getApplication()).setFilters(adapter);
-            }
-            this.filtersListView.setAdapter(adapter);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        this.progressDialog = new ProgressDialog(this);
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        setAdapter();
+    }
+
+    private void setAdapter() {
+        if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
+            adapter = new FilterListAdapter(this);
+            new AsyncLoadFilters().execute();
+        } else {
+            handler.sendEmptyMessage(MSG_ADAPTER_READY);
         }
     }
 
@@ -96,18 +105,37 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Intents.REQUEST_FILTER_EDIT)
+        if (requestCode == Intents.REQUEST_FILTER_EDIT) {
             if (resultCode != Intents.RESULT_CANCEL) {
-                try {
-                    FilterListAdapter adapter;
-                    if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
-                        adapter = new FilterListAdapter(this);
-                        ((ClaimApplication) getApplication()).setFilters(adapter);
-                    }
-                    this.filtersListView.setAdapter(adapter);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+                setAdapter();
             }
+        }
+    }
+
+    @Override public boolean handleMessage(Message message) {
+        if (message.what == MSG_ADAPTER_READY) {
+            filtersListView.setAdapter(adapter);
+        }
+        return false;
+    }
+
+    private class AsyncLoadFilters extends AsyncTask<Void, Void, Void> {
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Void doInBackground(Void... voids) {
+            adapter.loadFromServer();
+            return null;
+        }
+
+        @Override protected void onPostExecute(Void aVoid) {
+            ((ClaimApplication) getApplication()).setFilters(adapter);
+            progressDialog.dismiss();
+            handler.sendEmptyMessage(MSG_ADAPTER_READY);
+            super.onPostExecute(aVoid);
+        }
     }
 }

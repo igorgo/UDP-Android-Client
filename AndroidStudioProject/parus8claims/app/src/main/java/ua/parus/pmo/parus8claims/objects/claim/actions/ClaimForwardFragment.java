@@ -1,6 +1,7 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,13 +21,14 @@ import java.util.List;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-public class ClaimForwardFragment extends Fragment {
+public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnValueChangedListener {
 
     @SuppressWarnings("unused")
     private static final String TAG = ClaimSendFragment.class.getSimpleName();
@@ -36,7 +38,7 @@ public class ClaimForwardFragment extends Fragment {
     private static String session;
     public Holder holder;
     private View rootView;
-
+    private ProgressDialog progressDialog;
 
     public ClaimForwardFragment() {
         // Required empty public constructor
@@ -58,6 +60,9 @@ public class ClaimForwardFragment extends Fragment {
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
+        this.progressDialog = new ProgressDialog(getActivity());
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -65,7 +70,42 @@ public class ClaimForwardFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_claim_forward, container, false);
         this.holder = new Holder();
+        new GetStatesTask().execute();
         return rootView;
+    }
+
+    @Override public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
+        if (sender.getId() == holder.state.getId()) {
+            holder.releaseFix.setOnValueChangedListener(this);
+            holder.releaseFix.setItems(
+                    ReleaseHelper.getReleasesNames(
+                            getActivity(), null, false, ""),
+                    claim.releaseFix == null ? null : claim.releaseFix.name);
+            holder.priority.setText(String.valueOf(claim.priority));
+            boolean isPmo = ((ClaimApplication) getActivity().getApplication()).isPmoUser();
+            boolean toInstall = holder.state.getValueDisplay().equals("Включ в ИНСТ");
+            boolean toReview = holder.state.getValueDisplay().equals("На рассмотрении");
+            boolean toTest = holder.state.getValueDisplay().equals("ТестПроверка");
+            boolean fromInit = claim.state.equals("Инициировано");
+            boolean needSetRelFix = fromInit && (toReview || toTest) && isPmo;
+            boolean needSetBldFix = toInstall && isPmo;
+            holder.groupFix.setVisibility(needSetRelFix || needSetBldFix ? View.VISIBLE : View.GONE);
+            holder.buildFix.setEnabled(needSetBldFix);
+            new GetSendTask().execute(valueLong);
+        }
+        if (sender.getId() == holder.releaseFix.getId()) {
+            if ((valueString == null) || valueString.isEmpty()) {
+                holder.buildFix.setEnabled(false);
+                holder.buildFix.clear();
+            } else {
+                holder.buildFix.setEnabled(true);
+                holder.buildFix.setItemsStringVals(
+                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
+                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
+                        claim.buildFix == null ? "" : BuildHelper.buildName(valueString, claim.buildFix)
+                                                  );
+            }
+        }
     }
 
     class Holder {
@@ -86,68 +126,67 @@ public class ClaimForwardFragment extends Fragment {
             buildFix = (SimpleSpinner) rootView.findViewById(R.id.buildFixSpinner);
             priority = (EditText) rootView.findViewById(R.id.priorityEdit);
             groupFix.setVisibility(View.GONE);
-            state.setOnValueChangedListener(
-                    new SimpleSpinner.OnValueChangedListener() {
-                        @Override
-                        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
-                            List<String> execsD = new ArrayList<>();
-                            List<String> execsV = new ArrayList<>();
-                            try {
-                                RestRequest restRequest = new RestRequest("nextsend/", "GET");
-                                restRequest.addInParam("session", session);
-                                restRequest.addInParam("rn", String.valueOf(claim.rn));
-                                restRequest.addInParam("point", String.valueOf(valueLong));
-                                JSONArray items = restRequest.getAllRows();
-                                if (items != null) {
-                                    for (int i = 0; i < items.length(); i++) {
-                                        JSONObject item = items.getJSONObject(i);
-                                        execsV.add(item.getString("s01"));
-                                        execsD.add(item.getString("s02"));
-                                    }
-                                }
-                            } catch (MalformedURLException | JSONException | ConnectException e) {
-                                e.printStackTrace();
-                            }
-                            if (execsV.size() > 0) {
-                                send.setItemsStringVals(execsD, execsV, execsV.get(0));
-                            }
-                            releaseFix.setOnValueChangedListener(
-                                    new SimpleSpinner.OnValueChangedListener() {
-                                        @Override
-                                        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
-                                            if ((valueString == null) || valueString.isEmpty()) {
-                                                buildFix.setEnabled(false);
-                                                buildFix.clear();
-                                            } else {
-                                                buildFix.setEnabled(true);
-                                                buildFix.setItemsStringVals(
-                                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
-                                                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
-                                                        claim.buildFix == null ? "" : BuildHelper.buildName(valueString, claim.buildFix)
-                                                );
-                                            }
-                                        }
-                                    }
-                            );
-                            releaseFix.setItems(
-                                    ReleaseHelper.getReleasesNames(
-                                            getActivity(), null, false, ""),
-                                    claim.releaseFix == null ? null : claim.releaseFix.name);
-                            priority.setText(String.valueOf(claim.priority));
-                            boolean isPmo = ((ClaimApplication) getActivity().getApplication()).isPmoUser();
-                            boolean toInstall = state.getValueDisplay().equals("Включ в ИНСТ");
-                            boolean toReview = state.getValueDisplay().equals("На рассмотрении");
-                            boolean toTest = state.getValueDisplay().equals("ТестПроверка");
-                            boolean fromInit = claim.state.equals("Инициировано");
-                            boolean needSetRelFix = fromInit && (toReview || toTest) && isPmo;
-                            boolean needSetBldFix = toInstall && isPmo;
-                            groupFix.setVisibility(needSetRelFix || needSetBldFix ? View.VISIBLE : View.GONE);
-                            buildFix.setEnabled(needSetBldFix);
-                        }
+            state.setOnValueChangedListener(ClaimForwardFragment.this);
+        }
+    }
+
+    private class GetSendTask extends AsyncTask<Long, Void, Integer> {
+        final List<String> execsD = new ArrayList<>();
+        final List<String> execsV = new ArrayList<>();
+        String error;
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Integer doInBackground(Long... longs) {
+            try {
+                RestRequest restRequest = new RestRequest("nextsend/", "GET");
+                restRequest.addInParam("session", session);
+                restRequest.addInParam("rn", String.valueOf(claim.rn));
+                restRequest.addInParam("point", String.valueOf(longs[0]));
+                JSONArray items = restRequest.getAllRows();
+                if (items != null) {
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject item = items.getJSONObject(i);
+                        execsV.add(item.optString("s01"));
+                        execsD.add(item.getString("s02"));
                     }
-            );
-            List<String> statesD = new ArrayList<>();
-            List<Long> statesV = new ArrayList<>();
+                }
+                return 0;
+            } catch (MalformedURLException | JSONException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(getActivity(), null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                if (execsV.size() > 0) {
+                    holder.send.setItemsStringVals(execsD, execsV, execsV.get(0));
+                }
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class GetStatesTask extends AsyncTask<Void, Void, Integer> {
+        final List<String> statesD = new ArrayList<>();
+        final List<Long> statesV = new ArrayList<>();
+        String error;
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Integer doInBackground(Void... voids) {
             try {
                 RestRequest restRequest = new RestRequest("nextpoint/", "GET");
                 restRequest.addInParam("session", session);
@@ -160,12 +199,25 @@ public class ClaimForwardFragment extends Fragment {
                         statesD.add(item.getString("s01"));
                     }
                 }
+                return 0;
             } catch (MalformedURLException | JSONException | ConnectException e) {
+                error = e.getLocalizedMessage();
                 e.printStackTrace();
+                return -1;
             }
-            if (statesV.size() > 0) {
-                state.setItemsLongVals(statesD, statesV, statesV.get(0));
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(getActivity(), null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                if (statesV.size() > 0) {
+                    holder.state.setItemsLongVals(statesD, statesV, statesV.get(0));
+                }
             }
+            super.onPostExecute(result);
         }
     }
 }

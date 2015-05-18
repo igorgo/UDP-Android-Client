@@ -1,7 +1,10 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,8 @@ public class ClaimReturnFragment extends Fragment {
     private static String session;
     public Holder holder;
     private View rootView;
+    private ProgressDialog progressDialog;
+
 
     public ClaimReturnFragment() {
         // Required empty public constructor
@@ -50,6 +55,9 @@ public class ClaimReturnFragment extends Fragment {
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
+        this.progressDialog = new ProgressDialog(getActivity());
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -57,6 +65,7 @@ public class ClaimReturnFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_claim_return, container, false);
         this.holder = new Holder();
+        new GetReturnMessage().execute();
         return rootView;
     }
 
@@ -67,6 +76,16 @@ public class ClaimReturnFragment extends Fragment {
         public Holder() {
             note = (EditText) rootView.findViewById(R.id.noteEdit);
             message = (TextView) rootView.findViewById(R.id.returnMessage);
+        }
+    }
+
+    private class GetReturnMessage extends AsyncTask<Void, Void, String> {
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected String doInBackground(Void... voids) {
             RestRequest restRequest;
             try {
                 restRequest = new RestRequest("return/", "GET");
@@ -75,11 +94,20 @@ public class ClaimReturnFragment extends Fragment {
                 JSONArray items = restRequest.getAllRows();
                 if (items != null && items.length() > 0) {
                     JSONObject item = items.getJSONObject(0);
-                    message.setText(item.optString("s01"));
+                    return item.optString("s01");
                 }
             } catch (MalformedURLException | JSONException | ConnectException e) {
                 e.printStackTrace();
             }
+            return null;
+        }
+
+        @Override protected void onPostExecute(String s) {
+            progressDialog.dismiss();
+            if (!TextUtils.isEmpty(s)) {
+                holder.message.setText(s);
+            }
+            super.onPostExecute(s);
         }
     }
 }

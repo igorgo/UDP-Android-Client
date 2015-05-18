@@ -34,18 +34,18 @@ public class BuildHelper {
     private static final String COLUMN_DATE_TYPE = "TEXT";
     public static final String SQL_CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + " (" +
-                    COLUMN_RN + " " + COLUMN_RN_TYPE + COMMA_SEP +
-                    COLUMN_PRN + " " + COLUMN_PRN_TYPE + COMMA_SEP +
-                    COLUMN_CODE + " " + COLUMN_CODE_TYPE + COMMA_SEP +
-                    COLUMN_DATE + " " + COLUMN_DATE_TYPE +
-                    ")";
+            COLUMN_RN + " " + COLUMN_RN_TYPE + COMMA_SEP +
+            COLUMN_PRN + " " + COLUMN_PRN_TYPE + COMMA_SEP +
+            COLUMN_CODE + " " + COLUMN_CODE_TYPE + COMMA_SEP +
+            COLUMN_DATE + " " + COLUMN_DATE_TYPE +
+            ")";
     private static final String SQL_INSERT =
             "INSERT INTO " + TABLE_NAME + "("
-                    + COLUMN_RN + COMMA_SEP
-                    + COLUMN_PRN + COMMA_SEP
-                    + COLUMN_CODE + COMMA_SEP
-                    + COLUMN_DATE
-                    + ") VALUES (?,?,?,?)";
+            + COLUMN_RN + COMMA_SEP
+            + COLUMN_PRN + COMMA_SEP
+            + COLUMN_CODE + COMMA_SEP
+            + COLUMN_DATE
+            + ") VALUES (?,?,?,?)";
 
     private static final String REST_URL = "dicts/builds/";
     private static final String FIELD_RN = "r";
@@ -53,6 +53,7 @@ public class BuildHelper {
     private static final String FIELD_MNEMO = "c";
     private static final String FIELD_BUILD_DATE = "d";
 
+    // todo: async
     private static void getCache(Context context, long releaseRn) {
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();
@@ -65,17 +66,13 @@ public class BuildHelper {
                 try {
                     SQLiteStatement statement = db.compileStatement(SQL_INSERT);
                     for (int i = 0; i < items.length(); i++) {
-                        try {
-                            JSONObject item = items.getJSONObject(i);
-                            statement.bindLong(1, item.getLong(FIELD_RN));
-                            statement.bindLong(2, item.getLong(FIELD_PRN));
-                            statement.bindString(3, item.getString(FIELD_MNEMO));
-                            statement.bindString(4, item.getString(FIELD_BUILD_DATE));
-                            statement.execute();
-                            statement.clearBindings();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        JSONObject item = items.getJSONObject(i);
+                        statement.bindLong(1, item.getLong(FIELD_RN));
+                        statement.bindLong(2, item.getLong(FIELD_PRN));
+                        statement.bindString(3, item.getString(FIELD_MNEMO));
+                        statement.bindString(4, item.getString(FIELD_BUILD_DATE));
+                        statement.execute();
+                        statement.clearBindings();
                     }
                     successFlag = true;
                     db.setTransactionSuccessful();
@@ -83,7 +80,7 @@ public class BuildHelper {
                     db.endTransaction();
                 }
             }
-        } catch (MalformedURLException | ConnectException e) {
+        } catch (MalformedURLException | ConnectException | JSONException e) {
             e.printStackTrace();
         } finally {
             db.close();
@@ -148,15 +145,15 @@ public class BuildHelper {
             DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
             SQLiteDatabase db = databaseWrapper.getReadableDatabase();
             String SQL = "SELECT " +
-                    "B." + COLUMN_RN + "," +
-                    "B." + COLUMN_PRN + "," +
-                    "B." + COLUMN_CODE + "," +
-                    "B." + COLUMN_DATE + "," +
-                    "R." + ReleaseHelper.COLUMN_NAME +
-                    " FROM " + TABLE_NAME + " B, " + ReleaseHelper.TABLE_NAME + " R" +
-                    " WHERE B." + COLUMN_PRN + "=R." + ReleaseHelper.COLUMN_RN +
-                    " AND R." + ReleaseHelper.COLUMN_NAME + "= ? " +
-                    " ORDER BY " + COLUMN_CODE + " DESC";
+                         "B." + COLUMN_RN + "," +
+                         "B." + COLUMN_PRN + "," +
+                         "B." + COLUMN_CODE + "," +
+                         "B." + COLUMN_DATE + "," +
+                         "R." + ReleaseHelper.COLUMN_NAME +
+                         " FROM " + TABLE_NAME + " B, " + ReleaseHelper.TABLE_NAME + " R" +
+                         " WHERE B." + COLUMN_PRN + "=R." + ReleaseHelper.COLUMN_RN +
+                         " AND R." + ReleaseHelper.COLUMN_NAME + "= ? " +
+                         " ORDER BY " + COLUMN_CODE + " DESC";
             Log.i(TAG, "SQL = " + SQL);
             Log.i(TAG, "release = " + release);
 
@@ -194,12 +191,12 @@ public class BuildHelper {
             DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
             SQLiteDatabase db = databaseWrapper.getReadableDatabase();
             String SQL = "SELECT " +
-                    "B." + COLUMN_RN + "," +
-                    "B." + COLUMN_PRN + "," +
-                    "B." + COLUMN_CODE + "," +
-                    "B." + COLUMN_DATE +
-                    " FROM " + TABLE_NAME + " B " +
-                    " WHERE B." + COLUMN_RN + "= ? ";
+                         "B." + COLUMN_RN + "," +
+                         "B." + COLUMN_PRN + "," +
+                         "B." + COLUMN_CODE + "," +
+                         "B." + COLUMN_DATE +
+                         " FROM " + TABLE_NAME + " B " +
+                         " WHERE B." + COLUMN_RN + "= ? ";
             Cursor cursor = db.rawQuery(SQL, new String[]{String.valueOf(buildRn)});
             cursor.moveToFirst();
             int[] indeces = {
