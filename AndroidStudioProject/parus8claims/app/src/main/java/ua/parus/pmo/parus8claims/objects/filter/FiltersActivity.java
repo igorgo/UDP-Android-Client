@@ -17,12 +17,12 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 
+//TODO: set filter on AsyncTask
 
 @SuppressWarnings("deprecation")
 public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = FiltersActivity.class.getSimpleName();
-
     private ListView filtersListView;
 
     @Override
@@ -32,12 +32,10 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-        /*actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.pmo_logo);
-        actionBar.setDisplayUseLogoEnabled(true);*/
             actionBar.setTitle(R.string.stores_queries);
         }
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
+        this.filtersListView.setOnItemClickListener(this);
         try {
             FilterListAdapter adapter;
             if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
@@ -45,8 +43,6 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
                 ((ClaimApplication) getApplication()).setFilters(adapter);
             }
             this.filtersListView.setAdapter(adapter);
-
-            this.filtersListView.setOnItemClickListener(this);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -78,7 +74,6 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
                 return true;
         }
         return super.onOptionsItemSelected(item);
-
     }
 
     @Override
@@ -86,11 +81,9 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         long viewId = view.getId();
         long rn = ((Filter) adapterView.getAdapter().getItem(i)).filter_rn;
         if (viewId == R.id.flImageEdit) {
-            Log.i("FilterListAct", "Click on Image  " + String.valueOf(rn));
             Intent intentFilterEdit = new Intent(this, FilterEditActivity.class);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_FILTER_EDIT);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_RN, rn);
-            Log.i(TAG, "Intent to start FilterEditActivity (reguest REQUEST_FILTER_EDIT).");
             startActivityForResult(intentFilterEdit, Intents.REQUEST_FILTER_EDIT);
         } else {
             Intent intentResult = new Intent();

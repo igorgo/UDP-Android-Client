@@ -38,6 +38,8 @@ public class FilterListAdapter extends BaseAdapter {
     private final Context context;
     private RestRequest filtersRequest;
 
+    // TODO: UnAsync creation
+
     public FilterListAdapter(Context context) throws MalformedURLException {
         this.context = context;
         this.filtersRequest = new RestRequest(REST_URL);
@@ -105,7 +107,6 @@ public class FilterListAdapter extends BaseAdapter {
                 entries.remove(j);
             }
         }
-
     }
 
     public void addReplaceFilter(Filter filter) {
@@ -132,7 +133,6 @@ public class FilterListAdapter extends BaseAdapter {
     }
 
     private class FetchAsyncTask extends AsyncTask<Void, Void, JSONArray> {
-
         @Override
         protected JSONArray doInBackground(Void... voids) {
             try {
