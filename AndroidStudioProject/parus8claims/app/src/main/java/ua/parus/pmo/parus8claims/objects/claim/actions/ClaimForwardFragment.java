@@ -98,13 +98,41 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
                 holder.buildFix.setEnabled(false);
                 holder.buildFix.clear();
             } else {
-                holder.buildFix.setEnabled(true);
-                holder.buildFix.setItemsStringVals(
-                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
-                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
-                        claim.buildFix == null ? "" : BuildHelper.buildName(valueString, claim.buildFix)
-                                                  );
+                new GetBuildsTask().execute(valueString);
             }
+        }
+    }
+
+    private class GetBuildsTask extends AsyncTask<String,Void,Void> {
+        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private List<String> DisplayNames;
+        private List<String> Codes;
+        private String releaseFix;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            releaseFix = params[0];
+            DisplayNames = BuildHelper.getBuildsDisplayNames(getActivity(), releaseFix, false);
+            Codes = BuildHelper.getBuildsCodes(getActivity(), releaseFix, false);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            holder.buildFix.setItemsStringVals(DisplayNames, Codes,
+                    claim.buildFix == null ? "" : BuildHelper.buildName(releaseFix, claim.buildFix));
+            holder.buildFix.setEnabled(true);
+            super.onPostExecute(aVoid);
         }
     }
 

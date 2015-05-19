@@ -40,7 +40,6 @@ public class FilterListAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    //todo:async
     public void loadFromServer() {
         try {
             RestRequest filtersRequest = new RestRequest(REST_URL);

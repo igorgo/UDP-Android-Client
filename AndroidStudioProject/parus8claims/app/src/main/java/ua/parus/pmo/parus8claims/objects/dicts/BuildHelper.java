@@ -53,7 +53,6 @@ public class BuildHelper {
     private static final String FIELD_MNEMO = "c";
     private static final String FIELD_BUILD_DATE = "d";
 
-    // todo: async
     private static void getCache(Context context, long releaseRn) {
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();

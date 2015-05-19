@@ -102,7 +102,6 @@ public class UnitHelper {
         return unit;
     }
 
-    //todo:async
     private static void loadDepsFromServer(Context context, Unit unit) {
         DatabaseWrapper databaseWrapper = new DatabaseWrapper(context);
         SQLiteDatabase db = databaseWrapper.getWritableDatabase();

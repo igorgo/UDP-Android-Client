@@ -1,6 +1,8 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -15,6 +17,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
+
+import java.util.List;
+
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
@@ -57,6 +62,36 @@ public class ClaimAddFragment extends Fragment {
         return this.rootView;
     }
 
+    private class GetBuildsTask extends AsyncTask<String,Void,Void> {
+        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private List<String> DisplayNames;
+        private List<String> Codes;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            DisplayNames = BuildHelper.getBuildsDisplayNames(getActivity(), params[0], true);
+            Codes = BuildHelper.getBuildsCodes(getActivity(), params[0], true);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            holder.build.setItemsStringVals(DisplayNames, Codes, "");
+            holder.build.setEnabled(true);
+            super.onPostExecute(aVoid);
+        }
+    }
+
     class Holder {
         public final RadioGroup type;
         public final SimpleSpinner release;
@@ -72,6 +107,8 @@ public class ClaimAddFragment extends Fragment {
         private final ClaimAddFragment that;
         private boolean needRefreshUnitApps = true;
         private boolean needRefreshUnitFunc = true;
+
+
 
         public Holder() {
             View view = ClaimAddFragment.this.rootView;
@@ -90,6 +127,8 @@ public class ClaimAddFragment extends Fragment {
             this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
+
+
         private void initFields() {
             this.release.setOnValueChangedListener(
                     new SimpleSpinner.OnValueChangedListener() {
@@ -99,12 +138,7 @@ public class ClaimAddFragment extends Fragment {
                                 build.setEnabled(false);
                                 build.clear();
                             } else {
-                                build.setEnabled(true);
-                                build.setItemsStringVals(
-                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, true),
-                                        BuildHelper.getBuildsCodes(getActivity(), valueString, true),
-                                        ""
-                                );
+                                new GetBuildsTask().execute(valueString);
                             }
                         }
                     }

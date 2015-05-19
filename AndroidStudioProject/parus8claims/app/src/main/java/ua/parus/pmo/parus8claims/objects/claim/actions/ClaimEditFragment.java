@@ -1,5 +1,7 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -13,6 +15,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
+
+import java.util.List;
+
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
@@ -29,6 +34,8 @@ public class ClaimEditFragment extends Fragment {
     @SuppressWarnings("unused")
     private static final String TAG = ClaimEditFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
+    public static final String BUILD_TYPE_FOUND = "FOUND";
+    public static final String BUILD_TYPE_FIX = "FIX";
     public Holder holder;
     private Claim claim;
     private View rootView;
@@ -65,6 +72,48 @@ public class ClaimEditFragment extends Fragment {
         return this.rootView;
     }
 
+    private class GetBuildsTask extends AsyncTask<String,Void,Void> {
+        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private List<String> DisplayNames;
+        private List<String> Codes;
+        private boolean isFoundBuild;
+        private String release;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            release = params[0];
+            isFoundBuild = params[1].equals(BUILD_TYPE_FOUND);
+            DisplayNames = BuildHelper.getBuildsDisplayNames(getActivity(), release, isFoundBuild);
+            Codes = BuildHelper.getBuildsCodes(getActivity(), release, isFoundBuild);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            if (isFoundBuild) {
+                holder.build.setItemsStringVals(DisplayNames,Codes,
+                        BuildHelper.buildName(holder.release.getValueString(), claim.buildFound)
+                );
+            } else {
+                holder.buildFix.setEnabled(true);
+                holder.buildFix.setItemsStringVals(DisplayNames,Codes,
+                        claim.buildFix == null ? "" : BuildHelper.buildName(release, claim.buildFix)
+                );
+            }
+            super.onPostExecute(aVoid);
+        }
+    }
+
     class Holder {
         public final SimpleSpinner release;
         public final SimpleSpinner build;
@@ -96,16 +145,15 @@ public class ClaimEditFragment extends Fragment {
             this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
+
+
+
         private void populateFromClaim(Claim claim) {
             this.release.setOnValueChangedListener(
                     new SimpleSpinner.OnValueChangedListener() {
                         @Override
                         public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
-                            build.setItemsStringVals(
-                                    BuildHelper.getBuildsDisplayNames(getActivity(), release.getValueString(), true),
-                                    BuildHelper.getBuildsCodes(getActivity(), release.getValueString(), true),
-                                    BuildHelper.buildName(release.getValueString(), that.claim.buildFound)
-                            );
+                            new GetBuildsTask().execute(release.getValueString(), BUILD_TYPE_FOUND);
                         }
                     }
             );
@@ -121,12 +169,7 @@ public class ClaimEditFragment extends Fragment {
                                 buildFix.setEnabled(false);
                                 buildFix.clear();
                             } else {
-                                buildFix.setEnabled(true);
-                                buildFix.setItemsStringVals(
-                                        BuildHelper.getBuildsDisplayNames(getActivity(), valueString, false),
-                                        BuildHelper.getBuildsCodes(getActivity(), valueString, false),
-                                        that.claim.buildFix == null ? "" : BuildHelper.buildName(valueString, that.claim.buildFix)
-                                );
+                                new GetBuildsTask().execute(release.getValueString(),BUILD_TYPE_FIX);
                             }
                         }
                     }

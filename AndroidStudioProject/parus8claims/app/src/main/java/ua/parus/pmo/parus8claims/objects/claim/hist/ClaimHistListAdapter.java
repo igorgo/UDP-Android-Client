@@ -32,7 +32,6 @@ public class ClaimHistListAdapter extends BaseAdapter {
     private final List<ClaimHist> entries = new ArrayList<>();
     private final Context context;
 
-    //todo:async
     public ClaimHistListAdapter(Context context, long prn) throws MalformedURLException {
         this.context = context;
         RestRequest historyRequest = new RestRequest(REST_URL);

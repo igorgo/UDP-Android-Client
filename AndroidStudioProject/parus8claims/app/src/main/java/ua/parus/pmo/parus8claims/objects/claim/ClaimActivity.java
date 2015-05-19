@@ -10,8 +10,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -47,7 +45,6 @@ import ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity;
 import ua.parus.pmo.parus8claims.objects.claim.hist.ClaimHistoryFragment;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-
 @SuppressWarnings("deprecation")
 public class ClaimActivity extends ActionBarActivity
         implements
@@ -65,7 +62,6 @@ public class ClaimActivity extends ActionBarActivity
     private boolean needsRefresh = false;
     private boolean needsRefreshParent = false;
     private ActionBar actionBar;
-    private ProgressDialog loadDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,7 +194,7 @@ public class ClaimActivity extends ActionBarActivity
         if (attach == null) {
             return;
         }
-        new GetDocumentAsyncTask().execute(attach);
+        new DownloadAttachTask().execute(attach);
     }
 
     private String fileExtension(String url) {
@@ -241,107 +237,6 @@ public class ClaimActivity extends ActionBarActivity
         return fileName;
     }
 
-    //todo:async
-    private void uploadAttach(final Uri fileUri) throws IOException, JSONException {
-        loadDialog = new ProgressDialog(this);
-        loadDialog.setIndeterminate(true);
-        loadDialog.setMessage(getString(R.string.uploading_file));
-        loadDialog.setTitle(getString(R.string.please_wait));
-        loadDialog.show();
-
-        final Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                loadDialog.dismiss();
-                if (msg.what == 0) {
-                    Bundle bundle = msg.getData();
-                    new ErrorPopup(ClaimActivity.this, null).showErrorDialog(getString(R.string.error_title),
-                            bundle.getString(REST_PARAM_ERROR));
-                }
-                onPostResume();
-                return false;
-            }
-        });
-
-        Runnable upload = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String fullFileName = getFullFileName(fileUri);
-                    File sourceFile = new File(fullFileName);
-                    if (TextUtils.isEmpty(fullFileName)) {
-                        return;
-                    }
-                    String fileName = sourceFile.getName();
-
-                    URL url = new URL(RestRequest.BASE_URL + "docum/");
-
-                    HttpURLConnection httpConn;
-                    httpConn = (HttpURLConnection) url.openConnection();
-                    httpConn.setUseCaches(false);
-                    httpConn.setDoOutput(true); // indicates POST method
-                    httpConn.setDoInput(true);
-
-
-                    httpConn.setRequestProperty("Parus-session", session);
-                    httpConn.setRequestProperty("Parus-rn", String.valueOf(claim.rn));
-                    httpConn.setRequestProperty("Parus-filename", fileName);
-                    httpConn.setRequestProperty("Content-Type", URLConnection.guessContentTypeFromName(fileName));
-
-                    OutputStream outputStream = httpConn.getOutputStream();
-                    PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, "UTF-8"), true);
-
-                    FileInputStream inputStream = new FileInputStream(sourceFile);
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
-                    outputStream.flush();
-                    inputStream.close();
-                    writer.flush();
-                    writer.close();
-
-                    int status = httpConn.getResponseCode();
-                    if (status == HttpURLConnection.HTTP_OK) {
-                        StringBuilder content = new StringBuilder();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            content.append(line);
-                        }
-                        reader.close();
-                        httpConn.disconnect();
-
-                        if (!TextUtils.isEmpty(content.toString())) {
-                            JSONObject jsonContent = new JSONObject(content.toString());
-                            if (jsonContent.optString(REST_PARAM_ERROR) != null &&
-                                !jsonContent.optString(REST_PARAM_ERROR).isEmpty()) {
-                                Bundle b = new Bundle(1);
-                                b.putString(REST_PARAM_ERROR, jsonContent.optString(REST_PARAM_ERROR));
-                                Message msg = handler.obtainMessage();
-                                msg.what = 0;
-                                msg.setData(b);
-                                handler.sendMessage(msg);
-                                return;
-                            }
-                        }
-                        claim.hasAttach = true;
-                        ClaimActivity.this.hasDocs = true;
-                        needsRefresh = true;
-                    } else {
-                        throw new IOException("Server returned non-OK status: " + status);
-                    }
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                } finally {
-                    handler.sendEmptyMessage(1);
-                }
-            }
-        };
-        new Thread(upload).start();
-    }
-
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (this.claim == null || this.optionsMenu == null) {
@@ -381,13 +276,106 @@ public class ClaimActivity extends ActionBarActivity
             case Intents.REQUEST_SELECT_FILE:
                 if (resultCode == RESULT_OK) {
                     Uri selectedFileUri = data.getData();
-                    try {
-                        uploadAttach(selectedFileUri);
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                    }
+                    new UploadAttachTask().execute(selectedFileUri);
                 }
                 break;
+        }
+    }
+
+    private class UploadAttachTask extends AsyncTask<Uri,Void,Integer> {
+        private ProgressDialog progressDialog;
+        private String error;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(ClaimActivity.this);
+            progressDialog.setMessage(getString(R.string.uploading_file));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Integer doInBackground(Uri... params) {
+            try {
+                String fullFileName = getFullFileName(params[0]);
+                if (TextUtils.isEmpty(fullFileName)) {
+                    return -2;
+                }
+                File sourceFile = new File(fullFileName);
+                String fileName = sourceFile.getName();
+
+                URL url = new URL(RestRequest.BASE_URL + "docum/");
+
+                HttpURLConnection httpConn;
+                httpConn = (HttpURLConnection) url.openConnection();
+                httpConn.setUseCaches(false);
+                httpConn.setDoOutput(true); // indicates POST method
+                httpConn.setDoInput(true);
+
+
+                httpConn.setRequestProperty("Parus-session", session);
+                httpConn.setRequestProperty("Parus-rn", String.valueOf(claim.rn));
+                httpConn.setRequestProperty("Parus-filename", fileName);
+                httpConn.setRequestProperty("Content-Type", URLConnection.guessContentTypeFromName(fileName));
+
+                OutputStream outputStream = httpConn.getOutputStream();
+                PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, "UTF-8"), true);
+
+                FileInputStream inputStream = new FileInputStream(sourceFile);
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                outputStream.flush();
+                inputStream.close();
+                writer.flush();
+                writer.close();
+
+                int status = httpConn.getResponseCode();
+                if (status == HttpURLConnection.HTTP_OK) {
+                    StringBuilder content = new StringBuilder();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    reader.close();
+                    httpConn.disconnect();
+
+                    if (!TextUtils.isEmpty(content.toString())) {
+                        JSONObject jsonContent = new JSONObject(content.toString());
+                        error = jsonContent.optString(REST_PARAM_ERROR);
+                        return TextUtils.isEmpty(error) ? 0 : -1;
+                    } else
+                    return 0;
+
+                } else {
+                    error = "Server returned non-OK status: " + status;
+                    return -1;
+                }
+            } catch (IOException | JSONException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            }
+            if (result == 0) {
+                claim.hasAttach = true;
+                ClaimActivity.this.hasDocs = true;
+                needsRefresh = true;
+                onPostResume();
+            }
         }
     }
 
@@ -446,7 +434,7 @@ public class ClaimActivity extends ActionBarActivity
         }
     }
 
-    private class GetDocumentAsyncTask extends AsyncTask<ClaimHistoryFragment.Attach, Void, File> {
+    private class DownloadAttachTask extends AsyncTask<ClaimHistoryFragment.Attach, Void, File> {
         public static final String URL_GET_DOCUM = "docum/";
         public static final String PARAM_SESSION = "session";
         public static final String PARAM_DOCRN = "docrn";
