@@ -21,10 +21,7 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created by igorgo on 26.04.2015.
- */
-@SuppressWarnings("ALL")
+
 public class ClaimHistListAdapter extends BaseAdapter {
     public static final String TAG = ClaimHistListAdapter.class.getSimpleName();
 
@@ -65,24 +62,20 @@ public class ClaimHistListAdapter extends BaseAdapter {
         }
     }
 
-
     @Override
     public int getCount() {
         return entries.size();
     }
-
 
     @Override
     public Object getItem(int position) {
         return entries.get(position);
     }
 
-
     @Override
     public long getItemId(int position) {
         return position;
     }
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -122,6 +115,5 @@ public class ClaimHistListAdapter extends BaseAdapter {
         TextView itemHeader;
         TextView itemBody;
     }
-
 
 }

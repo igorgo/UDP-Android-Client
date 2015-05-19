@@ -1,17 +1,18 @@
 package ua.parus.pmo.parus8claims.objects.filter;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
-import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
@@ -19,11 +20,15 @@ import ua.parus.pmo.parus8claims.R;
 
 
 @SuppressWarnings("deprecation")
-public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class FiltersActivity extends ActionBarActivity implements AdapterView.OnItemClickListener, Handler.Callback {
 
+    private static final int MSG_ADAPTER_READY = 1;
+    @SuppressWarnings("unused")
     private static final String TAG = FiltersActivity.class.getSimpleName();
-
     private ListView filtersListView;
+    private FilterListAdapter adapter;
+    private ProgressDialog progressDialog;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,23 +37,23 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-        /*actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.pmo_logo);
-        actionBar.setDisplayUseLogoEnabled(true);*/
             actionBar.setTitle(R.string.stores_queries);
         }
+        this.handler = new Handler(this);
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
-        try {
-            FilterListAdapter adapter;
-            if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
-                adapter = new FilterListAdapter(this);
-                ((ClaimApplication)getApplication()).setFilters(adapter);
-            }
-            this.filtersListView.setAdapter(adapter);
+        this.filtersListView.setOnItemClickListener(this);
+        this.progressDialog = new ProgressDialog(this);
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        setAdapter();
+    }
 
-            this.filtersListView.setOnItemClickListener(this);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+    private void setAdapter() {
+        if ((adapter = ((ClaimApplication) getApplication()).getFilters()) == null) {
+            adapter = new FilterListAdapter(this);
+            new AsyncLoadFilters().execute();
+        } else {
+            handler.sendEmptyMessage(MSG_ADAPTER_READY);
         }
     }
 
@@ -78,7 +83,6 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
                 return true;
         }
         return super.onOptionsItemSelected(item);
-
     }
 
     @Override
@@ -86,11 +90,9 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         long viewId = view.getId();
         long rn = ((Filter) adapterView.getAdapter().getItem(i)).filter_rn;
         if (viewId == R.id.flImageEdit) {
-            Log.i("FilterListAct", "Click on Image  " + String.valueOf(rn));
-            Intent intentFilterEdit = new Intent(this, FilterOneActivity.class);
+            Intent intentFilterEdit = new Intent(this, FilterEditActivity.class);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_FILTER_EDIT);
             intentFilterEdit.putExtra(Intents.EXTRA_KEY_RN, rn);
-            Log.i(TAG, "Intent to start FilterOneActivity (reguest REQUEST_FILTER_EDIT).");
             startActivityForResult(intentFilterEdit, Intents.REQUEST_FILTER_EDIT);
         } else {
             Intent intentResult = new Intent();
@@ -103,18 +105,37 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Intents.REQUEST_FILTER_EDIT)
-        if (resultCode != Intents.RESULT_CANCEL) {
-            try {
-                FilterListAdapter adapter;
-                if (  ( adapter = ((ClaimApplication)getApplication()).getFilters()) == null) {
-                    adapter = new FilterListAdapter(this);
-                    ((ClaimApplication)getApplication()).setFilters(adapter);
-                }
-                this.filtersListView.setAdapter(adapter);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+        if (requestCode == Intents.REQUEST_FILTER_EDIT) {
+            if (resultCode != Intents.RESULT_CANCEL) {
+                setAdapter();
             }
+        }
+    }
+
+    @Override public boolean handleMessage(Message message) {
+        if (message.what == MSG_ADAPTER_READY) {
+            filtersListView.setAdapter(adapter);
+        }
+        return false;
+    }
+
+    private class AsyncLoadFilters extends AsyncTask<Void, Void, Void> {
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected Void doInBackground(Void... voids) {
+            adapter.loadFromServer();
+            return null;
+        }
+
+        @Override protected void onPostExecute(Void aVoid) {
+            ((ClaimApplication) getApplication()).setFilters(adapter);
+            progressDialog.dismiss();
+            handler.sendEmptyMessage(MSG_ADAPTER_READY);
+            super.onPostExecute(aVoid);
         }
     }
 }

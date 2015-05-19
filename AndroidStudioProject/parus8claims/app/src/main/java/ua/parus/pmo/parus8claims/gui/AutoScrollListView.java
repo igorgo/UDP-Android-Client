@@ -6,10 +6,6 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-/**
- * Created by igor-go on 20.04.2015.
- * ua.parus.pmo.parus8claims.gui
- */
 public class AutoScrollListView extends ListView implements AutoScrollListPageListener {
 
     public static final String TAG = AutoScrollListView.class.getSimpleName();

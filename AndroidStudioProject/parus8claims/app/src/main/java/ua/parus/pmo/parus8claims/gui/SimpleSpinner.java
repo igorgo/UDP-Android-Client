@@ -3,8 +3,8 @@ package ua.parus.pmo.parus8claims.gui;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -12,13 +12,10 @@ import java.util.List;
 
 import ua.parus.pmo.parus8claims.R;
 
-/**
- * Created  by  igorgo on 01.05.2015.
- */
-public class SimpleSpinner extends Spinner implements DialogInterface.OnClickListener{
-    private static final String TAG =  SimpleSpinner.class.getSimpleName();
+public class SimpleSpinner extends Spinner implements DialogInterface.OnClickListener {
+    @SuppressWarnings("unused")
+    private static final String TAG = SimpleSpinner.class.getSimpleName();
     private static final String EMPTY_STRING = "";
-
     private List<String> displayItems;
     private List<String> valueStringItems;
     private List<Long> valueLongItems;
@@ -63,7 +60,6 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         } else {
             setValue(defaultValue);
         }
-
     }
 
     public void setItemsLongVals(List<String> displayItems, List<Long> valueItems, Long defaultValue) {
@@ -77,12 +73,11 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         }
     }
 
-
     public void clear() {
         if (this.valueType == ValueType.LONG && this.valueLongItems.size() > 0) {
             this.setValue(this.valueLongItems.get(0));
         }
-        if(this.valueType == ValueType.STRING && this.valueStringItems.size() > 0) {
+        if (this.valueType == ValueType.STRING && this.valueStringItems.size() > 0) {
             this.setValue(valueStringItems.get(0));
         }
     }
@@ -108,8 +103,8 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         this.valueString = value;
         this.setValueText(displayItem);
         if (this.onValueChangedListener != null) {
-            if ((oldValue == null && value != null) || (oldValue != null && (value == null || !oldValue.equals(value) )) )  {
-                this.onValueChangedListener.onValueChanged(this, value, null );
+            if ((oldValue == null && value != null) || (oldValue != null && (value == null || !oldValue.equals(value)))) {
+                this.onValueChangedListener.onValueChanged(this, value, null);
             }
         }
     }
@@ -134,62 +129,37 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         }
         this.valueLong = value;
         this.setValueText(displayItem);
-
-        if ((this.onValueChangedListener != null) && !( (oldValue==null ? (long) -1 : oldValue) == (value==null ? (long) -1 : value) ) ) {
-            this.onValueChangedListener.onValueChanged(this, null, value );
+        if ((this.onValueChangedListener != null) && !((oldValue == null ? (long) -1 : oldValue) == (value == null ? (long) -1 : value))) {
+            this.onValueChangedListener.onValueChanged(this, null, value);
         }
     }
-
 
     public String getValueDisplay() {
         return this.displayItems.get(this.selected);
     }
 
-
     @Override
     public boolean performClick() {
-        Log.i(TAG, "performClick");
         if (this.displayItems != null && this.displayItems.size() > 0) {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-            //dialogBuilder.setSingleChoiceItems( this.displayItems.toArray(new CharSequence[this.displayItems.size()]), this.selected, this);
             dialogBuilder.setSingleChoiceItems(new ArrayAdapter<>(
                     getContext(),
                     R.layout.dropdown_multiline_single_choice_item,
                     android.R.id.text1,
-                    this.displayItems),this.selected, this);
-            /*dialogBuilder.setAdapter (
-                    new ArrayAdapter<>(
-                            getContext(),
-                            R.layout.dropdown_multiline_item,
-                            R.id.item,
-                            this.displayItems));*/
-
-            //dialogBuilder.setSingleChoiceItems( new SimpleAdapter(getContext(),this.displayItems), 2, this);
-            /*dialogBuilder.setAdapter(new ArrayAdapter<>(
-                    getContext(),
-                    R.layout.spinner_text_item,
-                    this.displayItems.toArray()), this);*/
+                    this.displayItems), this.selected, this);
             AlertDialog dialog = dialogBuilder.create();
-            //dialog.getListView().setSelector(R.drawable.apptheme_btn_radio_holo_light);
-
-
-            //dialog.getListView().setSelection(this.selected);
             dialog.show();
         }
-
         return true;
     }
 
-
-
     @Override
-    public void onClick(DialogInterface dialog, int which) {
-        Log.i(TAG, "onClick");
+    public void onClick(@NonNull DialogInterface dialog, int which) {
         if (this.valueType == ValueType.LONG && valueLongItems != null && valueLongItems.size() > 0) {
             setValue(valueLongItems.get(which));
             dialog.dismiss();
         }
-        if (this.valueType == ValueType.STRING && valueStringItems != null && valueStringItems.size() > 0){
+        if (this.valueType == ValueType.STRING && valueStringItems != null && valueStringItems.size() > 0) {
             setValue(valueStringItems.get(which));
             dialog.dismiss();
         }
@@ -226,6 +196,6 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
     private enum ValueType {LONG, STRING}
 
     public interface OnValueChangedListener {
-        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong);
+        void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong);
     }
 }

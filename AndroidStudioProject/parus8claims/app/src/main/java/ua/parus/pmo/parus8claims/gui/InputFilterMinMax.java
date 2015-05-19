@@ -3,13 +3,11 @@ package ua.parus.pmo.parus8claims.gui;
 import android.text.InputFilter;
 import android.text.Spanned;
 
-/**
- * Created   by igorgo on 02.05.2015.
- */
 @SuppressWarnings("SameParameterValue")
 public class InputFilterMinMax implements InputFilter {
     private int min, max;
 
+    @SuppressWarnings("unused")
     public InputFilterMinMax(int min, int max) {
         this.min = min;
         this.max = max;
@@ -26,7 +24,9 @@ public class InputFilterMinMax implements InputFilter {
             int input = Integer.parseInt(dest.toString() + source.toString());
             if (isInRange(min, max, input))
                 return null;
-        } catch (NumberFormatException nfe) { return ""; }
+        } catch (NumberFormatException nfe) {
+            return "";
+        }
         return "";
     }
 

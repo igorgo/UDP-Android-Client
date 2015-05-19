@@ -1,11 +1,14 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,7 +17,6 @@ import org.json.JSONObject;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 
-import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
@@ -55,6 +57,7 @@ public class ClaimActionActivity extends ActionBarActivity {
     private Claim claim;
     private int request;
     private String session;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +65,11 @@ public class ClaimActionActivity extends ActionBarActivity {
         this.claim = (Claim) getIntent().getSerializableExtra(Intents.EXTRA_KEY_CLAIM);
         this.request = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
         this.session = getIntent().getStringExtra(Intents.EXTRA_KEY_SESSION);
+        this.progressDialog = new ProgressDialog(this);
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         setContentView(R.layout.activity_claim);
         if (savedInstanceState == null) {
-            FragmentTransaction fragmentTransaction;
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) {
                 if (this.request == Intents.REQUEST_CLAIM_EDIT) {
@@ -117,15 +122,12 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        //Intent intent = new Intent();
-        //setResult(Intents.RESULT_CANCEL, intent);
         //super.onBackPressed();
     }
 
     private void addClaim() {
         ClaimAddFragment fragment = (ClaimAddFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.container);
-        Long claimRn = null;
         boolean unitNotSet = fragment.holder.unit.getText().toString().isEmpty();
         boolean contentNotSet = fragment.holder.content.getText().toString().isEmpty();
         boolean relNotSet = (fragment.holder.release.getValueString() == null)
@@ -133,63 +135,8 @@ public class ClaimActionActivity extends ActionBarActivity {
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
                             || fragment.holder.build.getValueString().isEmpty();
         if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
-        try {
-            RestRequest restRequest = new RestRequest(REST_ADD_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            String claimType = "";
-            switch (fragment.holder.type.getCheckedRadioButtonId()) {
-                case R.id.radioTypeAddon:
-                    claimType = CLAIM_TYPE_ADDON;
-                    break;
-                case R.id.radioTypeRebuke:
-                    claimType = CLAIM_TYPE_REBUKE;
-                    break;
-                case R.id.radioTypeError:
-                    claimType = CLAIM_TYPE_ERROR;
-                    break;
-            }
-            restRequest.addInParam(
-                    REST_PARAM_TYPE, claimType);
-            restRequest.addInParam(
-                    REST_PARAM_PRIORITY, fragment.holder.priority.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT_APP, fragment.holder.unitApp.getValue());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT_APP, fragment.holder.unitApp.getValue());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT, fragment.holder.unit.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT_FUNC, fragment.holder.unitFunc.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_DESCRIPTION, fragment.holder.content.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_RELEASE_FOUND, fragment.holder.release.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_BUILD_FOUND, fragment.holder.build.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_RELEASE_FIX, fragment.holder.releaseFix.getValueString());
-            JSONObject response = restRequest.getJsonContent();
-            if (response != null) {
-                if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                    new ErrorPopup(this, null)
-                            .showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
-                    return;
-                } else {
-                    claimRn = response.optLong(REST_PARAM_RN);
-                }
-            }
-        } catch (MalformedURLException | ConnectException e) {
-            e.printStackTrace();
-        }
-        if (claimRn != null) {
-            Intent intent = new Intent();
-            intent.putExtra(Intents.EXTRA_KEY_RN, claimRn);
-            setResult(Intents.RESULT_CLAIM_ADDED, intent);
-            finish();
-        }
-
+        new AddClaimTask().execute(fragment.holder);
     }
-
 
     private void editClaim() {
         ClaimEditFragment fragment = (ClaimEditFragment) getSupportFragmentManager()
@@ -201,34 +148,7 @@ public class ClaimActionActivity extends ActionBarActivity {
         boolean bldNotSet = (fragment.holder.build.getValueString() == null)
                             || fragment.holder.build.getValueString().isEmpty();
         if (unitNotSet || contentNotSet || relNotSet || bldNotSet) return;
-        try {
-            RestRequest restRequest = new RestRequest(REST_EDIT_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
-            restRequest.addInParam(
-                    REST_PARAM_DESCRIPTION, fragment.holder.content.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_RELEASE_FOUND, fragment.holder.release.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_BUILD_FOUND, fragment.holder.build.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_RELEASE_FIX, fragment.holder.releaseFix.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_BUILD_FIX, fragment.holder.buildFix.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT_APP, fragment.holder.unitApp.getValue());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT, fragment.holder.unit.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_UNIT_FUNC, fragment.holder.unitFunc.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_PRIORITY, fragment.holder.priority.getText().toString());
-            if (doRestForError(restRequest)) return;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        finishUpdated();
-
+        new EditClaimTask().execute(fragment.holder);
     }
 
     private void finishUpdated() {
@@ -237,139 +157,370 @@ public class ClaimActionActivity extends ActionBarActivity {
         finish();
     }
 
-    private boolean doRestForError(RestRequest restRequest) {
-        JSONObject response = null;
-        try {
-            response = restRequest.getJsonContent();
-        } catch (ConnectException e) {
-            e.printStackTrace();
-            response = null;
-        }
-        if (response != null) {
-            if (response.optString(REST_PARAM_ERROR) != null && !response.optString(REST_PARAM_ERROR).isEmpty()) {
-                new ErrorPopup(this, null)
-                        .showErrorDialog(getString(R.string.error_title), response.optString(REST_PARAM_ERROR));
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void addNote() {
         ClaimNoteFragment fragment = (ClaimNoteFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.container);
-        try {
-            RestRequest restRequest = new RestRequest(REST_NOTE_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
-            restRequest.addInParam(
-                    REST_PARAM_NOTE, fragment.note.getText().toString());
-            if (doRestForError(restRequest)) return;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        finishUpdated();
+        new AddNoteTask().execute(fragment.note.getText().toString());
     }
 
     private void sendClaim() {
         ClaimSendFragment fragment = (ClaimSendFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        try {
-            RestRequest restRequest = new RestRequest(REST_SEND_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
-            restRequest.addInParam(
-                    REST_PARAM_NOTE, fragment.holder.note.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_PERSON, fragment.holder.send.getValueString());
-            if (doRestForError(restRequest)) return;
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        finishUpdated();
+        new SendClaimTask().execute(fragment.holder);
     }
 
     private void forwardClaim() {
         ClaimForwardFragment fragment =
                 (ClaimForwardFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        try {
-            RestRequest restRequest = new RestRequest(REST_FORWARD_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
-            restRequest.addInParam(
-                    REST_PARAM_NOTE, fragment.holder.note.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_STATE, fragment.holder.state.getValueDisplay());
-            restRequest.addInParam(
-                    REST_PARAM_PERSON, fragment.holder.send.getValueString());
-            restRequest.addInParam(REST_PARAM_PRIORITY, fragment.holder.priority.getText().toString());
-            restRequest.addInParam(
-                    REST_PARAM_RELEASE_FIX, fragment.holder.releaseFix.getValueString());
-            restRequest.addInParam(
-                    REST_PARAM_BUILD_FIX, fragment.holder.buildFix.getValueString());
-            if (doRestForError(restRequest)) return;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        finishUpdated();
+        new ForwardClaimTask().execute(fragment.holder);
     }
-
 
     private void returnClaim() {
         ClaimReturnFragment fragment =
                 (ClaimReturnFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        try {
-            RestRequest restRequest = new RestRequest(REST_RETURN_URL, REST_POST_METHOD);
-            restRequest.addInParam(REST_PARAM_SESSION, session);
-            restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
-            restRequest.addInParam(
-                    REST_PARAM_NOTE, fragment.holder.note.getText().toString());
-            if (doRestForError(restRequest)) return;
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        finishUpdated();
+        new ReturnClaimTask().execute(fragment.holder.note.getText().toString());
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_cancel) {
-            Intent intent = new Intent();
-            setResult(Intents.RESULT_CANCEL, intent);
-            finish();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_cancel:
+                Intent intent = new Intent();
+                setResult(Intents.RESULT_CANCEL, intent);
+                finish();
+                break;
+            case R.id.action_ok:
+                switch (this.request) {
+                    case Intents.REQUEST_CLAIM_EDIT:
+                        editClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_ADD:
+                        addClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_NOTE:
+                        addNote();
+                        break;
+                    case Intents.REQUEST_CLAIM_SEND:
+                        sendClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_RETURN:
+                        returnClaim();
+                        break;
+                    case Intents.REQUEST_CLAIM_FORWARD:
+                        forwardClaim();
+                        break;
+                }
+                break;
         }
-        if (id == R.id.action_ok) {
-            if (this.request == Intents.REQUEST_CLAIM_EDIT) {
-                editClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_ADD) {
-                addClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_NOTE) {
-                addNote();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_SEND) {
-                sendClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_RETURN) {
-                returnClaim();
-                return true;
-            }
-            if (this.request == Intents.REQUEST_CLAIM_FORWARD) {
-                forwardClaim();
-                return true;
+        return super.onOptionsItemSelected(item);
+    }
+
+    private class SendClaimTask extends AsyncTask<ClaimSendFragment.Holder, Void, Integer> {
+        String error;
+
+        @Override protected Integer doInBackground(ClaimSendFragment.Holder... holders) {
+            try {
+                RestRequest restRequest = new RestRequest(REST_SEND_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
+                restRequest.addInParam(
+                        REST_PARAM_NOTE, holders[0].note.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_PERSON, holders[0].send.getValueString());
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? 0 : -1;
+                } else {
+                    return 0;
+                }
+
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
             }
         }
 
-        return super.onOptionsItemSelected(item);
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                finishUpdated();
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class ForwardClaimTask extends AsyncTask<ClaimForwardFragment.Holder, Void, Integer> {
+        String error;
+
+        @Override protected Integer doInBackground(ClaimForwardFragment.Holder... holders) {
+            ClaimForwardFragment.Holder holder = holders[0];
+            try {
+                RestRequest restRequest = new RestRequest(REST_FORWARD_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
+                restRequest.addInParam(
+                        REST_PARAM_NOTE, holder.note.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_STATE, holder.state.getValueDisplay());
+                restRequest.addInParam(
+                        REST_PARAM_PERSON, holder.send.getValueString());
+                restRequest.addInParam(REST_PARAM_PRIORITY, holder.priority.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_RELEASE_FIX, holder.releaseFix.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_BUILD_FIX, holder.buildFix.getValueString());
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? 0 : -1;
+                } else {
+                    return 0;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                finishUpdated();
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class ReturnClaimTask extends AsyncTask<String, Void, Integer> {
+        String error;
+
+        @Override protected Integer doInBackground(String... strings) {
+            try {
+                RestRequest restRequest = new RestRequest(REST_RETURN_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
+                restRequest.addInParam(
+                        REST_PARAM_NOTE, strings[0]);
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? 0 : -1;
+                } else {
+                    return 0;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                finishUpdated();
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class AddClaimTask extends AsyncTask<ClaimAddFragment.Holder, Void, Long> {
+        String error;
+
+        @Override protected Long doInBackground(ClaimAddFragment.Holder... holders) {
+            ClaimAddFragment.Holder holder = holders[0];
+            try {
+                RestRequest restRequest = new RestRequest(REST_ADD_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                String claimType = "";
+                switch (holder.type.getCheckedRadioButtonId()) {
+                    case R.id.radioTypeAddon:
+                        claimType = CLAIM_TYPE_ADDON;
+                        break;
+                    case R.id.radioTypeRebuke:
+                        claimType = CLAIM_TYPE_REBUKE;
+                        break;
+                    case R.id.radioTypeError:
+                        claimType = CLAIM_TYPE_ERROR;
+                        break;
+                }
+                restRequest.addInParam(
+                        REST_PARAM_TYPE, claimType);
+                restRequest.addInParam(
+                        REST_PARAM_PRIORITY, holder.priority.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT_APP, holder.unitApp.getValue());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT_APP, holder.unitApp.getValue());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT, holder.unit.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT_FUNC, holder.unitFunc.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_DESCRIPTION, holder.content.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_RELEASE_FOUND, holder.release.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_BUILD_FOUND, holder.build.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_RELEASE_FIX, holder.releaseFix.getValueString());
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? response.optLong(REST_PARAM_RN) : (long) -1;
+                } else {
+                    return null;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return (long) -1;
+            }
+        }
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Long result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra(Intents.EXTRA_KEY_RN, result);
+                setResult(Intents.RESULT_CLAIM_ADDED, intent);
+                finish();
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class EditClaimTask extends AsyncTask<ClaimEditFragment.Holder, Void, Integer> {
+        String error;
+
+        @Override protected Integer doInBackground(ClaimEditFragment.Holder... holders) {
+            ClaimEditFragment.Holder holder = holders[0];
+            try {
+                RestRequest restRequest = new RestRequest(REST_EDIT_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
+                restRequest.addInParam(
+                        REST_PARAM_DESCRIPTION, holder.content.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_RELEASE_FOUND, holder.release.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_BUILD_FOUND, holder.build.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_RELEASE_FIX, holder.releaseFix.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_BUILD_FIX, holder.buildFix.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT_APP, holder.unitApp.getValue());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT, holder.unit.getText().toString());
+                restRequest.addInParam(
+                        REST_PARAM_UNIT_FUNC, holder.unitFunc.getValueString());
+                restRequest.addInParam(
+                        REST_PARAM_PRIORITY, holder.priority.getText().toString());
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? 0 : -1;
+                } else {
+                    return 0;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                finishUpdated();
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class AddNoteTask extends AsyncTask<String, Void, Integer> {
+        String error;
+
+        @Override protected Integer doInBackground(String... strings) {
+            try {
+                RestRequest restRequest = new RestRequest(REST_NOTE_URL, REST_POST_METHOD);
+                restRequest.addInParam(REST_PARAM_SESSION, session);
+                restRequest.addInParam(REST_PARAM_RN, String.valueOf(claim.rn));
+                restRequest.addInParam(
+                        REST_PARAM_NOTE, strings[0]);
+                JSONObject response = restRequest.getJsonContent();
+                if (response != null) {
+                    error = response.optString(REST_PARAM_ERROR);
+                    return TextUtils.isEmpty(error) ? 0 : -1;
+                } else {
+                    return 0;
+                }
+            } catch (MalformedURLException | ConnectException e) {
+                error = e.getLocalizedMessage();
+                e.printStackTrace();
+                return -1;
+            }
+        }
+
+        @Override protected void onPreExecute() {
+            progressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(ClaimActionActivity.this, null)
+                        .showErrorDialog(getString(R.string.error_title), error);
+            } else {
+                finishUpdated();
+            }
+            super.onPostExecute(result);
+        }
     }
 
 

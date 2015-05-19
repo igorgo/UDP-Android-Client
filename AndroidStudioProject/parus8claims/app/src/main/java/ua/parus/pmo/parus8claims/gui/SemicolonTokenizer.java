@@ -8,8 +8,6 @@ public class SemicolonTokenizer implements MultiAutoCompleteTextView.Tokenizer {
         int i = cursor;
         while (i > 0 && text.charAt(i - 1) != ';')
             i--;
-        //while (i < cursor && text.charAt(i) == ' ')
-        //    i++;
         return i;
     }
 
@@ -27,9 +25,9 @@ public class SemicolonTokenizer implements MultiAutoCompleteTextView.Tokenizer {
         return len;
     }
 
-
     @Override
     public CharSequence terminateToken(CharSequence text) {
         return text;
     }
+
 }

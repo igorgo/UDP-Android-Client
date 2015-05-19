@@ -1,8 +1,5 @@
 package ua.parus.pmo.parus8claims;
 
-/**
- * Created  by igorgo on 03.05.2015.
- */
 public class Intents {
 
     public static final String EXTRA_KEY_CLAIM = "claim";
@@ -20,6 +17,7 @@ public class Intents {
     public static final int RESULT_CLAIM_UPDATED = 205;
     public static final int RESULT_CLAIM_ADDED = 206;
     public static final int RESULT_CLAIM_DELETED = 207;
+    public static final int RESULT_NEED_REFRESH_DICTIONARIES_CACHE = 208;
 
     public static final int REQUEST_CLAIM_VIEW = 101;
     public static final int REQUEST_CLAIM_EDIT = 102;

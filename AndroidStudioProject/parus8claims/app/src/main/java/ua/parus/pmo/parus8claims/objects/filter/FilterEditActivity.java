@@ -1,10 +1,11 @@
 package ua.parus.pmo.parus8claims.objects.filter;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -18,47 +19,72 @@ import java.util.List;
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.objects.dicts.Applists;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
 import ua.parus.pmo.parus8claims.gui.InputDialog;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
+import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 
 
 @SuppressWarnings("deprecation")
-public class FilterOneActivity extends ActionBarActivity
+public class FilterEditActivity extends ActionBarActivity
         implements MultiSpinner.OnSetItemValueListener,
-                   MultiSpinner.OnValueChangedListener {
+        MultiSpinner.OnValueChangedListener {
 
     private static final String SPINNER_BUILD_TAGNAME = "build8";
     private static final String SPINNER_RELEASE_TAGNAME = "release8";
     private static final String SPINNER_VERSION_TAGNAME = "version8";
-    private static final String TAG = "FilterOneActivity";
+    @SuppressWarnings("unused")
+    private static final String TAG = FilterEditActivity.class.getSimpleName();
     private Holder holder;
     private Intent resultIntent;
     private Filter filter;
     private int selfRequest;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Log.i(TAG, "Creating activity...");
         super.onCreate(savedInstanceState);
+        this.progressDialog = new ProgressDialog(this);
+        this.progressDialog.setMessage(getString(R.string.please_wait));
+        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         selfRequest = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
         setContentView(R.layout.activity_filter_editor);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-        /*actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setLogo(R.drawable.pmo_logo);
-        actionBar.setDisplayUseLogoEnabled(true);*/
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(R.string.query_editor);
         }
         this.filter = new Filter();
         this.filter.filter_rn = getIntent().getLongExtra(Intents.EXTRA_KEY_RN, 0);
-        this.filter.readFromServer(this);
+        new ReadTask().execute();
+    }
+
+    private class ReadTask extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            onAfterRead();
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            filter.readFromServer(FilterEditActivity.this);
+            return null;
+        }
+    }
+
+    private void onAfterRead() {
         this.holder = new Holder();
         this.holder.version8.setEditable(true);
         this.holder.version8.setName(SPINNER_VERSION_TAGNAME);
@@ -72,8 +98,6 @@ public class FilterOneActivity extends ActionBarActivity
         setAdapters();
         setFromFilterValues();
         this.holder.number.requestFocus();
-        Log.i(TAG, "Activity created");
-
     }
 
     private void setFromFilterValues() {
@@ -90,30 +114,60 @@ public class FilterOneActivity extends ActionBarActivity
 
     private void setupVersions() {
         this.holder.version8.setItems(
-                Releases.getVersions(this, true, ""),
+                ReleaseHelper.getVersions(this, true, ""),
                 true
-                                     );
+        );
 
     }
 
     private void setupReleases() {
         List<String> items = new ArrayList<>();
         if (this.holder.version8.isSingleSelected()) {
-            items = Releases.getReleasesNames(this, holder.version8.getValue(), true, null);
+            items = ReleaseHelper.getReleasesNames(this, holder.version8.getValue(), true, null);
         }
         this.holder.release8.setItems(
                 items, true
-                                     );
+        );
+    }
+
+    private class SetupBuildsTask extends AsyncTask<Void,Void,Void> {
+        private ProgressDialog progressDialog = new ProgressDialog(FilterEditActivity.this);
+        private List<String> items = new ArrayList<>();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (holder.release8.isSingleSelected()) {
+                items = BuildHelper.getBuildsDisplayNames(FilterEditActivity.this, holder.release8.getValue(), true);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            holder.build8.setItems(
+                    items, true
+            );
+            super.onPostExecute(aVoid);
+        }
     }
 
     private void setupBuilds() {
         List<String> items = new ArrayList<>();
         if (this.holder.release8.isSingleSelected()) {
-            items = Builds.getBuildsDisplayNames(this, holder.release8.getValue(), true);
+            items = BuildHelper.getBuildsDisplayNames(this, holder.release8.getValue(), true);
         }
         this.holder.build8.setItems(
                 items, true
-                                   );
+        );
     }
 
     private void setupApps() {
@@ -122,9 +176,9 @@ public class FilterOneActivity extends ActionBarActivity
                         this,
                         R.layout.dropdown_multiline_item,
                         R.id.item,
-                        Applists.getAppsAll(this)
+                        ApplistHelper.getAppsAll(this)
                 )
-                                          );
+        );
         this.holder.application.setTokenizer(new SemicolonTokenizer());
     }
 
@@ -134,29 +188,27 @@ public class FilterOneActivity extends ActionBarActivity
                         this,
                         R.layout.dropdown_multiline_item,
                         R.id.item,
-                        Units.getUnits(this)
+                        UnitHelper.getUnits(this)
                 )
-                                   );
+        );
         this.holder.unit.setTokenizer(new SemicolonTokenizer());
     }
 
     private void setAdapters() {
         setupVersions();
         setupReleases();
-        setupBuilds();
+        new SetupBuildsTask().execute();
         setupApps();
         setupUnits();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        Log.i(TAG, "Creating Options Menu");
         getMenuInflater().inflate(R.menu.menu_filter_editor, menu);
         menu.findItem(R.id.action_exec_query).setVisible(selfRequest == Intents.REQUEST_FILTER_ADD_NEW);
         menu.findItem(R.id.action_delete_query).setVisible(selfRequest == Intents.REQUEST_FILTER_EDIT);
         menu.findItem(R.id.action_save_query)
-            .setTitle(selfRequest == Intents.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
+                .setTitle(selfRequest == Intents.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
         invalidateOptionsMenu();
         return true;
     }
@@ -190,20 +242,11 @@ public class FilterOneActivity extends ActionBarActivity
                         new InputDialog.ResultListener() {
                             @Override
                             public void onSetResult(boolean isPositive, String userInput) {
-                                FilterOneActivity that = FilterOneActivity.this;
+                                FilterEditActivity that = FilterEditActivity.this;
                                 if (isPositive) {
                                     that.filter.filter_name = userInput;
                                     setFilterFromFields();
-                                    that.filter.saveToServer(that);
-                                    ((ClaimApplication) that.getApplication()).getFilters().addReplaceFilter(that.filter);
-                                    that.resultIntent = new Intent();
-                                    //resultIntent.putExtra(Filter.PARAM_FILTER_NAME, userInput);
-                                    if (that.filter.filter_rn > 0) {
-                                        that.resultIntent.putExtra(Filter.PARAM_FILTER_RN, that.filter.filter_rn);
-                                    }
-                                    //setExtraResults();
-                                    setResult(Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER, that.resultIntent);
-                                    finish();
+                                    new SaveTask().execute(false);
                                 }
                             }
                         }
@@ -211,30 +254,81 @@ public class FilterOneActivity extends ActionBarActivity
                 return true;
             case R.id.action_exec_query:
                 setFilterFromFields();
-                this.filter.saveToServer(this);
-                this.resultIntent = new Intent();
-                if (this.filter.filter_rn > 0) {
-                    this.resultIntent.putExtra(Filter.PARAM_FILTER_RN, this.filter.filter_rn);
-                }
-                //setExtraResults();
-                setResult(Intents.RESULT_NEED_EXECUTE_FILTER, this.resultIntent);
-                finish();
+                new SaveTask().execute(true);
                 return true;
             case R.id.action_clear_query:
                 this.filter.clear();
                 setFromFilterValues();
                 return true;
             case R.id.action_delete_query:
-                this.filter.deleteOnServer(this);
-                ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
-                setResult(Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
-                finish();
+                new DeleteTask().execute();
                 return true;
             case android.R.id.home:
                 onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private class SaveTask extends AsyncTask<Boolean,Void,Boolean> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            progressDialog.dismiss();
+            onAfterSave(aBoolean);
+            super.onPostExecute(aBoolean);
+        }
+
+        @Override
+        protected Boolean doInBackground(Boolean... params) {
+            filter.saveToServer(FilterEditActivity.this);
+            return params[0];
+        }
+    }
+
+    private void onAfterSave(boolean onlyExec) {
+        if (!onlyExec) {
+            ((ClaimApplication) getApplication()).getFilters().addReplaceFilter(filter);
+        }
+        resultIntent = new Intent();
+        if (filter.filter_rn > 0) {
+            resultIntent.putExtra(Filter.PARAM_FILTER_RN, filter.filter_rn);
+        }
+        setResult(onlyExec ? Intents.RESULT_NEED_EXECUTE_FILTER : Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER, resultIntent);
+        finish();
+    }
+
+
+    private class DeleteTask extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            onAfterDelete();
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            filter.deleteOnServer(FilterEditActivity.this);
+            return null;
+        }
+    }
+
+    private void onAfterDelete() {
+        ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
+        setResult(Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
+        finish();
     }
 
     @Override
@@ -252,7 +346,7 @@ public class FilterOneActivity extends ActionBarActivity
             setupReleases();
         }
         if (sender.getName().equals(SPINNER_RELEASE_TAGNAME)) {
-            setupBuilds();
+            new SetupBuildsTask().execute();
         }
 
     }

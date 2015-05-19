@@ -11,10 +11,6 @@ import android.widget.TextView;
 
 import ua.parus.pmo.parus8claims.R;
 
-/**
- * Created by igorgo on 19.04.2015.
- *
- */
 public class InputDialog {
 
     public InputDialog(Context context, String prompt, String value, final ResultListener resultListener) {
@@ -32,7 +28,6 @@ public class InputDialog {
                 resultListener.onSetResult(false, editText.getText().toString());
             }
         });
-
         builder.setPositiveButton(android.R.string.ok,
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -50,12 +45,10 @@ public class InputDialog {
                 }
         );
         AlertDialog alertDialog = builder.create();
-        //alertDialog.set
         alertDialog.show();
     }
 
     public interface ResultListener {
-        public void onSetResult(boolean isPositive, String userInput);
+        void onSetResult(boolean isPositive, String userInput);
     }
-
 }

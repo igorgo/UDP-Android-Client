@@ -11,7 +11,7 @@ import ua.parus.pmo.parus8claims.objects.filter.FilterListAdapter;
 public class ClaimApplication extends Application {
     private String sessionId;
     private boolean isPmoUser;
-    private boolean cacheRefreched;
+    private boolean cacheRefreshed;
     private FilterListAdapter filters;
 
     private void getOverflowMenu() {
@@ -37,6 +37,7 @@ public class ClaimApplication extends Application {
         this.getOverflowMenu();
         this.filters = null;
     }
+
     public String getSessionId() {
         return this.sessionId;
     }
@@ -53,19 +54,19 @@ public class ClaimApplication extends Application {
         this.isPmoUser = isPmoUser;
     }
 
-    public boolean isNotCacheRefreched() {
-        return !this.cacheRefreched;
+    public boolean isNotCacheRefreshed() {
+        return !this.cacheRefreshed;
     }
 
-    public void setCacheRefreched() {
-        this.cacheRefreched = true;
-    }
-
-    public void setFilters(FilterListAdapter filters) {
-        this.filters = filters;
+    public void setCacheRefreshed() {
+        this.cacheRefreshed = true;
     }
 
     public FilterListAdapter getFilters() {
         return filters;
+    }
+
+    public void setFilters(FilterListAdapter filters) {
+        this.filters = filters;
     }
 }

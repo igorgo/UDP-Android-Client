@@ -20,11 +20,11 @@
     <string name="build">Build</string>
     <string name="all">All</string>
     <string name="please_wait">Please wait…</string>
-    <string name="loading_unitlist">Loading Unit List…</string>
+    <string name="loading_unitlist">Loading Units…</string>
     <string name="unit">Unit</string>
     <string name="system">System</string>
     <string name="app">Application</string>
-    <string name="loading_applist">Loading Applications List…</string>
+    <string name="loading_applist">Loading Applications…</string>
     <string name="pref_header_account">Account</string>
     <string name="pref_header_cache">Cache</string>
     <string name="refresh_cache">Refresh the dictionary cache</string>
@@ -101,4 +101,5 @@
     <string name="connect_to_server">Connecting to pmo server…</string>
     <string name="no_datafound">No data found according your condition.</string>
     <string name="uploading_file">Uploading file…</string>
+    <string name="loading_releases">Loading Releases…</string>
 </resources>

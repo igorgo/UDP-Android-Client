@@ -23,7 +23,7 @@
     <string name="all_ass_with_unit">Все связанные с разделом</string>
     <string name="app">Приложение</string>
     <string name="build">Сборка</string>
-    <string name="loading_applist">Загрузка списка приложений</string>
+    <string name="loading_applist">Загрузка списка приложений…</string>
     <string name="loading_unitlist">Загрузка списка разделов…</string>
     <string name="please_wait">Подождите, пожалуйста…</string>
     <string name="pref_header_account">Учетная запись</string>
@@ -101,4 +101,5 @@
     <string name="connect_to_server">Соединение с сервером…</string>
     <string name="no_datafound">По заданным условиям отбора данных не найдено.</string>
     <string name="uploading_file">Отправка файла…</string>
+    <string name="loading_releases">Загрузка списка релизов…</string>
 </resources>

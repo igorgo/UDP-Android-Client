@@ -1,5 +1,7 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -14,24 +16,29 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 
+import java.util.List;
+
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 
 
-public class ClaimEditFragment extends Fragment  {
+public class ClaimEditFragment extends Fragment {
+    @SuppressWarnings("unused")
     private static final String TAG = ClaimEditFragment.class.getSimpleName();
     private static final String ARG_PARAM1 = "claim";
+    public static final String BUILD_TYPE_FOUND = "FOUND";
+    public static final String BUILD_TYPE_FIX = "FIX";
+    public Holder holder;
     private Claim claim;
     private View rootView;
-    public Holder holder;
     private boolean isPmoUser;
 
     public ClaimEditFragment() {
@@ -58,7 +65,6 @@ public class ClaimEditFragment extends Fragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         this.rootView = inflater.inflate(R.layout.fragment_claim_edit, container, false);
         this.claim.populateToView(rootView);
         this.holder = new Holder();
@@ -66,6 +72,47 @@ public class ClaimEditFragment extends Fragment  {
         return this.rootView;
     }
 
+    private class GetBuildsTask extends AsyncTask<String,Void,Void> {
+        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private List<String> DisplayNames;
+        private List<String> Codes;
+        private boolean isFoundBuild;
+        private String release;
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage(getString(R.string.please_wait));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            release = params[0];
+            isFoundBuild = params[1].equals(BUILD_TYPE_FOUND);
+            DisplayNames = BuildHelper.getBuildsDisplayNames(getActivity(), release, isFoundBuild);
+            Codes = BuildHelper.getBuildsCodes(getActivity(), release, isFoundBuild);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            if (isFoundBuild) {
+                holder.build.setItemsStringVals(DisplayNames,Codes,
+                        BuildHelper.buildName(holder.release.getValueString(), claim.buildFound)
+                );
+            } else {
+                holder.buildFix.setEnabled(true);
+                holder.buildFix.setItemsStringVals(DisplayNames,Codes,
+                        claim.buildFix == null ? "" : BuildHelper.buildName(release, claim.buildFix)
+                );
+            }
+            super.onPostExecute(aVoid);
+        }
+    }
 
     class Holder {
         public final SimpleSpinner release;
@@ -82,7 +129,6 @@ public class ClaimEditFragment extends Fragment  {
         private boolean needRefreshUnitApps = true;
         private boolean needRefreshUnitFunc = true;
 
-
         public Holder() {
             View view = ClaimEditFragment.this.rootView;
             that = ClaimEditFragment.this;
@@ -96,24 +142,23 @@ public class ClaimEditFragment extends Fragment  {
             this.unit = (MultiAutoCompleteTextView) view.findViewById(R.id.unitsText);
             this.unitApp = (MultiSpinner) view.findViewById(R.id.appSpinner);
             this.unitFunc = (SimpleSpinner) view.findViewById(R.id.funcSpinner);
-            this.groupFix = (LinearLayout)  view.findViewById(R.id.groupFix);
+            this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
+
+
+
 
         private void populateFromClaim(Claim claim) {
             this.release.setOnValueChangedListener(
                     new SimpleSpinner.OnValueChangedListener() {
                         @Override
                         public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
-                            build.setItemsStringVals(
-                                    Builds.getBuildsDisplayNames(getActivity(), release.getValueString(), true),
-                                    Builds.getBuildsCodes(getActivity(), release.getValueString(), true),
-                                    Builds.buildName(release.getValueString(), that.claim.buildFound)
-                            );
+                            new GetBuildsTask().execute(release.getValueString(), BUILD_TYPE_FOUND);
                         }
                     }
             );
             this.release.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, true, ""),
                     claim.releaseFound.name);
             this.releaseFix.setOnValueChangedListener(
@@ -124,18 +169,13 @@ public class ClaimEditFragment extends Fragment  {
                                 buildFix.setEnabled(false);
                                 buildFix.clear();
                             } else {
-                                buildFix.setEnabled(true);
-                                buildFix.setItemsStringVals(
-                                        Builds.getBuildsDisplayNames(getActivity(), valueString, false),
-                                        Builds.getBuildsCodes(getActivity(), valueString, false),
-                                        that.claim.buildFix == null ? "" : Builds.buildName(valueString, that.claim.buildFix)
-                                );
+                                new GetBuildsTask().execute(release.getValueString(),BUILD_TYPE_FIX);
                             }
                         }
                     }
             );
             this.releaseFix.setItems(
-                    Releases.getReleasesNames(
+                    ReleaseHelper.getReleasesNames(
                             getActivity(), null, false, ""),
                     claim.releaseFix == null ? null : claim.releaseFix.name);
             this.priority.setText(String.valueOf(claim.priority));
@@ -144,7 +184,7 @@ public class ClaimEditFragment extends Fragment  {
                             that.getActivity(),
                             R.layout.dropdown_multiline_item,
                             R.id.item,
-                            Units.getUnits(that.getActivity())
+                            UnitHelper.getUnits(that.getActivity())
                     )
             );
             this.unit.setTokenizer(new SemicolonTokenizer());
@@ -175,10 +215,9 @@ public class ClaimEditFragment extends Fragment  {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitApps && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitApp.getValue();
-                                unitApp.setItems(Units.getUnitApps(getActivity(), unit.getText().toString()), true);
+                                unitApp.setItems(UnitHelper.getUnitApps(getActivity(), unit.getText().toString()), true);
                                 unitApp.setValue(s);
                                 needRefreshUnitApps = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
@@ -191,10 +230,8 @@ public class ClaimEditFragment extends Fragment  {
                         public boolean onTouch(View v, MotionEvent event) {
                             if (needRefreshUnitFunc && event.getAction() == MotionEvent.ACTION_DOWN) {
                                 String s = unitFunc.getValueString();
-                                unitFunc.setItems(Units.getUnitFuncs(getActivity(), unit.getText().toString()), s);
-                                //unitFunc.setValue(s);
+                                unitFunc.setItems(UnitHelper.getUnitFuncs(getActivity(), unit.getText().toString()), s);
                                 needRefreshUnitFunc = false;
-                                //Log.i(TAG, "unitApp onItemClick \n\tv:" + v + "\n\tevent:" + event);
                             }
                             return false;
                         }
@@ -202,14 +239,7 @@ public class ClaimEditFragment extends Fragment  {
             );
             this.unitFunc.setValue(claim.unitFunc);
             this.content.setText(claim.description);
-            if (!isPmoUser) {
-                this.groupFix.setVisibility(View.GONE);
-            } else {
-                this.groupFix.setVisibility(View.VISIBLE);
-            }
-
-
+            this.groupFix.setVisibility(isPmoUser ? View.VISIBLE : View.GONE);
         }
     }
-
 }

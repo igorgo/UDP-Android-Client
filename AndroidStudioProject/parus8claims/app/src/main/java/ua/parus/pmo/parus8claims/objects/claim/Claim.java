@@ -1,7 +1,6 @@
 package ua.parus.pmo.parus8claims.objects.claim;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,15 +15,11 @@ import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.objects.dicts.Build;
-import ua.parus.pmo.parus8claims.objects.dicts.Builds;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.Release;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-/**
- * Created by igorgo on 20.04.2015.
- */
-@SuppressWarnings("DefaultFileTemplate")
 public class Claim implements Serializable {
     public static final int TYPE_UPWORK = 1;
     public static final int TYPE_REBUKE = 2;
@@ -36,6 +31,7 @@ public class Claim implements Serializable {
     public static final int EXECUTOR_TYPE_PERSON = 1;
     public static final int EXECUTOR_TYPE_GROUP = 2;
 
+    @SuppressWarnings("unused")
     private static final String TAG = Claim.class.getSimpleName();
     private static final String FIELD_NUMBER = "s01";
     private static final String FIELD_TYPE = "n01";
@@ -133,18 +129,18 @@ public class Claim implements Serializable {
             this.executorType = c.getInt(FIELD_EXECUTOR_TYPE);
             long releaseFound = c.optLong(FIELD_RELEASE_FOUND);
             if (releaseFound > 0) {
-                this.releaseFound = Releases.getRelease(context, releaseFound);
+                this.releaseFound = ReleaseHelper.getRelease(context, releaseFound);
                 long buildFound = c.optLong(FIELD_BUILD_FOUND);
                 if (buildFound > 0) {
-                    this.buildFound = Builds.getBuild(context, releaseFound, buildFound);
+                    this.buildFound = BuildHelper.getBuild(context, releaseFound, buildFound);
                 }
             }
             long releaseTo = c.optLong(FIELD_RELEASE_FIX);
             if (releaseTo > 0) {
-                this.releaseFix = Releases.getRelease(context, releaseTo);
+                this.releaseFix = ReleaseHelper.getRelease(context, releaseTo);
                 long buildTo = c.optLong(FIELD_BUILD_FIX);
                 if (buildTo > 0) {
-                    this.buildFix = Builds.getBuild(context, releaseTo, buildTo);
+                    this.buildFix = BuildHelper.getBuild(context, releaseTo, buildTo);
                 }
             }
             this.priority = c.getInt(FIELD_PRIORITY);
@@ -160,19 +156,14 @@ public class Claim implements Serializable {
             this.canClose = c.getInt(FIELD_CAN_CLOSE) == 1;
             this.canAddNote = c.getInt(FIELD_CAN_ADD_NOTE) == 1;
             this.canAttach = c.getInt(FIELD_CAN_ATTACH) == 1;
-
-        } catch (MalformedURLException|JSONException e) {
-            Log.e(TAG, e.getLocalizedMessage());
-            e.printStackTrace();
-        } catch (ConnectException e) {
+        } catch (MalformedURLException | JSONException | ConnectException e) {
             e.printStackTrace();
         }
     }
 
-    public void populateToView (View view) {
+    public void populateToView(View view) {
         TextView textView;
         ImageView imageView;
-
         if ((textView = (TextView) view.findViewById(R.id.fciNumberText)) != null) {
             textView.setText(this.number);
         }
@@ -231,7 +222,7 @@ public class Claim implements Serializable {
                 ((View) textView.getParent()).setVisibility(View.GONE);
             }
         }
-        if ((textView = (TextView) view.findViewById(R.id.fciStatusText)) != null){
+        if ((textView = (TextView) view.findViewById(R.id.fciStatusText)) != null) {
             textView.setText(this.state);
             switch (this.stateType) {
                 case Claim.STATUS_TYPE_WAIT:
@@ -251,8 +242,8 @@ public class Claim implements Serializable {
         if ((textView = (TextView) view.findViewById(R.id.fciChangeDateText)) != null) {
             textView.setText(this.changeDate);
         }
-        if ((textView = (TextView) view.findViewById(R.id.fciExecutorText)) != null ) {
-            if ( this.executorType > 0 ) {
+        if ((textView = (TextView) view.findViewById(R.id.fciExecutorText)) != null) {
+            if (this.executorType > 0) {
                 textView.setText(this.executor);
                 if ((imageView = (ImageView) view.findViewById(R.id.fciExecutorImage)) != null) {
                     if (this.executorType == 1) {
@@ -264,9 +255,8 @@ public class Claim implements Serializable {
             } else {
                 ((View) textView.getParent()).setVisibility(View.GONE);
             }
-
         }
-        if ((textView = (TextView) view.findViewById(R.id.fciPriorityText)) != null){
+        if ((textView = (TextView) view.findViewById(R.id.fciPriorityText)) != null) {
             textView.setText(String.valueOf(this.priority));
             if (this.priority < 5)
                 textView.setTextAppearance(view.getContext(), R.style.claim_state_done);
@@ -275,7 +265,7 @@ public class Claim implements Serializable {
             else
                 textView.setTextAppearance(view.getContext(), R.style.claim_state_wait);
         }
-        if ((textView = (TextView) view.findViewById(R.id.fciReleaseToText)) != null){
+        if ((textView = (TextView) view.findViewById(R.id.fciReleaseToText)) != null) {
             if (this.releaseFix != null) {
                 if (this.buildFix != null)
                     textView.setText(this.buildFix.displayName);
@@ -285,10 +275,5 @@ public class Claim implements Serializable {
                 ((View) textView.getParent()).setVisibility(View.GONE);
             }
         }
-
-
-
     }
-
-
 }

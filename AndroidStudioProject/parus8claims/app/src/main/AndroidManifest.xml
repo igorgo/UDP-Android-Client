@@ -34,7 +34,7 @@
             android:label="@string/title_activity_filters" >
         </activity>
         <activity
-            android:name=".objects.filter.FilterOneActivity"
+            android:name=".objects.filter.FilterEditActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/title_activity_filter_editor" >
         </activity>

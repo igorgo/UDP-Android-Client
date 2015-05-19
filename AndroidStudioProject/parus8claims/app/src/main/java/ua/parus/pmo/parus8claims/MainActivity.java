@@ -6,14 +6,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,11 +26,14 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 
+import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListPageListener;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
@@ -35,20 +41,29 @@ import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimActivity;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimListAdapter;
 import ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity;
-import ua.parus.pmo.parus8claims.objects.dicts.Applists;
-import ua.parus.pmo.parus8claims.objects.dicts.Releases;
-import ua.parus.pmo.parus8claims.objects.dicts.Units;
+import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
+import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 import ua.parus.pmo.parus8claims.objects.filter.Filter;
-import ua.parus.pmo.parus8claims.objects.filter.FilterOneActivity;
+import ua.parus.pmo.parus8claims.objects.filter.FilterEditActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,
-                                                               AutoScrollListPageListener {
+        AutoScrollListPageListener, Handler.Callback {
 
+    @SuppressWarnings("unused")
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String KEY_CONDITION = "CURRENT_CONDITION";
+    private static final int MSG_CONNECT_ERROR = -1;
+    private static final int MSG_RELEASES_HAVE_REFRESHED = 1;
+    private static final int MSG_DICTIONARIES_HAVE_CACHED = 2;
+    private static final int MSG_AUTH_ERROR = 3;
+    private static final int MSG_LOGGED = 4;
+    private ProgressDialog progressDialog;
+    private Handler handler;
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
@@ -59,6 +74,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handler = new Handler(this);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
@@ -78,49 +94,42 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        ProgressDialog connectDialog = ProgressDialog
-                .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.connect_to_server), true);
-        boolean rc = true;
-        if (application.isNotCacheRefreched()) {
-            try {
-                rc = false;
-                Releases.RefreshCache(MainActivity.this);
-                rc = true;
-            } catch (ConnectException e) {
-                e.printStackTrace();
-            }
-            if (connectDialog.isShowing()) connectDialog.dismiss();
-            if (rc) {
-                Units.checkCache(MainActivity.this);
-                Applists.checkCache(MainActivity.this);
-                application.setCacheRefreched();
-            }
-        }
-        if (connectDialog.isShowing()) connectDialog.dismiss();
-        if (rc) {
-            Log.d(TAG, "Call login to UDP");
-            loginToUdp();
+        progressDialog = new ProgressDialog(this);
+        if (SettingsActivity.isCredentialsSet(this)) {
+            cacheRelease();
         } else {
-            ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                    System.exit(0);
-                }
-            });
-            errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.server_unreachable));
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, Intents.REQUEST_SETTINGS);
+        }
+    }
+
+
+    private void cacheRelease() {
+        if (application.isNotCacheRefreshed()) {
+            progressDialog.setMessage(MainActivity.this.getString(R.string.loading_releases));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            new ReleasesCashRefresher().execute();
+        } else {
+            handler.sendEmptyMessage(MSG_RELEASES_HAVE_REFRESHED);
+        }
+    }
+
+    private void cacheDictionaries(boolean force) {
+        if (!force && UnitHelper.isUnitsCached(this)) {
+            handler.sendEmptyMessage(MSG_DICTIONARIES_HAVE_CACHED);
+        } else {
+            progressDialog.setMessage(MainActivity.this.getString(R.string.loading_unitlist));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            new DictionariesCashRefresher().execute();
         }
 
     }
+
 
     private void getClaims(Long cond, Long newrn) {
         try {
-            Log.d(TAG, "Load Claims From Inet");
             claimsListView.setVisibility(View.GONE);
             emptyText.setVisibility(View.GONE);
             progress.setVisibility(View.VISIBLE);
@@ -135,22 +144,12 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     private void loginToUdp() {
         if (this.application.getSessionId() == null) {
-            Log.d(TAG, "Session not set.");
-            SharedPreferences sharedPrefs = PreferenceManager
-                    .getDefaultSharedPreferences(this);
-            String user = sharedPrefs.getString(SettingsActivity.PREF_USERNAME, "");
-            String pass = sharedPrefs.getString(SettingsActivity.PREF_PASSWORD, "");
-
-            if ((user == null) || (pass == null) || (user.isEmpty()) || (pass).isEmpty()) {
-                Log.i(TAG, "Some preferences not set.");
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivityForResult(intent, Intents.REQUEST_SETTINGS);
-                return;
-            }
-            new LoginAsyncTask().execute(user, pass, null);
+            progressDialog.setMessage(MainActivity.this.getString(R.string.authorizing));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+            new LoginAsyncTask().execute();
         } else {
-            Log.d(TAG, "Session are set yet. Call next process.");
-            this.getClaims(this.currentConditionRn, null);
+            handler.sendEmptyMessage(MSG_LOGGED);
         }
     }
 
@@ -159,21 +158,24 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case Intents.REQUEST_SETTINGS:
-                Log.d(TAG, "It's from SettingsActivity. Call loginToUdp.");
-                this.loginToUdp();
+                switch (resultCode) {
+                    case Intents.RESULT_CANCEL:
+                        cacheRelease();
+                        break;
+                    case Intents.RESULT_NEED_REFRESH_DICTIONARIES_CACHE:
+                        cacheDictionaries(true);
+                        break;
+                }
                 break;
             case Intents.REQUEST_FILTERS_VIEW:
-                Log.d(TAG, "It's from FiltersActivity.");
                 switch (resultCode) {
                     case Intents.RESULT_NEED_ADD_NEW_FILTER:
-                        Log.d(TAG, "Request for new query has been received.");
-                        Intent intentAddFilter = new Intent(this, FilterOneActivity.class);
+                        Intent intentAddFilter = new Intent(this, FilterEditActivity.class);
                         intentAddFilter.putExtra(Intents.EXTRA_KEY_REQUEST,
                                 Intents.REQUEST_FILTER_ADD_NEW);
                         startActivityForResult(intentAddFilter, Intents.REQUEST_FILTER_ADD_NEW);
                         break;
                     case Intents.RESULT_FILTER_SELECTED:
-                        Log.d(TAG, "Request for existing query has been received.");
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
@@ -181,11 +183,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 }
                 break;
             case Intents.REQUEST_FILTER_ADD_NEW:
-                Log.d(TAG, "It's from FilterEditorActivity.");
                 switch (resultCode) {
                     case Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER:
                     case Intents.RESULT_NEED_EXECUTE_FILTER:
-                        Log.d(TAG, "Request for save and exec query has been received.");
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
@@ -257,21 +257,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Log.d(TAG, "The «Settings» menu item selected");
                 Intent intentSettings = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intentSettings, Intents.REQUEST_SETTINGS);
                 return true;
             case R.id.action_search:
-                Log.d(TAG, "The «Search» menu item selected");
                 Intent intentSearch = new Intent(this, FiltersActivity.class);
                 startActivityForResult(intentSearch, Intents.REQUEST_FILTERS_VIEW);
                 return true;
             case R.id.action_refresh:
-                Log.d(TAG, "The «Refresh» menu item selected");
                 this.getClaims(this.currentConditionRn, null);
                 return true;
             case R.id.action_add_claim:
-                Log.d(TAG, "The «Search» menu item selected");
                 Intent intentAdd = new Intent(this, ClaimActionActivity.class);
                 intentAdd.putExtra(Intents.EXTRA_KEY_CLAIM, new Claim());
                 intentAdd.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_CLAIM_ADD);
@@ -310,20 +306,38 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public void onEmptyList(boolean empty) {
         this.claimsListView.onEmptyList(empty);
         if (empty) {
-            Log.d(TAG, "List is empty");
             this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.GONE);
             this.emptyText.setVisibility(View.VISIBLE);
         } else {
-            Log.d(TAG, "List not empty");
             this.progress.setVisibility(View.GONE);
             this.claimsListView.setVisibility(View.VISIBLE);
             this.emptyText.setVisibility(View.GONE);
         }
     }
 
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+            case MSG_CONNECT_ERROR:
+                finish();
+                System.exit(0);
+                break;
+            case MSG_RELEASES_HAVE_REFRESHED:
+                cacheDictionaries(false);
+                break;
+            case MSG_DICTIONARIES_HAVE_CACHED:
+                loginToUdp();
+                break;
+            case MSG_LOGGED:
+                getClaims(currentConditionRn, null);
+                break;
+        }
+        return false;
+    }
 
-    private class LoginAsyncTask extends AsyncTask<String, Void, JSONObject> {
+
+    private class LoginAsyncTask extends AsyncTask<Void, Void, Integer> {
         public static final String REST_URL = "login/";
         public static final String HTTP_METHOD = "POST";
         public static final String REST_PARAM_USER = "user";
@@ -332,29 +346,55 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         public static final String REST_RESPONSE_FIELD_SESSION_ID = "SESSONID";
         public static final String REST_RESPONSE_FIELD_PMO_FLAG = "PPP";
         final MainActivity that = MainActivity.this;
-        final ProgressDialog loadDialog = ProgressDialog
-                .show(MainActivity.this, getString(R.string.please_wait), getString(R.string.authorizing), true);
+        String error;
 
         @Override
-        protected JSONObject doInBackground(String... params) {
-            loadDialog.show();
-            JSONObject response = null;
-            RestRequest loginRequest;
+        protected Integer doInBackground(Void... params) {
             try {
+                SharedPreferences sharedPrefs = PreferenceManager
+                        .getDefaultSharedPreferences(that);
+                String user = sharedPrefs.getString(SettingsActivity.PREF_USERNAME, "");
+                String pass = sharedPrefs.getString(SettingsActivity.PREF_PASSWORD, "");
+                JSONObject response;
+                RestRequest loginRequest;
                 loginRequest = new RestRequest(REST_URL, HTTP_METHOD);
-                loginRequest.addInParam(REST_PARAM_USER, params[0]);
-                loginRequest.addInParam(REST_PARAM_PASSWORD, params[1]);
+                loginRequest.addInParam(REST_PARAM_USER, user);
+                loginRequest.addInParam(REST_PARAM_PASSWORD, pass);
 
                 response = loginRequest.getJsonContent();
+                if (response == null) {
+                    error = getString(R.string.connection_time_out);
+                    return -1;
+                }
+                String serverError = response.optString(REST_RESPONSE_FIELD_ERROR);
+                if (!TextUtils.isEmpty(serverError)) {
+                    error = serverError;
+                    return -1;
+                }
+                that.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
+                that.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
             } catch (MalformedURLException | ConnectException e) {
                 e.printStackTrace();
             }
-            return response;
+            return 0;
         }
 
         @Override
-        protected void onPostExecute(JSONObject response) {
-            loadDialog.cancel();
+        protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.sendEmptyMessage(MSG_AUTH_ERROR);
+                    }
+                }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
+            } else {
+                handler.sendEmptyMessage(MSG_LOGGED);
+            }
+            super.onPostExecute(result);
+
+            /*progressDialog.dismiss();
             if (response == null) {
                 ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
                 errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.connection_time_out));
@@ -369,7 +409,151 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 that.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
                 that.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
             }
-            that.getClaims(that.currentConditionRn, null);
+            that.getClaims(that.currentConditionRn, null);*/
         }
     }
+
+    private class ReleasesCashRefresher extends AsyncTask<Void, Void, Integer> {
+        String error;
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            DatabaseWrapper databaseWrapper = new DatabaseWrapper(MainActivity.this);
+            SQLiteDatabase db = databaseWrapper.getWritableDatabase();
+            try {
+                RestRequest restRequest = new RestRequest("dicts/releases/");
+                JSONArray response = restRequest.getAllRows();
+                if (response != null) {
+                    db.delete(ReleaseHelper.TABLE_NAME, null, null);
+                    db.delete(BuildHelper.TABLE_NAME, null, null);
+                    db.beginTransaction();
+                    try {
+                        SQLiteStatement statement = db.compileStatement(ReleaseHelper.SQL_INSERT);
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject c = response.getJSONObject(i);
+                            statement.bindLong(1, c.getLong("rn"));
+                            statement.bindString(2, c.getString("v"));
+                            statement.bindString(3, c.getString("r"));
+                            statement.execute();
+                            statement.clearBindings();
+                        }
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            } catch (MalformedURLException | ConnectException | JSONException e) {
+                e.printStackTrace();
+                error = e.getLocalizedMessage();
+                return -1;
+            } finally {
+                db.close();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.sendEmptyMessage(MSG_CONNECT_ERROR);
+                    }
+                }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
+            } else {
+                application.setCacheRefreshed();
+                handler.sendEmptyMessage(MSG_RELEASES_HAVE_REFRESHED);
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+    private class DictionariesCashRefresher extends AsyncTask<Void, String, Integer> {
+        String error;
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            publishProgress(getString(R.string.loading_unitlist));
+            DatabaseWrapper databaseWrapper = new DatabaseWrapper(MainActivity.this);
+            SQLiteDatabase db = databaseWrapper.getWritableDatabase();
+            try {
+                RestRequest restRequest = new RestRequest(UnitHelper.URL_UNITS);
+                JSONArray response = restRequest.getAllRows();
+                if (response != null) {
+                    db.delete(UnitHelper.TABLE_NAME, null, null);
+                    db.delete(UnitHelper.UnitApplists.TABLE_NAME, null, null);
+                    db.delete(UnitHelper.UnitFuncs.TABLE_NAME, null, null);
+                    db.beginTransaction();
+                    try {
+                        SQLiteStatement statement = db.compileStatement(UnitHelper.SQL_INSERT);
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject c = response.getJSONObject(i);
+                            statement.bindString(1, c.getString("n"));
+                            statement.execute();
+                            statement.clearBindings();
+                        }
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+                publishProgress(getString(R.string.loading_applist));
+                restRequest = new RestRequest(ApplistHelper.REST_URL);
+                JSONArray items = restRequest.getAllRows();
+                if (items != null) {
+                    db.delete(ApplistHelper.TABLE_NAME, null, null);
+                    db.beginTransaction();
+                    try {
+                        SQLiteStatement statement = db.compileStatement(ApplistHelper.SQL_INSERT);
+                        for (int i = 0; i < items.length(); i++) {
+                            JSONObject item = items.getJSONObject(i);
+                            statement.bindString(1, item.getString(ApplistHelper.FIELD_NAME));
+                            statement.execute();
+                            statement.clearBindings();
+                        }
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                }
+            } catch (MalformedURLException | ConnectException | JSONException e) {
+                e.printStackTrace();
+                error = e.getLocalizedMessage();
+                return -1;
+            } finally {
+                db.close();
+            }
+            return 0;
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            if (!TextUtils.isEmpty(values[0])) {
+                progressDialog.setMessage(values[0]);
+            }
+            super.onProgressUpdate(values);
+        }
+
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            progressDialog.dismiss();
+            if (result == -1) {
+                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.sendEmptyMessage(MSG_CONNECT_ERROR);
+                    }
+                }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
+            } else {
+                handler.sendEmptyMessage(MSG_DICTIONARIES_HAVE_CACHED);
+            }
+            super.onPostExecute(result);
+        }
+    }
+
+
 }
