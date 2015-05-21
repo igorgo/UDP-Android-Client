@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
-import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.InputDialog;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
@@ -26,6 +25,7 @@ import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 
 @SuppressWarnings("deprecation")
@@ -51,7 +51,7 @@ public class FilterEditActivity extends ActionBarActivity
         this.progressDialog = new ProgressDialog(this);
         this.progressDialog.setMessage(getString(R.string.please_wait));
         this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        selfRequest = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
+        selfRequest = getIntent().getIntExtra(Constants.EXTRA_KEY_REQUEST, 0);
         setContentView(R.layout.activity_filter_editor);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -59,7 +59,7 @@ public class FilterEditActivity extends ActionBarActivity
             actionBar.setTitle(R.string.query_editor);
         }
         this.filter = new Filter();
-        this.filter.filter_rn = getIntent().getLongExtra(Intents.EXTRA_KEY_RN, 0);
+        this.filter.filter_rn = getIntent().getLongExtra(Constants.EXTRA_KEY_RN, 0);
         new ReadTask().execute();
     }
 
@@ -205,10 +205,10 @@ public class FilterEditActivity extends ActionBarActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_filter_editor, menu);
-        menu.findItem(R.id.action_exec_query).setVisible(selfRequest == Intents.REQUEST_FILTER_ADD_NEW);
-        menu.findItem(R.id.action_delete_query).setVisible(selfRequest == Intents.REQUEST_FILTER_EDIT);
+        menu.findItem(R.id.action_exec_query).setVisible(selfRequest == Constants.REQUEST_FILTER_ADD_NEW);
+        menu.findItem(R.id.action_delete_query).setVisible(selfRequest == Constants.REQUEST_FILTER_EDIT);
         menu.findItem(R.id.action_save_query)
-                .setTitle(selfRequest == Intents.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
+                .setTitle(selfRequest == Constants.REQUEST_FILTER_EDIT ? R.string.save : R.string.save_n_exec);
         invalidateOptionsMenu();
         return true;
     }
@@ -216,7 +216,7 @@ public class FilterEditActivity extends ActionBarActivity
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        setResult(Intents.RESULT_CANCEL, intent);
+        setResult(Constants.RESULT_CANCEL, intent);
         super.onBackPressed();
     }
 
@@ -299,7 +299,7 @@ public class FilterEditActivity extends ActionBarActivity
         if (filter.filter_rn > 0) {
             resultIntent.putExtra(Filter.PARAM_FILTER_RN, filter.filter_rn);
         }
-        setResult(onlyExec ? Intents.RESULT_NEED_EXECUTE_FILTER : Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER, resultIntent);
+        setResult(onlyExec ? Constants.RESULT_NEED_EXECUTE_FILTER : Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER, resultIntent);
         finish();
     }
 
@@ -327,7 +327,7 @@ public class FilterEditActivity extends ActionBarActivity
 
     private void onAfterDelete() {
         ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
-        setResult(Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
+        setResult(Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
         finish();
     }
 

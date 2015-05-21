@@ -17,11 +17,11 @@ import org.json.JSONObject;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 
-import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 
 @SuppressWarnings("deprecation")
@@ -62,9 +62,9 @@ public class ClaimActionActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.claim = (Claim) getIntent().getSerializableExtra(Intents.EXTRA_KEY_CLAIM);
-        this.request = getIntent().getIntExtra(Intents.EXTRA_KEY_REQUEST, 0);
-        this.session = getIntent().getStringExtra(Intents.EXTRA_KEY_SESSION);
+        this.claim = (Claim) getIntent().getSerializableExtra(Constants.EXTRA_KEY_CLAIM);
+        this.request = getIntent().getIntExtra(Constants.EXTRA_KEY_REQUEST, 0);
+        this.session = getIntent().getStringExtra(Constants.EXTRA_KEY_SESSION);
         this.progressDialog = new ProgressDialog(this);
         this.progressDialog.setMessage(getString(R.string.please_wait));
         this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -72,32 +72,32 @@ public class ClaimActionActivity extends ActionBarActivity {
         if (savedInstanceState == null) {
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) {
-                if (this.request == Intents.REQUEST_CLAIM_EDIT) {
+                if (this.request == Constants.REQUEST_CLAIM_EDIT) {
                     supportActionBar.setTitle(R.string.editing);
                     ClaimEditFragment claimEditFragment = ClaimEditFragment.newInstance(this.claim);
                     placeFragment(claimEditFragment);
                 }
-                if (this.request == Intents.REQUEST_CLAIM_ADD) {
+                if (this.request == Constants.REQUEST_CLAIM_ADD) {
                     supportActionBar.setTitle(R.string.adding);
                     ClaimAddFragment claimAddFragment = ClaimAddFragment.newInstance();
                     placeFragment(claimAddFragment);
                 }
-                if (this.request == Intents.REQUEST_CLAIM_NOTE) {
+                if (this.request == Constants.REQUEST_CLAIM_NOTE) {
                     supportActionBar.setTitle(R.string.claim_note);
                     ClaimNoteFragment claimNoteFragment = ClaimNoteFragment.newInstance();
                     placeFragment(claimNoteFragment);
                 }
-                if (this.request == Intents.REQUEST_CLAIM_SEND) {
+                if (this.request == Constants.REQUEST_CLAIM_SEND) {
                     supportActionBar.setTitle(R.string.act_send);
                     ClaimSendFragment claimSendFragment = ClaimSendFragment.newInstance(this.claim, this.session);
                     placeFragment(claimSendFragment);
                 }
-                if (this.request == Intents.REQUEST_CLAIM_RETURN) {
+                if (this.request == Constants.REQUEST_CLAIM_RETURN) {
                     supportActionBar.setTitle(R.string.act_return);
                     ClaimReturnFragment claimReturnFragment = ClaimReturnFragment.newInstance(this.claim, this.session);
                     placeFragment(claimReturnFragment);
                 }
-                if (this.request == Intents.REQUEST_CLAIM_FORWARD) {
+                if (this.request == Constants.REQUEST_CLAIM_FORWARD) {
                     supportActionBar.setTitle(R.string.pass_on);
                     ClaimForwardFragment claimForwardFragment =
                             ClaimForwardFragment.newInstance(this.claim, this.session);
@@ -153,7 +153,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private void finishUpdated() {
         Intent intent = new Intent();
-        setResult(Intents.RESULT_CLAIM_UPDATED, intent);
+        setResult(Constants.RESULT_CLAIM_UPDATED, intent);
         finish();
     }
 
@@ -185,27 +185,27 @@ public class ClaimActionActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case R.id.action_cancel:
                 Intent intent = new Intent();
-                setResult(Intents.RESULT_CANCEL, intent);
+                setResult(Constants.RESULT_CANCEL, intent);
                 finish();
                 break;
             case R.id.action_ok:
                 switch (this.request) {
-                    case Intents.REQUEST_CLAIM_EDIT:
+                    case Constants.REQUEST_CLAIM_EDIT:
                         editClaim();
                         break;
-                    case Intents.REQUEST_CLAIM_ADD:
+                    case Constants.REQUEST_CLAIM_ADD:
                         addClaim();
                         break;
-                    case Intents.REQUEST_CLAIM_NOTE:
+                    case Constants.REQUEST_CLAIM_NOTE:
                         addNote();
                         break;
-                    case Intents.REQUEST_CLAIM_SEND:
+                    case Constants.REQUEST_CLAIM_SEND:
                         sendClaim();
                         break;
-                    case Intents.REQUEST_CLAIM_RETURN:
+                    case Constants.REQUEST_CLAIM_RETURN:
                         returnClaim();
                         break;
-                    case Intents.REQUEST_CLAIM_FORWARD:
+                    case Constants.REQUEST_CLAIM_FORWARD:
                         forwardClaim();
                         break;
                 }
@@ -416,8 +416,8 @@ public class ClaimActionActivity extends ActionBarActivity {
                         .showErrorDialog(getString(R.string.error_title), error);
             } else {
                 Intent intent = new Intent();
-                intent.putExtra(Intents.EXTRA_KEY_RN, result);
-                setResult(Intents.RESULT_CLAIM_ADDED, intent);
+                intent.putExtra(Constants.EXTRA_KEY_RN, result);
+                setResult(Constants.RESULT_CLAIM_ADDED, intent);
                 finish();
             }
             super.onPostExecute(result);

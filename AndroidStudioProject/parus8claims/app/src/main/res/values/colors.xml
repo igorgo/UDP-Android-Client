@@ -10,5 +10,6 @@
     <color name="white">#ffffffff</color>
     <color name="priority_bg">#ffFFFFCC</color>
     <color name="priority_brd">#ffAAAAAA</color>
+    <color name="text_color">#565656</color>
 
 </resources>

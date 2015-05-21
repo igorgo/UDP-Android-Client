@@ -15,8 +15,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
-import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 
 @SuppressWarnings("deprecation")
@@ -66,7 +66,7 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        setResult(Intents.RESULT_CANCEL, intent);
+        setResult(Constants.RESULT_CANCEL, intent);
         super.onBackPressed();
     }
 
@@ -75,7 +75,7 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         switch (item.getItemId()) {
             case R.id.action_add_query:
                 Intent iAdd = new Intent();
-                setResult(Intents.RESULT_NEED_ADD_NEW_FILTER, iAdd);
+                setResult(Constants.RESULT_NEED_ADD_NEW_FILTER, iAdd);
                 finish();
                 return true;
             case android.R.id.home:
@@ -91,13 +91,13 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         long rn = ((Filter) adapterView.getAdapter().getItem(i)).filter_rn;
         if (viewId == R.id.flImageEdit) {
             Intent intentFilterEdit = new Intent(this, FilterEditActivity.class);
-            intentFilterEdit.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_FILTER_EDIT);
-            intentFilterEdit.putExtra(Intents.EXTRA_KEY_RN, rn);
-            startActivityForResult(intentFilterEdit, Intents.REQUEST_FILTER_EDIT);
+            intentFilterEdit.putExtra(Constants.EXTRA_KEY_REQUEST, Constants.REQUEST_FILTER_EDIT);
+            intentFilterEdit.putExtra(Constants.EXTRA_KEY_RN, rn);
+            startActivityForResult(intentFilterEdit, Constants.REQUEST_FILTER_EDIT);
         } else {
             Intent intentResult = new Intent();
             intentResult.putExtra(Filter.PARAM_FILTER_RN, rn);
-            setResult(Intents.RESULT_FILTER_SELECTED, intentResult);
+            setResult(Constants.RESULT_FILTER_SELECTED, intentResult);
             finish();
         }
     }
@@ -105,8 +105,8 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Intents.REQUEST_FILTER_EDIT) {
-            if (resultCode != Intents.RESULT_CANCEL) {
+        if (requestCode == Constants.REQUEST_FILTER_EDIT) {
+            if (resultCode != Constants.RESULT_CANCEL) {
                 setAdapter();
             }
         }

@@ -102,4 +102,7 @@
     <string name="no_datafound">По заданным условиям отбора данных не найдено.</string>
     <string name="uploading_file">Отправка файла…</string>
     <string name="loading_releases">Загрузка списка релизов…</string>
+    <string name="guest_enter">Гостевой вход</string>
+    <string name="password">Пароль</string>
+    <string name="user">Пользователь</string>
 </resources>

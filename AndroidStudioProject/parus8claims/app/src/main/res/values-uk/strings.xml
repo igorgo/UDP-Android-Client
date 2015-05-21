@@ -102,4 +102,7 @@
     <string name="no_datafound">По заданих умовах вібору дані не знайдені.</string>
     <string name="uploading_file">Відправлення файлу</string>
     <string name="loading_releases">Завантаження списку релізів…</string>
+    <string name="guest_enter">Гостьовий вхід</string>
+    <string name="password">Пароль</string>
+    <string name="user">Користувач</string>
 </resources>

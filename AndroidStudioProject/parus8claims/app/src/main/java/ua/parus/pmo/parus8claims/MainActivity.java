@@ -1,11 +1,9 @@
 package ua.parus.pmo.parus8claims;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
@@ -13,18 +11,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,9 +48,9 @@ import ua.parus.pmo.parus8claims.objects.filter.Filter;
 import ua.parus.pmo.parus8claims.objects.filter.FilterEditActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
-@SuppressWarnings("deprecation")
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,
+public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener,
         AutoScrollListPageListener, Handler.Callback {
 
     @SuppressWarnings("unused")
@@ -62,7 +61,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private static final int MSG_DICTIONARIES_HAVE_CACHED = 2;
     private static final int MSG_AUTH_ERROR = 3;
     private static final int MSG_LOGGED = 4;
-    private ProgressDialog progressDialog;
+    private MaterialDialog progressDialog;
     private Handler handler;
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
@@ -94,20 +93,62 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
-        progressDialog = new ProgressDialog(this);
-        if (SettingsActivity.isCredentialsSet(this)) {
+        progressDialog = new MaterialDialog.Builder(this)
+                .progress(true, 0)
+                .build();
+        if (isCredentialsSet()) {
             cacheRelease();
         } else {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, Intents.REQUEST_SETTINGS);
+            LayoutInflater inflater = getLayoutInflater();
+            final View v = inflater.inflate(R.layout.login_dialog, null);
+            final EditText passwordEditText = (EditText) v.findViewById(R.id.password_request);
+            final EditText usernameEditText = (EditText) v.findViewById(R.id.username_request);
+
+            MaterialDialog dialog = new MaterialDialog.Builder(this)
+                    .autoDismiss(false)
+                    .title(R.string.pref_header_account)
+                    .customView(v, false)
+                    .positiveText(android.R.string.ok)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override public void onNeutral(MaterialDialog dialog) {
+                            prefs.edit().putString(Constants.PREF_USERNAME, "guest")
+                                 .commit();
+                            prefs.edit().putString(Constants.PREF_PASSWORD, "guest")
+                                 .commit();
+                            if (isCredentialsSet())
+                                super.onPositive(dialog);
+                            dialog.dismiss();
+                            cacheRelease();
+                        }
+
+                        @Override public void onPositive(MaterialDialog dialog) {
+                            prefs.edit().putString(Constants.PREF_USERNAME, usernameEditText.getText().toString())
+                                 .commit();
+                            prefs.edit().putString(Constants.PREF_PASSWORD, passwordEditText.getText().toString())
+                                 .commit();
+                            if (isCredentialsSet())
+                                super.onPositive(dialog);
+                            dialog.dismiss();
+                            cacheRelease();
+
+
+                        }
+                    })
+                    .cancelable(false)
+                    .neutralText(R.string.guest_enter)
+                    .build();
+
+            dialog.show();
+            //KeyboardUtils.showKeyboard(passwordEditText);
+            //Intent intent = new Intent(this, SettingsActivity.class);
+            //startActivityForResult(intent, Constants.REQUEST_SETTINGS);
         }
     }
 
 
     private void cacheRelease() {
         if (application.isNotCacheRefreshed()) {
-            progressDialog.setMessage(MainActivity.this.getString(R.string.loading_releases));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setContent(MainActivity.this.getString(R.string.loading_releases));
             progressDialog.show();
             new ReleasesCashRefresher().execute();
         } else {
@@ -119,8 +160,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         if (!force && UnitHelper.isUnitsCached(this)) {
             handler.sendEmptyMessage(MSG_DICTIONARIES_HAVE_CACHED);
         } else {
-            progressDialog.setMessage(MainActivity.this.getString(R.string.loading_unitlist));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setContent(MainActivity.this.getString(R.string.loading_unitlist));
             progressDialog.show();
             new DictionariesCashRefresher().execute();
         }
@@ -144,8 +184,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     private void loginToUdp() {
         if (this.application.getSessionId() == null) {
-            progressDialog.setMessage(MainActivity.this.getString(R.string.authorizing));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setContent(MainActivity.this.getString(R.string.authorizing));
             progressDialog.show();
             new LoginAsyncTask().execute();
         } else {
@@ -153,60 +192,65 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         }
     }
 
+    public boolean isCredentialsSet() {
+        return !TextUtils.isEmpty(prefs.getString(Constants.PREF_USERNAME, null))
+               && !TextUtils.isEmpty(prefs.getString(Constants.PREF_PASSWORD, null));
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case Intents.REQUEST_SETTINGS:
+            case Constants.REQUEST_SETTINGS:
                 switch (resultCode) {
-                    case Intents.RESULT_CANCEL:
+                    case Constants.RESULT_CANCEL:
                         cacheRelease();
                         break;
-                    case Intents.RESULT_NEED_REFRESH_DICTIONARIES_CACHE:
+                    case Constants.RESULT_NEED_REFRESH_DICTIONARIES_CACHE:
                         cacheDictionaries(true);
                         break;
                 }
                 break;
-            case Intents.REQUEST_FILTERS_VIEW:
+            case Constants.REQUEST_FILTERS_VIEW:
                 switch (resultCode) {
-                    case Intents.RESULT_NEED_ADD_NEW_FILTER:
+                    case Constants.RESULT_NEED_ADD_NEW_FILTER:
                         Intent intentAddFilter = new Intent(this, FilterEditActivity.class);
-                        intentAddFilter.putExtra(Intents.EXTRA_KEY_REQUEST,
-                                Intents.REQUEST_FILTER_ADD_NEW);
-                        startActivityForResult(intentAddFilter, Intents.REQUEST_FILTER_ADD_NEW);
+                        intentAddFilter.putExtra(Constants.EXTRA_KEY_REQUEST,
+                                Constants.REQUEST_FILTER_ADD_NEW);
+                        startActivityForResult(intentAddFilter, Constants.REQUEST_FILTER_ADD_NEW);
                         break;
-                    case Intents.RESULT_FILTER_SELECTED:
+                    case Constants.RESULT_FILTER_SELECTED:
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
                         break;
                 }
                 break;
-            case Intents.REQUEST_FILTER_ADD_NEW:
+            case Constants.REQUEST_FILTER_ADD_NEW:
                 switch (resultCode) {
-                    case Intents.RESULT_NEED_SAVE_N_EXECUTE_FILTER:
-                    case Intents.RESULT_NEED_EXECUTE_FILTER:
+                    case Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER:
+                    case Constants.RESULT_NEED_EXECUTE_FILTER:
                         this.currentConditionRn = data.getLongExtra(Filter.PARAM_FILTER_RN, 0);
                         if (this.currentConditionRn == 0) this.currentConditionRn = null;
                         this.getClaims(this.currentConditionRn, null);
                         break;
                 }
-            case Intents.REQUEST_CLAIM_ADD:
-                if (resultCode == Intents.RESULT_CLAIM_ADDED) {
-                    Long newrn = data.getLongExtra(Intents.EXTRA_KEY_RN, 0);
+            case Constants.REQUEST_CLAIM_ADD:
+                if (resultCode == Constants.RESULT_CLAIM_ADDED) {
+                    Long newrn = data.getLongExtra(Constants.EXTRA_KEY_RN, 0);
                     if (newrn != 0) {
                         this.getClaims(this.currentConditionRn, newrn);
                     }
                 }
                 break;
-            case Intents.REQUEST_CLAIM_VIEW:
-                if (resultCode == Intents.RESULT_CLAIM_DELETED) {
+            case Constants.REQUEST_CLAIM_VIEW:
+                if (resultCode == Constants.RESULT_CLAIM_DELETED) {
                     this.getClaims(this.currentConditionRn, null);
                 }
-                if (resultCode == Intents.RESULT_CANCEL) {
-                    int listPos = data.getIntExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, -1);
+                if (resultCode == Constants.RESULT_CANCEL) {
+                    int listPos = data.getIntExtra(Constants.EXTRA_KEY_CLAIM_LIST_POS, -1);
                     if (listPos > -1) {
-                        Claim claim = (Claim) data.getSerializableExtra(Intents.EXTRA_KEY_CLAIM);
+                        Claim claim = (Claim) data.getSerializableExtra(Constants.EXTRA_KEY_CLAIM);
                         Claim oldClaim = (Claim) claimsListView.getAdapter().getItem(listPos);
                         if (claim.releaseFix != null) {
                             if (claim.buildFix != null) {
@@ -258,21 +302,21 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent intentSettings = new Intent(this, SettingsActivity.class);
-                startActivityForResult(intentSettings, Intents.REQUEST_SETTINGS);
+                startActivityForResult(intentSettings, Constants.REQUEST_SETTINGS);
                 return true;
             case R.id.action_search:
                 Intent intentSearch = new Intent(this, FiltersActivity.class);
-                startActivityForResult(intentSearch, Intents.REQUEST_FILTERS_VIEW);
+                startActivityForResult(intentSearch, Constants.REQUEST_FILTERS_VIEW);
                 return true;
             case R.id.action_refresh:
                 this.getClaims(this.currentConditionRn, null);
                 return true;
             case R.id.action_add_claim:
                 Intent intentAdd = new Intent(this, ClaimActionActivity.class);
-                intentAdd.putExtra(Intents.EXTRA_KEY_CLAIM, new Claim());
-                intentAdd.putExtra(Intents.EXTRA_KEY_REQUEST, Intents.REQUEST_CLAIM_ADD);
-                intentAdd.putExtra(Intents.EXTRA_KEY_SESSION, this.application.getSessionId());
-                startActivityForResult(intentAdd, Intents.REQUEST_CLAIM_ADD);
+                intentAdd.putExtra(Constants.EXTRA_KEY_CLAIM, new Claim());
+                intentAdd.putExtra(Constants.EXTRA_KEY_REQUEST, Constants.REQUEST_CLAIM_ADD);
+                intentAdd.putExtra(Constants.EXTRA_KEY_SESSION, this.application.getSessionId());
+                startActivityForResult(intentAdd, Constants.REQUEST_CLAIM_ADD);
                 return true;
 
         }
@@ -285,10 +329,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         long rn = claim.rn;
         if (rn > 0) {
             Intent intentViewClaim = new Intent(this, ClaimActivity.class);
-            intentViewClaim.putExtra(Intents.EXTRA_KEY_RN, rn);
-            intentViewClaim.putExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, i);
-            intentViewClaim.putExtra(Intents.EXTRA_KEY_HAS_DOCS, claim.hasAttach);
-            startActivityForResult(intentViewClaim, Intents.REQUEST_CLAIM_VIEW);
+            intentViewClaim.putExtra(Constants.EXTRA_KEY_RN, rn);
+            intentViewClaim.putExtra(Constants.EXTRA_KEY_CLAIM_LIST_POS, i);
+            intentViewClaim.putExtra(Constants.EXTRA_KEY_HAS_DOCS, claim.hasAttach);
+            startActivityForResult(intentViewClaim, Constants.REQUEST_CLAIM_VIEW);
         }
     }
 
@@ -351,10 +395,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         @Override
         protected Integer doInBackground(Void... params) {
             try {
-                SharedPreferences sharedPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(that);
-                String user = sharedPrefs.getString(SettingsActivity.PREF_USERNAME, "");
-                String pass = sharedPrefs.getString(SettingsActivity.PREF_PASSWORD, "");
+                String user = prefs.getString(Constants.PREF_USERNAME, "");
+                String pass = prefs.getString(Constants.PREF_PASSWORD, "");
                 JSONObject response;
                 RestRequest loginRequest;
                 loginRequest = new RestRequest(REST_URL, HTTP_METHOD);

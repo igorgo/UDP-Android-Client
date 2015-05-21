@@ -8,7 +8,6 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -16,10 +15,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import ua.parus.pmo.parus8claims.utils.Constants;
+
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
-    public static final String PREF_PASSWORD = "password";
-    public static final String PREF_USERNAME = "username";
-    public static final String PREF_RESET_CACHE = "cache";
+
+    private SharedPreferences prefs;
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
             new Preference.OnPreferenceChangeListener() {
@@ -40,7 +40,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                     } else {
                         // For all other preferences, set the summary to the value's
                         // simple string representation.
-                        if (preference.getKey().equals(PREF_PASSWORD)) {
+                        if (preference.getKey().equals(Constants.PREF_PASSWORD)) {
                             EditText edit = ((EditTextPreference) preference).getEditText();
                             String pref = edit.getTransformationMethod().getTransformation(stringValue, edit).toString();
                             preference.setSummary(pref);
@@ -53,29 +53,25 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                 }
             };
 
-    public static boolean isCredentialsSet(Context context) {
-        SharedPreferences sharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        return !TextUtils.isEmpty(sharedPrefs.getString(SettingsActivity.PREF_USERNAME, null))
-                && !TextUtils.isEmpty(sharedPrefs.getString(SettingsActivity.PREF_PASSWORD, null));
+    public boolean isCredentialsSet(Context context) {
+        return !TextUtils.isEmpty(prefs.getString(Constants.PREF_USERNAME, null))
+                && !TextUtils.isEmpty(prefs.getString(Constants.PREF_PASSWORD, null));
     }
 
-    private static void bindPreferenceSummaryToValue(Preference preference) {
+    private void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         // Trigger the listener immediately with the preference's
         // current value.
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                prefs.getString(preference.getKey(), ""));
     }
 
     @Override
     public void onBackPressed() {
         if (isCredentialsSet(this)) {
             Intent intentResult = new Intent();
-            setResult(Intents.RESULT_CANCEL, intentResult);
+            setResult(Constants.RESULT_CANCEL, intentResult);
             finish();
         }
     }
@@ -99,21 +95,26 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
     @SuppressWarnings("deprecation")
     private void setupSimplePreferencesScreen() {
         addPreferencesFromResource(R.xml.pref_general);
-        bindPreferenceSummaryToValue(findPreference(PREF_USERNAME));
-        bindPreferenceSummaryToValue(findPreference(PREF_PASSWORD));
-        findPreference(PREF_RESET_CACHE).setOnPreferenceClickListener(this);
+        bindPreferenceSummaryToValue(findPreference(Constants.PREF_USERNAME));
+        bindPreferenceSummaryToValue(findPreference(Constants.PREF_PASSWORD));
+        findPreference(Constants.PREF_RESET_CACHE).setOnPreferenceClickListener(this);
     }
 
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if (preference.getKey().equals(PREF_RESET_CACHE)) {
+        if (preference.getKey().equals(Constants.PREF_RESET_CACHE)) {
             if (isCredentialsSet(this)) {
                 Intent intentResult = new Intent();
-                setResult(Intents.RESULT_NEED_REFRESH_DICTIONARIES_CACHE, intentResult);
+                setResult(Constants.RESULT_NEED_REFRESH_DICTIONARIES_CACHE, intentResult);
                 finish();
             }
         }
         return false;
+    }
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        prefs = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_MULTI_PROCESS);
     }
 }

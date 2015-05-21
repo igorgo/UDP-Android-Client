@@ -38,12 +38,12 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
-import ua.parus.pmo.parus8claims.Intents;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity;
 import ua.parus.pmo.parus8claims.objects.claim.hist.ClaimHistoryFragment;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 @SuppressWarnings("deprecation")
 public class ClaimActivity extends ActionBarActivity
@@ -66,9 +66,9 @@ public class ClaimActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.rn = getIntent().getLongExtra(Intents.EXTRA_KEY_RN, 0);
-        this.backListPos = getIntent().getIntExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, -1);
-        this.hasDocs = getIntent().getBooleanExtra(Intents.EXTRA_KEY_HAS_DOCS, false);
+        this.rn = getIntent().getLongExtra(Constants.EXTRA_KEY_RN, 0);
+        this.backListPos = getIntent().getIntExtra(Constants.EXTRA_KEY_CLAIM_LIST_POS, -1);
+        this.hasDocs = getIntent().getBooleanExtra(Constants.EXTRA_KEY_HAS_DOCS, false);
         setContentView(R.layout.activity_claim);
         this.session = ((ClaimApplication) this.getApplication()).getSessionId();
         this.claim = null;
@@ -88,9 +88,9 @@ public class ClaimActivity extends ActionBarActivity
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra(Intents.EXTRA_KEY_CLAIM_LIST_POS, needsRefreshParent ? backListPos : -1);
-        intent.putExtra(Intents.EXTRA_KEY_CLAIM, claim);
-        setResult(Intents.RESULT_CANCEL, intent);
+        intent.putExtra(Constants.EXTRA_KEY_CLAIM_LIST_POS, needsRefreshParent ? backListPos : -1);
+        intent.putExtra(Constants.EXTRA_KEY_CLAIM, claim);
+        setResult(Constants.RESULT_CANCEL, intent);
         super.onBackPressed();
     }
 
@@ -105,29 +105,29 @@ public class ClaimActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_claim_edit:
-                startActionActivity(Intents.REQUEST_CLAIM_EDIT);
+                startActionActivity(Constants.REQUEST_CLAIM_EDIT);
                 break;
             case android.R.id.home:
                 onBackPressed();
                 break;
             case R.id.action_claim_send:
-                startActionActivity(Intents.REQUEST_CLAIM_SEND);
+                startActionActivity(Constants.REQUEST_CLAIM_SEND);
                 break;
             case R.id.action_claim_return:
-                startActionActivity(Intents.REQUEST_CLAIM_RETURN);
+                startActionActivity(Constants.REQUEST_CLAIM_RETURN);
                 break;
             case R.id.action_claim_forward:
-                startActionActivity(Intents.REQUEST_CLAIM_FORWARD);
+                startActionActivity(Constants.REQUEST_CLAIM_FORWARD);
                 break;
             case R.id.action_claim_delete:
                 doSimpleAction("claim/delete/", R.string.deleting, R.string.delete_confirm,
-                        Intents.RESULT_CLAIM_DELETED);
+                        Constants.RESULT_CLAIM_DELETED);
                 break;
             case R.id.action_claim_close:
-                doSimpleAction("claim/close/", R.string.closing, R.string.close_confirm, Intents.RESULT_CLAIM_DELETED);
+                doSimpleAction("claim/close/", R.string.closing, R.string.close_confirm, Constants.RESULT_CLAIM_DELETED);
                 break;
             case R.id.action_claim_add_note:
-                startActionActivity(Intents.REQUEST_CLAIM_NOTE);
+                startActionActivity(Constants.REQUEST_CLAIM_NOTE);
                 break;
             case R.id.action_claim_add_file:
                 selectFile();
@@ -138,9 +138,9 @@ public class ClaimActivity extends ActionBarActivity
 
     private void startActionActivity(int request) {
         Intent action = new Intent(this, ClaimActionActivity.class);
-        action.putExtra(Intents.EXTRA_KEY_CLAIM, this.claim);
-        action.putExtra(Intents.EXTRA_KEY_REQUEST, request);
-        action.putExtra(Intents.EXTRA_KEY_SESSION, session);
+        action.putExtra(Constants.EXTRA_KEY_CLAIM, this.claim);
+        action.putExtra(Constants.EXTRA_KEY_REQUEST, request);
+        action.putExtra(Constants.EXTRA_KEY_SESSION, session);
         startActivityForResult(action, request);
     }
 
@@ -166,7 +166,7 @@ public class ClaimActivity extends ActionBarActivity
     private void selectFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("file/*");
-        startActivityForResult(intent, Intents.REQUEST_SELECT_FILE);
+        startActivityForResult(intent, Constants.REQUEST_SELECT_FILE);
     }
 
     @Override
@@ -263,17 +263,17 @@ public class ClaimActivity extends ActionBarActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Intents.RESULT_CANCEL) return;
+        if (resultCode == Constants.RESULT_CANCEL) return;
         switch (requestCode) {
-            case Intents.REQUEST_CLAIM_EDIT:
-            case Intents.REQUEST_CLAIM_NOTE:
-            case Intents.REQUEST_CLAIM_SEND:
-            case Intents.REQUEST_CLAIM_RETURN:
-            case Intents.REQUEST_CLAIM_FORWARD:
+            case Constants.REQUEST_CLAIM_EDIT:
+            case Constants.REQUEST_CLAIM_NOTE:
+            case Constants.REQUEST_CLAIM_SEND:
+            case Constants.REQUEST_CLAIM_RETURN:
+            case Constants.REQUEST_CLAIM_FORWARD:
                 needsRefresh = true;
                 needsRefreshParent = true;
                 break;
-            case Intents.REQUEST_SELECT_FILE:
+            case Constants.REQUEST_SELECT_FILE:
                 if (resultCode == RESULT_OK) {
                     Uri selectedFileUri = data.getData();
                     new UploadAttachTask().execute(selectedFileUri);
