@@ -1,34 +1,42 @@
 package ua.parus.pmo.parus8claims.gui;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 public class ErrorPopup implements DialogInterface.OnKeyListener {
 
     private final Context context;
-    private final DialogInterface.OnClickListener onClickListener;
+    private final MaterialDialog.ButtonCallback buttonCallback;
 
-    public ErrorPopup(final Context context, DialogInterface.OnClickListener onClickListener) {
+    public ErrorPopup(final Context context, MaterialDialog.ButtonCallback buttonCallback) {
         this.context = context;
-        this.onClickListener = onClickListener;
+        this.buttonCallback = buttonCallback;
     }
 
     public void showErrorDialog(final String title, final String message) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this.context);
-        if (title == null) {
-            alertDialog.setTitle(R.string.error_title);
-        } else {
-            alertDialog.setTitle(title);
-        }
-        alertDialog.setMessage(message);
-        alertDialog.setNeutralButton("Close", onClickListener != null ? onClickListener : new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
+        MaterialDialog alertDialog = new MaterialDialog.Builder(context)
+                .content(message)
+                .positiveText(android.R.string.ok)
+                .callback(buttonCallback != null ? buttonCallback : new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                dialog.dismiss();
+                                super.onPositive(dialog);
+                            }
+                        }
+                )
+                .title(TextUtils.isEmpty(title) ? context.getText(R.string.error_title) : title)
+                .titleColorRes(R.color.NegoSatate)
+                .icon(context.getResources().getDrawable(R.drawable.ic_alert))
+                .typeface(Constants.FONT_BOLD, Constants.FONT_REGULAR)
+                .build();
         alertDialog.setOnKeyListener(this);
         alertDialog.show();
     }

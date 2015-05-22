@@ -9,6 +9,10 @@ public interface Constants {
 
     final String PACKAGE = "ua.parus.pmo.parus8claims";
     final String PREFS_NAME = PACKAGE + "_preferences";
+    final String FONT_BOLD = "RobotoCondensed-Bold.ttf";
+    final String FONT_REGULAR = "RobotoCondensed-Regular.ttf";
+
+
 
     // intents' extra keys
     final String EXTRA_KEY_CLAIM = "claim";

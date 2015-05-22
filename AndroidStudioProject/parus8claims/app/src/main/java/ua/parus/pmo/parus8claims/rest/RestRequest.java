@@ -25,8 +25,8 @@ import java.util.Map;
 
 public class RestRequest {
 
-//    public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
-    public static final String BASE_URL = "http://192.168.7.4:7777/apex/rest/udp/";
+    public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
+//    public static final String BASE_URL = "http://192.168.7.4:7777/apex/rest/udp/";
     private static final String DEFAULT_HTTP_METHOD = "GET";
     private static final String UNICODE_CHARSET_NAME = "UTF-8";
     private static final String TAG = RestRequest.class.getSimpleName();

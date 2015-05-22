@@ -13,12 +13,13 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
-import ua.parus.pmo.parus8claims.gui.InputDialog;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
@@ -43,11 +44,13 @@ public class FilterEditActivity extends ActionBarActivity
     private Filter filter;
     private int selfRequest;
     private ProgressDialog progressDialog;
+    private FilterEditActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        instance = this;
         this.progressDialog = new ProgressDialog(this);
         this.progressDialog.setMessage(getString(R.string.please_wait));
         this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -79,7 +82,7 @@ public class FilterEditActivity extends ActionBarActivity
 
         @Override
         protected Void doInBackground(Void... params) {
-            filter.readFromServer(FilterEditActivity.this);
+            filter.readFromServer(instance);
             return null;
         }
     }
@@ -131,7 +134,7 @@ public class FilterEditActivity extends ActionBarActivity
     }
 
     private class SetupBuildsTask extends AsyncTask<Void,Void,Void> {
-        private ProgressDialog progressDialog = new ProgressDialog(FilterEditActivity.this);
+        private ProgressDialog progressDialog = new ProgressDialog(instance);
         private List<String> items = new ArrayList<>();
 
         @Override
@@ -145,7 +148,7 @@ public class FilterEditActivity extends ActionBarActivity
         @Override
         protected Void doInBackground(Void... params) {
             if (holder.release8.isSingleSelected()) {
-                items = BuildHelper.getBuildsDisplayNames(FilterEditActivity.this, holder.release8.getValue(), true);
+                items = BuildHelper.getBuildsDisplayNames(instance, holder.release8.getValue(), true);
             }
             return null;
         }
@@ -236,21 +239,17 @@ public class FilterEditActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save_query:
-                new InputDialog(this,
-                        getString(R.string.querys_name),
-                        this.filter.filter_name,
-                        new InputDialog.ResultListener() {
+                new MaterialDialog.Builder(this)
+                        .input(getText(R.string.querys_name), this.filter.filter_name, false, new MaterialDialog.InputCallback() {
                             @Override
-                            public void onSetResult(boolean isPositive, String userInput) {
-                                FilterEditActivity that = FilterEditActivity.this;
-                                if (isPositive) {
-                                    that.filter.filter_name = userInput;
-                                    setFilterFromFields();
-                                    new SaveTask().execute(false);
-                                }
+                            public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
+                                instance.filter.filter_name = charSequence.toString();
+                                setFilterFromFields();
+                                new SaveTask().execute(false);
                             }
-                        }
-                );
+                        })
+                        .typeface(Constants.FONT_BOLD,Constants.FONT_REGULAR)
+                        .show();
                 return true;
             case R.id.action_exec_query:
                 setFilterFromFields();
@@ -286,7 +285,7 @@ public class FilterEditActivity extends ActionBarActivity
 
         @Override
         protected Boolean doInBackground(Boolean... params) {
-            filter.saveToServer(FilterEditActivity.this);
+            filter.saveToServer(instance);
             return params[0];
         }
     }
@@ -320,7 +319,7 @@ public class FilterEditActivity extends ActionBarActivity
 
         @Override
         protected Void doInBackground(Void... params) {
-            filter.deleteOnServer(FilterEditActivity.this);
+            filter.deleteOnServer(instance);
             return null;
         }
     }

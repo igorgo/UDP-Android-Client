@@ -3,6 +3,7 @@ package ua.parus.pmo.parus8claims.gui;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,10 +13,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.neopixl.pixlui.components.textview.FontFactory;
+
 import java.util.Arrays;
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.utils.Constants;
 
 @SuppressWarnings("unused")
 public class MultiSpinner extends Spinner implements
@@ -35,10 +39,12 @@ public class MultiSpinner extends Spinner implements
     private String textAllSelected;
     private String textNoOneSelected;
     private String selfName;
+    private Context context;
     private char itemSeparator;
 
     public MultiSpinner(Context context) {
         super(context);
+        this.context = context;
         init();
     }
 
@@ -46,6 +52,8 @@ public class MultiSpinner extends Spinner implements
         super(context, attrs);
         init();
     }
+
+
 
     public void setOnValueChangedListener(OnValueChangedListener onValueChangedListener) {
         this.onValueChangedListener = onValueChangedListener;

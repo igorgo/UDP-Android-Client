@@ -2,7 +2,6 @@ package ua.parus.pmo.parus8claims;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -36,6 +35,7 @@ import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListPageListener;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimActivity;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimListAdapter;
@@ -61,18 +61,19 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private static final int MSG_DICTIONARIES_HAVE_CACHED = 2;
     private static final int MSG_AUTH_ERROR = 3;
     private static final int MSG_LOGGED = 4;
-    private MaterialDialog progressDialog;
     private Handler handler;
     private ClaimApplication application;
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
     private TextView emptyText;
     private LinearLayout progress;
+    private MainActivity instance;
 
     @SuppressLint("InflateParams")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         handler = new Handler(this);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -93,9 +94,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
-        progressDialog = new MaterialDialog.Builder(this)
-                .progress(true, 0)
-                .build();
         if (isCredentialsSet()) {
             cacheRelease();
         } else {
@@ -139,17 +137,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
                     .build();
 
             dialog.show();
-            //KeyboardUtils.showKeyboard(passwordEditText);
-            //Intent intent = new Intent(this, SettingsActivity.class);
-            //startActivityForResult(intent, Constants.REQUEST_SETTINGS);
         }
     }
 
 
     private void cacheRelease() {
         if (application.isNotCacheRefreshed()) {
-            progressDialog.setContent(MainActivity.this.getString(R.string.loading_releases));
-            progressDialog.show();
             new ReleasesCashRefresher().execute();
         } else {
             handler.sendEmptyMessage(MSG_RELEASES_HAVE_REFRESHED);
@@ -160,8 +153,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         if (!force && UnitHelper.isUnitsCached(this)) {
             handler.sendEmptyMessage(MSG_DICTIONARIES_HAVE_CACHED);
         } else {
-            progressDialog.setContent(MainActivity.this.getString(R.string.loading_unitlist));
-            progressDialog.show();
             new DictionariesCashRefresher().execute();
         }
 
@@ -184,8 +175,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     private void loginToUdp() {
         if (this.application.getSessionId() == null) {
-            progressDialog.setContent(MainActivity.this.getString(R.string.authorizing));
-            progressDialog.show();
             new LoginAsyncTask().execute();
         } else {
             handler.sendEmptyMessage(MSG_LOGGED);
@@ -389,8 +378,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         public static final String REST_RESPONSE_FIELD_ERROR = "ERROR";
         public static final String REST_RESPONSE_FIELD_SESSION_ID = "SESSONID";
         public static final String REST_RESPONSE_FIELD_PMO_FLAG = "PPP";
-        final MainActivity that = MainActivity.this;
         String error;
+        ProgressWindow pw;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pw = new ProgressWindow(instance,R.string.authorizing);
+        }
 
         @Override
         protected Integer doInBackground(Void... params) {
@@ -413,8 +408,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
                     error = serverError;
                     return -1;
                 }
-                that.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
-                that.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
+                instance.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
+                instance.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
             } catch (MalformedURLException | ConnectException e) {
                 e.printStackTrace();
             }
@@ -423,44 +418,35 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
         @Override
         protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
-                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                new ErrorPopup(instance, new MaterialDialog.ButtonCallback() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onPositive(MaterialDialog dialog) {
                         handler.sendEmptyMessage(MSG_AUTH_ERROR);
+                        super.onPositive(dialog);
                     }
                 }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
             } else {
                 handler.sendEmptyMessage(MSG_LOGGED);
             }
             super.onPostExecute(result);
-
-            /*progressDialog.dismiss();
-            if (response == null) {
-                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
-                errorPopup.showErrorDialog(getString(R.string.error_title), getString(R.string.connection_time_out));
-                return;
-            }
-            String error = response.optString(REST_RESPONSE_FIELD_ERROR);
-            if (!TextUtils.isEmpty(error)) {
-                ErrorPopup errorPopup = new ErrorPopup(MainActivity.this, null);
-                errorPopup.showErrorDialog(getString(R.string.error_title), error);
-                return;
-            } else {
-                that.application.setSessionId(response.optString(REST_RESPONSE_FIELD_SESSION_ID));
-                that.application.setPmoUser(response.optInt(REST_RESPONSE_FIELD_PMO_FLAG) == 1);
-            }
-            that.getClaims(that.currentConditionRn, null);*/
         }
     }
 
     private class ReleasesCashRefresher extends AsyncTask<Void, Void, Integer> {
         String error;
+        ProgressWindow pw;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pw = new ProgressWindow(instance,R.string.loading_releases);
+        }
 
         @Override
         protected Integer doInBackground(Void... params) {
-            DatabaseWrapper databaseWrapper = new DatabaseWrapper(MainActivity.this);
+            DatabaseWrapper databaseWrapper = new DatabaseWrapper(instance);
             SQLiteDatabase db = databaseWrapper.getWritableDatabase();
             try {
                 RestRequest restRequest = new RestRequest("dicts/releases/");
@@ -496,12 +482,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
         @Override
         protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
-                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                new ErrorPopup(instance, new MaterialDialog.ButtonCallback()
+                {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onPositive(MaterialDialog dialog) {
                         handler.sendEmptyMessage(MSG_CONNECT_ERROR);
+                        super.onPositive(dialog);
                     }
                 }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
             } else {
@@ -514,11 +502,18 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     private class DictionariesCashRefresher extends AsyncTask<Void, String, Integer> {
         String error;
+        ProgressWindow pw;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pw = new ProgressWindow(instance,R.string.loading_unitlist);
+        }
 
         @Override
         protected Integer doInBackground(Void... params) {
             publishProgress(getString(R.string.loading_unitlist));
-            DatabaseWrapper databaseWrapper = new DatabaseWrapper(MainActivity.this);
+            DatabaseWrapper databaseWrapper = new DatabaseWrapper(instance);
             SQLiteDatabase db = databaseWrapper.getWritableDatabase();
             try {
                 RestRequest restRequest = new RestRequest(UnitHelper.URL_UNITS);
@@ -574,7 +569,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         @Override
         protected void onProgressUpdate(String... values) {
             if (!TextUtils.isEmpty(values[0])) {
-                progressDialog.setMessage(values[0]);
+                pw.setMessage(values[0]);
             }
             super.onProgressUpdate(values);
         }
@@ -582,12 +577,13 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
         @Override
         protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
-                new ErrorPopup(MainActivity.this, new DialogInterface.OnClickListener() {
+                new ErrorPopup(instance, new MaterialDialog.ButtonCallback() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onPositive(MaterialDialog dialog) {
                         handler.sendEmptyMessage(MSG_CONNECT_ERROR);
+                        super.onPositive(dialog);
                     }
                 }).showErrorDialog(null, TextUtils.isEmpty(error) ? getString(R.string.server_unreachable) : error);
             } else {
