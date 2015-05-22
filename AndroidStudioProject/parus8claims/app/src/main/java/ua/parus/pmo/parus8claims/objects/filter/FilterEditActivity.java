@@ -32,8 +32,7 @@ import ua.parus.pmo.parus8claims.utils.Constants;
 
 @SuppressWarnings("deprecation")
 public class FilterEditActivity extends ActionBarActivity
-        implements MultiSpinner.OnSetItemValueListener,
-        MultiSpinner.OnValueChangedListener {
+        implements MultiSpinner.OnValueChangedListener {
 
     private static final String SPINNER_BUILD_TAGNAME = "build8";
     private static final String SPINNER_RELEASE_TAGNAME = "release8";
@@ -63,29 +62,6 @@ public class FilterEditActivity extends ActionBarActivity
         new ReadTask().execute();
     }
 
-    private class ReadTask extends AsyncTask<Void,Void,Void> {
-        private ProgressWindow pw;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pw = new ProgressWindow(instance);
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            pw.dismiss();
-            onAfterRead();
-            super.onPostExecute(aVoid);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            filter.readFromServer(instance);
-            return null;
-        }
-    }
-
     private void onAfterRead() {
         this.holder = new Holder();
         this.holder.version8.setEditable(true);
@@ -96,7 +72,6 @@ public class FilterEditActivity extends ActionBarActivity
         this.holder.release8.setOnValueChangedListener(this);
         this.holder.build8.setEditable(true);
         this.holder.build8.setName(SPINNER_BUILD_TAGNAME);
-        this.holder.build8.setOnSetItemValueListener(this);
         setAdapters();
         setFromFilterValues();
         this.holder.number.requestFocus();
@@ -128,44 +103,6 @@ public class FilterEditActivity extends ActionBarActivity
             items = ReleaseHelper.getReleasesNames(this, holder.version8.getValue(), true, null);
         }
         this.holder.release8.setItems(
-                items, true
-        );
-    }
-
-    private class SetupBuildsTask extends AsyncTask<Void,Void,Void> {
-        private ProgressWindow pw;
-        private List<String> items = new ArrayList<>();
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pw = new ProgressWindow(instance);
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (holder.release8.isSingleSelected()) {
-                items = BuildHelper.getBuildsDisplayNames(instance, holder.release8.getValue(), true);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            pw.dismiss();
-            holder.build8.setItems(
-                    items, true
-            );
-            super.onPostExecute(aVoid);
-        }
-    }
-
-    private void setupBuilds() {
-        List<String> items = new ArrayList<>();
-        if (this.holder.release8.isSingleSelected()) {
-            items = BuildHelper.getBuildsDisplayNames(this, holder.release8.getValue(), true);
-        }
-        this.holder.build8.setItems(
                 items, true
         );
     }
@@ -246,7 +183,7 @@ public class FilterEditActivity extends ActionBarActivity
                                         new SaveTask().execute(false);
                                     }
                                 })
-//                        .typeface(Constants.FONT_BOLD_CONDENSED,Constants.FONT_REGULAR_CONDENSED)
+                        .negativeText(android.R.string.cancel)
                         .show();
                 return true;
             case R.id.action_exec_query:
@@ -265,6 +202,91 @@ public class FilterEditActivity extends ActionBarActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void onAfterSave(boolean onlyExec) {
+        if (!onlyExec) {
+            ((ClaimApplication) getApplication()).getFilters().addReplaceFilter(filter);
+        }
+        resultIntent = new Intent();
+        if (filter.filter_rn > 0) {
+            resultIntent.putExtra(Filter.PARAM_FILTER_RN, filter.filter_rn);
+        }
+        setResult(onlyExec ? Constants.RESULT_NEED_EXECUTE_FILTER : Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER, resultIntent);
+        finish();
+    }
+
+    private void onAfterDelete() {
+        ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
+        setResult(Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
+        finish();
+    }
+
+    @Override
+    public void onValueChanged(MultiSpinner sender, String value) {
+        if (sender.getName().equals(SPINNER_VERSION_TAGNAME)) {
+            setupReleases();
+        }
+        if (sender.getName().equals(SPINNER_RELEASE_TAGNAME)) {
+            new SetupBuildsTask().execute();
+        }
+
+    }
+
+    private class ReadTask extends AsyncTask<Void,Void,Void> {
+        private ProgressWindow pw;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pw = new ProgressWindow(instance);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            pw.dismiss();
+            onAfterRead();
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            filter.readFromServer(instance);
+            return null;
+        }
+    }
+
+    private class SetupBuildsTask extends AsyncTask<Void,Void,Void> {
+        private ProgressWindow pw;
+        private List<String> dItems = new ArrayList<>();
+        private List<String> vItems = new ArrayList<>();
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (holder.release8.isSingleSelected())
+                pw = new ProgressWindow(instance);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (holder.release8.isSingleSelected()) {
+                dItems = BuildHelper.getBuildsDisplayNames(instance, holder.release8.getValue(), true);
+                vItems = BuildHelper.getBuildsCodes(instance, holder.release8.getValue(), true);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (pw != null) {
+                pw.dismiss();
+            }
+            holder.build8.setItems(
+                    dItems, vItems, true
+            );
+            super.onPostExecute(aVoid);
+        }
     }
 
     private class SaveTask extends AsyncTask<Boolean,Void,Boolean> {
@@ -290,19 +312,6 @@ public class FilterEditActivity extends ActionBarActivity
         }
     }
 
-    private void onAfterSave(boolean onlyExec) {
-        if (!onlyExec) {
-            ((ClaimApplication) getApplication()).getFilters().addReplaceFilter(filter);
-        }
-        resultIntent = new Intent();
-        if (filter.filter_rn > 0) {
-            resultIntent.putExtra(Filter.PARAM_FILTER_RN, filter.filter_rn);
-        }
-        setResult(onlyExec ? Constants.RESULT_NEED_EXECUTE_FILTER : Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER, resultIntent);
-        finish();
-    }
-
-
     private class DeleteTask extends AsyncTask<Void,Void,Void> {
         private ProgressWindow pw;
 
@@ -324,32 +333,6 @@ public class FilterEditActivity extends ActionBarActivity
             filter.deleteOnServer(instance);
             return null;
         }
-    }
-
-    private void onAfterDelete() {
-        ((ClaimApplication) getApplication()).getFilters().deleteFilter(this.filter);
-        setResult(Constants.RESULT_NEED_SAVE_N_EXECUTE_FILTER);
-        finish();
-    }
-
-    @Override
-    public String onSetItemValue(MultiSpinner sender, String selected) {
-        if (sender.getName().equals(SPINNER_BUILD_TAGNAME)) {
-            return selected.substring(0, selected.indexOf("(") - 1);
-        } else {
-            return selected;
-        }
-    }
-
-    @Override
-    public void onValueChanged(MultiSpinner sender, String value) {
-        if (sender.getName().equals(SPINNER_VERSION_TAGNAME)) {
-            setupReleases();
-        }
-        if (sender.getName().equals(SPINNER_RELEASE_TAGNAME)) {
-            new SetupBuildsTask().execute();
-        }
-
     }
 
     private class Holder {
