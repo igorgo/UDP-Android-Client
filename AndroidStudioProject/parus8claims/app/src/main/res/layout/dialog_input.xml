@@ -6,7 +6,7 @@
     android:layout_height="fill_parent"
     android:padding="@dimen/activity_vertical_margin">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/prompt_label"
         style="@style/label"
         android:layout_width="wrap_content"

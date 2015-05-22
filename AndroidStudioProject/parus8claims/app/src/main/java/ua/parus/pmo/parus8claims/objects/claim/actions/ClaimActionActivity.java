@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 import ua.parus.pmo.parus8claims.utils.Constants;
@@ -57,17 +57,15 @@ public class ClaimActionActivity extends ActionBarActivity {
     private Claim claim;
     private int request;
     private String session;
-    private ProgressDialog progressDialog;
+    private ClaimActionActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.instance = this;
         this.claim = (Claim) getIntent().getSerializableExtra(Constants.EXTRA_KEY_CLAIM);
         this.request = getIntent().getIntExtra(Constants.EXTRA_KEY_REQUEST, 0);
         this.session = getIntent().getStringExtra(Constants.EXTRA_KEY_SESSION);
-        this.progressDialog = new ProgressDialog(this);
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         setContentView(R.layout.activity_claim);
         if (savedInstanceState == null) {
             ActionBar supportActionBar = getSupportActionBar();
@@ -216,6 +214,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class SendClaimTask extends AsyncTask<ClaimSendFragment.Holder, Void, Integer> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Integer doInBackground(ClaimSendFragment.Holder... holders) {
             try {
@@ -242,12 +241,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -260,6 +259,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class ForwardClaimTask extends AsyncTask<ClaimForwardFragment.Holder, Void, Integer> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Integer doInBackground(ClaimForwardFragment.Holder... holders) {
             ClaimForwardFragment.Holder holder = holders[0];
@@ -293,12 +293,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -311,6 +311,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class ReturnClaimTask extends AsyncTask<String, Void, Integer> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Integer doInBackground(String... strings) {
             try {
@@ -334,12 +335,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -352,6 +353,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class AddClaimTask extends AsyncTask<ClaimAddFragment.Holder, Void, Long> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Long doInBackground(ClaimAddFragment.Holder... holders) {
             ClaimAddFragment.Holder holder = holders[0];
@@ -405,12 +407,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Long result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -426,6 +428,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class EditClaimTask extends AsyncTask<ClaimEditFragment.Holder, Void, Integer> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Integer doInBackground(ClaimEditFragment.Holder... holders) {
             ClaimEditFragment.Holder holder = holders[0];
@@ -466,12 +469,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -484,6 +487,7 @@ public class ClaimActionActivity extends ActionBarActivity {
 
     private class AddNoteTask extends AsyncTask<String, Void, Integer> {
         String error;
+        ProgressWindow pw;
 
         @Override protected Integer doInBackground(String... strings) {
             try {
@@ -507,12 +511,12 @@ public class ClaimActionActivity extends ActionBarActivity {
         }
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActionActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);

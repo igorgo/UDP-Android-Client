@@ -5,7 +5,7 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/small"

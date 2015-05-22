@@ -3,7 +3,6 @@ package ua.parus.pmo.parus8claims.objects.claim;
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +13,7 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.TextView;
 import ua.parus.pmo.parus8claims.objects.dicts.Build;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.Release;

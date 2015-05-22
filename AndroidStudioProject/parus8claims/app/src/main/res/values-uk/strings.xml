@@ -105,4 +105,7 @@
     <string name="guest_enter">Гостьовий вхід</string>
     <string name="password">Пароль</string>
     <string name="user">Користувач</string>
+    <string name="pref_header_iface">Інтерфейс</string>
+    <string name="use_condensed_font">Використовувати вузький шрифт</string>
+    <string name="dowloading_file">Завантаження файлу</string>
 </resources>

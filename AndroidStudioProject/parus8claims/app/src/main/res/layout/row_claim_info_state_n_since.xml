@@ -4,14 +4,14 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciStatusLabel"
         style="@style/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/claim_state" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciStatusText"
         style="@style/small"
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         android:layout_toStartOf="@+id/fciChangeDateLabel"
         android:minWidth="@dimen/min_designer_width" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciChangeDateLabel"
         style="@style/label"
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         android:layout_toStartOf="@+id/fciChangeDateText"
         android:text="@string/claim_date_change" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciChangeDateText"
         style="@style/small"
         android:layout_width="wrap_content"

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciExecutorLabel"
         style="@style/label"
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         android:minHeight="@dimen/min_designer_image_size"
         android:minWidth="@dimen/min_designer_image_size" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciExecutorText"
         style="@style/small"
         android:layout_width="wrap_content"

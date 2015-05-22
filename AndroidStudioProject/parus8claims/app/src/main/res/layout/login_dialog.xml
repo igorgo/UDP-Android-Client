@@ -9,7 +9,7 @@
 
     <TableRow>
 
-        <com.neopixl.pixlui.components.textview.TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/user"
@@ -29,7 +29,7 @@
     </com.neopixl.pixlui.components.edittext.EditText>
     </TableRow>
     <TableRow>
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/form_label"

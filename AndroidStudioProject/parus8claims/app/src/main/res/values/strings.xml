@@ -105,4 +105,7 @@
     <string name="user">User</string>
     <string name="password">Password</string>
     <string name="guest_enter">Guest login</string>
+    <string name="pref_header_iface">Interface</string>
+    <string name="use_condensed_font">Use narrow font</string>
+    <string name="dowloading_file">Downloading the file…</string>
 </resources>

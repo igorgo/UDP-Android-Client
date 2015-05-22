@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import ua.parus.pmo.parus8claims.utils.Constants;
+import ua.parus.pmo.parus8claims.R;
 
 /**
  * It's a part of project parus8claims
@@ -14,19 +14,23 @@ import ua.parus.pmo.parus8claims.utils.Constants;
 
 public class ProgressWindow {
 
+    private static ProgressWindow instance;
     private MaterialDialog dialog;
 
     public ProgressWindow(Context context, CharSequence message) {
-        this.dialog = new MaterialDialog.Builder(context)
+        this.dialog = new MaterialDialogBuilder(context)
                 .cancelable(false)
                 .content(message)
                 .progress(true,0)
-                .typeface(Constants.FONT_BOLD,Constants.FONT_REGULAR)
                 .show();
     }
 
     public ProgressWindow(Context context, int resId) {
         this(context, context.getText(resId));
+    }
+
+    public ProgressWindow(Context context) {
+        this(context, R.string.please_wait);
     }
 
     public void setMessage(CharSequence message) {

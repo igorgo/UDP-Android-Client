@@ -22,7 +22,7 @@
             android:gravity="center_vertical"
             android:layout_centerVertical="true" />
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/cliNumber"
             style="@style/small_bold"
             android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
             android:paddingLeft="@dimen/label_right_margin"
             android:layout_centerVertical="true" />
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvRegDate"
             style="@style/small"
             android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
             android:gravity="right|center_vertical"
             android:layout_centerVertical="true" />
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvInitiator"
             style="@style/small"
             android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
             android:src="@drawable/ic_action_attachment"
             android:layout_centerVertical="true" />
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvUnitcode"
             style="@style/small"
             android:layout_width="match_parent"
@@ -87,7 +87,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvPriority"
             style="@style/small_bold"
             android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
             android:paddingLeft="@dimen/label_right_margin"
             android:paddingRight="@dimen/label_right_margin"/>
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvRelease"
             style="@style/release_found"
             android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
             android:gravity="center_vertical|center"/>
     </RelativeLayout>
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/ctvDescription"
         style="@style/small"
         android:layout_width="fill_parent"
@@ -121,7 +121,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvState"
             style="@style/claim_state"
             android:layout_width="wrap_content"
@@ -130,7 +130,7 @@
             android:layout_centerVertical="true"
             />
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvExecutor"
             style="@style/small"
             android:layout_width="wrap_content"
@@ -140,7 +140,7 @@
             android:layout_toLeftOf="@+id/ctvChangeDate"
             android:textStyle="italic"/>
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/ctvChangeDate"
             style="@style/small"
             android:layout_width="wrap_content"

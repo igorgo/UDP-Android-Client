@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +17,8 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
+import ua.parus.pmo.parus8claims.gui.TextView;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
@@ -32,7 +32,6 @@ public class ClaimReturnFragment extends Fragment {
     private static String session;
     public Holder holder;
     private View rootView;
-    private ProgressDialog progressDialog;
 
 
     public ClaimReturnFragment() {
@@ -55,9 +54,6 @@ public class ClaimReturnFragment extends Fragment {
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
-        this.progressDialog = new ProgressDialog(getActivity());
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -80,8 +76,10 @@ public class ClaimReturnFragment extends Fragment {
     }
 
     private class GetReturnMessage extends AsyncTask<Void, Void, String> {
+        private ProgressWindow pw;
+
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
             super.onPreExecute();
         }
 
@@ -103,7 +101,7 @@ public class ClaimReturnFragment extends Fragment {
         }
 
         @Override protected void onPostExecute(String s) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (!TextUtils.isEmpty(s)) {
                 holder.message.setText(s);
             }

@@ -1,9 +1,6 @@
 package ua.parus.pmo.parus8claims.objects.claim;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
@@ -19,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.MimeTypeMap;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +39,8 @@ import java.net.URLConnection;
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
+import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.objects.claim.actions.ClaimActionActivity;
 import ua.parus.pmo.parus8claims.objects.claim.hist.ClaimHistoryFragment;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
@@ -62,10 +63,12 @@ public class ClaimActivity extends ActionBarActivity
     private boolean needsRefresh = false;
     private boolean needsRefreshParent = false;
     private ActionBar actionBar;
+    private ClaimActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.instance = this;
         this.rn = getIntent().getLongExtra(Constants.EXTRA_KEY_RN, 0);
         this.backListPos = getIntent().getIntExtra(Constants.EXTRA_KEY_CLAIM_LIST_POS, -1);
         this.hasDocs = getIntent().getBooleanExtra(Constants.EXTRA_KEY_HAS_DOCS, false);
@@ -145,21 +148,17 @@ public class ClaimActivity extends ActionBarActivity
     }
 
     private void doSimpleAction(final String url, int titleId, int confirmTextId, final int resultCode) {
-        new AlertDialog.Builder(this)
-                .setTitle(titleId)
-                .setMessage(getString(confirmTextId, claim.number))
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(
-                        android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                new SampleActionTask().execute(new SimpleAction(url, resultCode));
-                            }
-                        }
-                                  )
-                .setNegativeButton(android.R.string.no, null)
+        new MaterialDialogBuilder(this)
+                .title(titleId)
+                .content(getString(confirmTextId, claim.number))
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override public void onPositive(MaterialDialog dialog) {
+                        new SampleActionTask().execute(new SimpleAction(url, resultCode));
+                        super.onPositive(dialog);
+                    }
+                })
+                .positiveText(android.R.string.yes)
+                .negativeText(android.R.string.no)
                 .show();
     }
 
@@ -283,15 +282,12 @@ public class ClaimActivity extends ActionBarActivity
     }
 
     private class UploadAttachTask extends AsyncTask<Uri,Void,Integer> {
-        private ProgressDialog progressDialog;
+        private ProgressWindow pw;
         private String error;
 
         @Override
         protected void onPreExecute() {
-            progressDialog = new ProgressDialog(ClaimActivity.this);
-            progressDialog.setMessage(getString(R.string.uploading_file));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+            pw = new ProgressWindow(instance, R.string.uploading_file);
             super.onPreExecute();
         }
 
@@ -365,7 +361,7 @@ public class ClaimActivity extends ActionBarActivity
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -390,14 +386,11 @@ public class ClaimActivity extends ActionBarActivity
     }
 
     private class SampleActionTask extends AsyncTask<SimpleAction, Void, Integer> {
-        private ProgressDialog progressDialog;
+        private ProgressWindow pw;
         private String error;
 
         @Override protected void onPreExecute() {
-            progressDialog = new ProgressDialog(ClaimActivity.this);
-            progressDialog.setMessage(getString(R.string.please_wait));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
@@ -422,7 +415,7 @@ public class ClaimActivity extends ActionBarActivity
 
         @Override protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(ClaimActivity.this, null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -438,7 +431,7 @@ public class ClaimActivity extends ActionBarActivity
         public static final String URL_GET_DOCUM = "docum/";
         public static final String PARAM_SESSION = "session";
         public static final String PARAM_DOCRN = "docrn";
-        private ProgressDialog dialog;
+        private ProgressWindow pw;
 
 
         @Override
@@ -457,9 +450,7 @@ public class ClaimActivity extends ActionBarActivity
 
         @Override
         protected void onPreExecute() {
-            dialog = new ProgressDialog(ClaimActivity.this);
-            dialog.setMessage("Downloading the file, please wait.");
-            dialog.show();
+            pw = new ProgressWindow(instance, R.string.dowloading_file);
         }
 
         @Override
@@ -486,15 +477,11 @@ public class ClaimActivity extends ActionBarActivity
                 }
                 viewIntent.setDataAndType(path, mimeType);
                 viewIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (dialog.isShowing()) {
-                    dialog.dismiss();
-                }
+                pw.dismiss();
                 startActivity(viewIntent);
             } catch (ActivityNotFoundException | SecurityException e) {
                 e.printStackTrace();
-                if (dialog.isShowing()) {
-                    dialog.dismiss();
-                }
+                pw.dismiss();
             }
         }
     }

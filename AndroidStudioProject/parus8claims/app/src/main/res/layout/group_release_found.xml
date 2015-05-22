@@ -4,7 +4,7 @@ android:orientation="vertical"
 android:layout_width="match_parent"
 android:layout_height="wrap_content">
 
-<TextView
+<ua.parus.pmo.parus8claims.gui.TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/form_group_header"
@@ -16,7 +16,7 @@ android:layout_height="wrap_content">
     android:background="@color/priority_bg"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/labelRelease"
         style="@style/form_label"
         android:layout_width="wrap_content"
@@ -38,7 +38,7 @@ android:layout_height="wrap_content">
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/labelBuild"
         style="@style/form_label"
         android:layout_width="wrap_content"

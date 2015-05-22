@@ -15,7 +15,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +25,7 @@ import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.TextView;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 

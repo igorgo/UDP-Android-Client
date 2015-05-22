@@ -6,14 +6,14 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciReleaseToLabel"
         style="@style/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/claim_release_build" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciReleaseToText"
         style="@style/release_fixed"
         android:layout_width="wrap_content"

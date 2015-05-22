@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     tools:ignore="RtlHardcoded">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciTypeText"
         style="@style/small"
         android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
         android:minHeight="@dimen/min_designer_image_size"
         android:minWidth="@dimen/min_designer_image_size" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciNumberLabel"
         style="@style/label"
         android:layout_width="wrap_content"
@@ -37,7 +37,7 @@
         android:layout_centerVertical="true"
         android:text="@string/claim_number" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciNumberText"
         style="@style/small"
         android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
         android:minWidth="@dimen/min_designer_width" />
 
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciTypeLabel"
         style="@style/label"
         android:layout_width="wrap_content"

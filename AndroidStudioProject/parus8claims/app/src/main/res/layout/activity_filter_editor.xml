@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:id="@+id/feGrHeadGeneral"
                 style="@style/form_group_header_first"
                 android:layout_width="fill_parent"
@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feNumberLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
 
             </LinearLayout>
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:id="@+id/feGrHeadSystem"
                 style="@style/form_group_header"
                 android:layout_width="fill_parent"
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feUnitsLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feAppLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -100,7 +100,7 @@
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:id="@+id/feGrHeadRelease"
                 style="@style/form_group_header"
                 android:layout_width="fill_parent"
@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feVersionLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feReleaseLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:id="@+id/feBuildLabel"
                     style="@style/form_label"
                     android:layout_width="wrap_content"
@@ -179,7 +179,7 @@
 
             </LinearLayout>
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:id="@+id/feGrHeadMine"
                 style="@style/form_group_header"
                 android:layout_width="fill_parent"
@@ -200,7 +200,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/im_exec" />
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:id="@+id/feGrHeadContent"
                 style="@style/form_group_header"
                 android:layout_width="fill_parent"

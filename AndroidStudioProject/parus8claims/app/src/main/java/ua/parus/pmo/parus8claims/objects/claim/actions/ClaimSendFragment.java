@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
@@ -33,7 +33,6 @@ public class ClaimSendFragment extends Fragment {
     private static String session;
     public Holder holder;
     private View rootView;
-    private ProgressDialog progressDialog;
 
     public ClaimSendFragment() {
         // Required empty public constructor
@@ -55,9 +54,6 @@ public class ClaimSendFragment extends Fragment {
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
-        this.progressDialog = new ProgressDialog(getActivity());
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -82,9 +78,10 @@ public class ClaimSendFragment extends Fragment {
     private class GetExecutorsTask extends AsyncTask<Void, Void, Integer> {
         final List<String> executorsV = new ArrayList<>();
         final List<String> executorsD = new ArrayList<>();
+        private ProgressWindow pw;
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
             super.onPreExecute();
         }
 
@@ -109,7 +106,7 @@ public class ClaimSendFragment extends Fragment {
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == 0 && executorsV.size() > 0) {
                 holder.send.setItemsStringVals(executorsD, executorsV, executorsV.get(0));
             }

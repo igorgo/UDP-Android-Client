@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.filter;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.widget.ListView;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.utils.Constants;
 
 
@@ -27,12 +27,13 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     private static final String TAG = FiltersActivity.class.getSimpleName();
     private ListView filtersListView;
     private FilterListAdapter adapter;
-    private ProgressDialog progressDialog;
     private Handler handler;
+    private FiltersActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.instance = this;
         setContentView(R.layout.activity_filters);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -42,9 +43,6 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         this.handler = new Handler(this);
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         this.filtersListView.setOnItemClickListener(this);
-        this.progressDialog = new ProgressDialog(this);
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         setAdapter();
     }
 
@@ -120,9 +118,10 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     }
 
     private class AsyncLoadFilters extends AsyncTask<Void, Void, Void> {
+        private ProgressWindow pw;
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
             super.onPreExecute();
         }
 
@@ -133,7 +132,7 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
 
         @Override protected void onPostExecute(Void aVoid) {
             ((ClaimApplication) getApplication()).setFilters(adapter);
-            progressDialog.dismiss();
+            pw.dismiss();
             handler.sendEmptyMessage(MSG_ADAPTER_READY);
             super.onPostExecute(aVoid);
         }

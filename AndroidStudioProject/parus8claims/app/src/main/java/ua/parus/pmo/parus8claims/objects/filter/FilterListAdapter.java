@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,6 +20,7 @@ import java.util.List;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.TextView;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
 public class FilterListAdapter extends BaseAdapter {

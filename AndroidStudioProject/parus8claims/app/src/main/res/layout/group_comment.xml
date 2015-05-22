@@ -5,7 +5,7 @@
               android:background="@color/priority_bg"
               android:orientation="vertical">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/contentLabel"
         style="@style/form_group_header"
         android:layout_width="match_parent"

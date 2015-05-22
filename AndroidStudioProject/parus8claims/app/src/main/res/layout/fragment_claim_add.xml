@@ -22,7 +22,7 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <TextView
+                <ua.parus.pmo.parus8claims.gui.TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/form_group_header"

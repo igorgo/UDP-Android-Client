@@ -4,14 +4,14 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciPriorityLabel"
         style="@style/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/claim_priority" />
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/fciPriorityText"
         style="@style/small_bold"
         android:layout_width="wrap_content"

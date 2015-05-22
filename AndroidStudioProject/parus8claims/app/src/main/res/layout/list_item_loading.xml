@@ -9,7 +9,7 @@
         android:layout_height="@dimen/min_designer_image_size"
         android:layout_width="@dimen/min_designer_image_size"
         android:layout_marginRight="@dimen/activity_horizontal_margin" />
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         style="@style/medium"

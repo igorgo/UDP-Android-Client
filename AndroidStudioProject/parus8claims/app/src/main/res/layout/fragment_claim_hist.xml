@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             style="?android:attr/progressBarStyleLarge"
             android:id="@id/android:progress"/>
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/progress_text"
@@ -34,7 +34,7 @@
             android:layout_height="match_parent"
             android:id="@id/android:list"/>
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@id/android:empty"

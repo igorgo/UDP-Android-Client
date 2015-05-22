@@ -5,7 +5,7 @@ android:layout_width="match_parent"
 android:layout_height="wrap_content"
 android:id="@+id/groupFix">
 
-<TextView
+<ua.parus.pmo.parus8claims.gui.TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/form_group_header"
@@ -17,7 +17,7 @@ android:id="@+id/groupFix">
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/labelReleaseFix"
         style="@style/form_label"
         android:layout_width="wrap_content"
@@ -39,7 +39,7 @@ android:id="@+id/groupFix">
         android:layout_height="match_parent"
         android:orientation="horizontal">
 
-        <TextView
+        <ua.parus.pmo.parus8claims.gui.TextView
             android:id="@+id/labelBuildFix"
             style="@style/form_label"
             android:layout_width="wrap_content"
@@ -60,7 +60,7 @@ android:id="@+id/groupFix">
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <TextView
+    <ua.parus.pmo.parus8claims.gui.TextView
         android:id="@+id/priorityLabel"
         style="@style/form_label"
         android:layout_width="wrap_content"

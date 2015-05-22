@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <ua.parus.pmo.parus8claims.gui.TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/small_bold"

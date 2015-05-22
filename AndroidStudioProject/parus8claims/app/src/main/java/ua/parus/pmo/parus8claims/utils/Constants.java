@@ -9,9 +9,19 @@ public interface Constants {
 
     final String PACKAGE = "ua.parus.pmo.parus8claims";
     final String PREFS_NAME = PACKAGE + "_preferences";
-    final String FONT_BOLD = "RobotoCondensed-Bold.ttf";
-    final String FONT_REGULAR = "RobotoCondensed-Regular.ttf";
+    final String ANDROID_SCHEMA = "http://schemas.android.com/apk/res/android";
 
+
+
+    // fonts
+    final String FONT_NAME_CONDENSED = "RobotoCondensed";
+    final String FONT_NAME = "Roboto";
+    final String FONT_EXTENSION = ".ttf";
+
+    final String FONT_BOLD = "-Bold";
+    final String FONT_ITALIC = "-Italic";
+    final String FONT_BOLD_ITALIC = "-BoldItalic";
+    final String FONT_REGULAR = "-Regular";
 
 
     // intents' extra keys
@@ -51,5 +61,6 @@ public interface Constants {
     final String PREF_PASSWORD = "password";
     final String PREF_USERNAME = "username";
     final String PREF_RESET_CACHE = "cache";
+    final String PREF_FONT = "use_condensed_font";
 
 }

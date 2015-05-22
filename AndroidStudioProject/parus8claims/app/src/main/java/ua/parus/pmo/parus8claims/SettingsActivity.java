@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -16,12 +17,14 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import ua.parus.pmo.parus8claims.utils.Constants;
+import ua.parus.pmo.parus8claims.utils.FontCache;
 
 public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceClickListener {
 
     private SharedPreferences prefs;
+    private SettingsActivity instance;
 
-    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
+    private final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
             new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object value) {
@@ -36,8 +39,8 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                                 index >= 0
                                         ? listPreference.getEntries()[index]
                                         : null);
-
-                    } else {
+                    }
+                    if (preference instanceof EditTextPreference) {
                         // For all other preferences, set the summary to the value's
                         // simple string representation.
                         if (preference.getKey().equals(Constants.PREF_PASSWORD)) {
@@ -45,8 +48,14 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                             String pref = edit.getTransformationMethod().getTransformation(stringValue, edit).toString();
                             preference.setSummary(pref);
                         } else {
-
                             preference.setSummary(stringValue);
+                        }
+                    }
+                    if (preference instanceof CheckBoxPreference) {
+                        // For all other preferences, set the summary to the value's
+                        // simple string representation.
+                        if (preference.getKey().equals(Constants.PREF_FONT)) {
+                            FontCache.getInstance(instance).clear();
                         }
                     }
                     return true;
@@ -63,8 +72,13 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
         // Trigger the listener immediately with the preference's
         // current value.
+        if (preference instanceof EditTextPreference)
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 prefs.getString(preference.getKey(), ""));
+        if (preference instanceof CheckBoxPreference)
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                    prefs.getBoolean(preference.getKey(), true));
+
     }
 
     @Override
@@ -97,6 +111,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         addPreferencesFromResource(R.xml.pref_general);
         bindPreferenceSummaryToValue(findPreference(Constants.PREF_USERNAME));
         bindPreferenceSummaryToValue(findPreference(Constants.PREF_PASSWORD));
+        bindPreferenceSummaryToValue(findPreference(Constants.PREF_FONT));
         findPreference(Constants.PREF_RESET_CACHE).setOnPreferenceClickListener(this);
     }
 
@@ -115,6 +130,7 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         prefs = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_MULTI_PROCESS);
     }
 }

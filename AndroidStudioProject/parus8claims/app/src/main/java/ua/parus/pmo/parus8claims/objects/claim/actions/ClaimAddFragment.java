@@ -1,7 +1,6 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,6 +23,7 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
@@ -63,7 +63,7 @@ public class ClaimAddFragment extends Fragment {
     }
 
     private class GetBuildsTask extends AsyncTask<String,Void,Void> {
-        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private ProgressWindow pw;
         private List<String> DisplayNames;
         private List<String> Codes;
 
@@ -71,9 +71,7 @@ public class ClaimAddFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage(getString(R.string.please_wait));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
         }
 
         @Override
@@ -85,7 +83,7 @@ public class ClaimAddFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
+            pw.dismiss();
             holder.build.setItemsStringVals(DisplayNames, Codes, "");
             holder.build.setEnabled(true);
             super.onPostExecute(aVoid);

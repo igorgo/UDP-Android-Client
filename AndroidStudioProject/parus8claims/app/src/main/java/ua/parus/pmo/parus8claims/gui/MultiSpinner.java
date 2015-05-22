@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.neopixl.pixlui.components.textview.FontFactory;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,8 @@ import ua.parus.pmo.parus8claims.utils.Constants;
 @SuppressWarnings("unused")
 public class MultiSpinner extends Spinner implements
         DialogInterface.OnCancelListener,
-        View.OnLongClickListener, AdapterView.OnItemClickListener {
+        View.OnLongClickListener, AdapterView.OnItemClickListener,
+        MaterialDialog.ListCallbackMultiChoice {
 
     private static final String TAG = MultiSpinner.class.getSimpleName();
     private static final String EMPTY_STRING = "";
@@ -35,6 +37,7 @@ public class MultiSpinner extends Spinner implements
     private OnItemSelectListener onItemSelectListener;
     private OnSetItemValueListener onSetItemValueListener;
     private boolean[] selected;
+    private Integer[] selectedIndeces;
     private List<String> items;
     private String textAllSelected;
     private String textNoOneSelected;
@@ -65,6 +68,7 @@ public class MultiSpinner extends Spinner implements
         this.setOnLongClickListener(null);
         this.itemSeparator = SEMICOLON;
     }
+
 
     private void onOkDialog() {
         // обновляем тект в спиннере
@@ -161,7 +165,47 @@ public class MultiSpinner extends Spinner implements
     @Override
     public boolean performClick() {
         if (this.items != null && this.items.size() > 0) {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+            new MaterialDialogBuilder(getContext())
+                    .autoDismiss(false)
+                    .items(items.toArray(new CharSequence[items.size()]))
+                    /*.adapter(new ArrayAdapter<>(
+                                    getContext(),
+                                    R.layout.dropdown_multiline_multi_choice_item,
+                                    android.R.id.text1,
+                                    this.items),
+                            new MaterialDialog.ListCallback() {
+                                @Override public void onSelection(MaterialDialog materialDialog, View view, int i,
+                                                                  CharSequence charSequence) {
+
+                                    Log.d(TAG, "select:" + view.toString());
+                                }
+                            })*/
+                    .positiveText(android.R.string.ok)
+                    .negativeText(BUTTON_DESELECT_ALL_TEXT)
+                    .neutralText(BUTTON_SELECT_ALL_TEXT)
+                    .alwaysCallMultiChoiceCallback()
+                    .itemsCallbackMultiChoice(selectedIndeces, this)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override public void onPositive(MaterialDialog dialog) {
+                            Log.d(TAG,"onPositive");
+                            dialog.dismiss();
+                            super.onPositive(dialog);
+                        }
+
+                        @Override public void onNegative(MaterialDialog dialog) {
+                            Log.d(TAG,"onNegative");
+                            super.onNegative(dialog);
+                        }
+
+                        @Override public void onNeutral(MaterialDialog dialog) {
+                            Log.d(TAG,"onNeutral");
+                            super.onNeutral(dialog);
+                        }
+                    })
+                    .show();
+
+
+            /*AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
             dialogBuilder.setAdapter(
                     new ArrayAdapter<>(
                             getContext(),
@@ -242,7 +286,7 @@ public class MultiSpinner extends Spinner implements
                             }
                         }
                     }
-            );
+            );*/
         }
         return true;
     }
@@ -331,6 +375,60 @@ public class MultiSpinner extends Spinner implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         CheckedTextView checkedTextView = (CheckedTextView) view;
         selected[position] = checkedTextView.isChecked();
+    }
+
+    @Override
+    public boolean onSelection(MaterialDialog materialDialog, Integer[] integers, CharSequence[] charSequences) {
+        Log.d(TAG,"itemsMultyCallback");
+        String oldValue = this.getValue();
+        StringBuilder buffer = new StringBuilder();
+        String currentValue;
+
+
+
+        boolean someUnSelected = false;
+        boolean someSelected = false;
+
+
+        for (int i = 0; i < this.items.size(); i++) {
+            if (this.selected[i]) {
+                currentValue = this.items.get(i);
+                if (this.onSetItemValueListener != null) {
+                    currentValue = this.onSetItemValueListener.onSetItemValue(this, currentValue);
+                }
+                buffer.append(currentValue);
+                buffer.append(this.itemSeparator);
+                someSelected = true;
+            } else {
+                someUnSelected = true;
+            }
+        }
+
+        String spinnerText;
+        if (someUnSelected && someSelected) {
+            spinnerText = buffer.toString();
+            if (spinnerText.length() > 1)
+                spinnerText = spinnerText.substring(0, spinnerText.length() - 1);
+        } else {
+            if (someSelected) {
+                spinnerText = this.textAllSelected;
+            } else {
+                spinnerText = this.textNoOneSelected;
+            }
+        }
+
+
+        setAdapter(new ArrayAdapter<>(
+                getContext(),
+                R.layout.spinner_text_item,
+                new String[]{spinnerText}));
+        if (this.onItemSelectListener != null) {
+            this.onItemSelectListener.onItemsSelected(this, this.selected);
+        }
+        String newValue = this.getValue();
+        if ((this.onValueChangedListener != null) && !oldValue.equals(newValue))
+            this.onValueChangedListener.onValueChanged(this, newValue);
+        return false;
     }
 
     public interface OnValueChangedListener {

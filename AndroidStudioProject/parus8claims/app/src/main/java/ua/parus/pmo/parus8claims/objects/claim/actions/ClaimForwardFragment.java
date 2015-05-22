@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.claim.actions;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,6 +21,7 @@ import java.util.List;
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
@@ -38,7 +38,6 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
     private static String session;
     public Holder holder;
     private View rootView;
-    private ProgressDialog progressDialog;
 
     public ClaimForwardFragment() {
         // Required empty public constructor
@@ -60,9 +59,6 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
             claim = (Claim) getArguments().getSerializable(ARG_PARAM1);
             session = getArguments().getString(ARG_PARAM2);
         }
-        this.progressDialog = new ProgressDialog(getActivity());
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     }
 
     @Override
@@ -104,7 +100,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
     }
 
     private class GetBuildsTask extends AsyncTask<String,Void,Void> {
-        private ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        private ProgressWindow pw;
         private List<String> DisplayNames;
         private List<String> Codes;
         private String releaseFix;
@@ -113,9 +109,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage(getString(R.string.please_wait));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
         }
 
         @Override
@@ -128,7 +122,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
+            pw.dismiss();
             holder.buildFix.setItemsStringVals(DisplayNames, Codes,
                     claim.buildFix == null ? "" : BuildHelper.buildName(releaseFix, claim.buildFix));
             holder.buildFix.setEnabled(true);
@@ -162,9 +156,10 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         final List<String> execsD = new ArrayList<>();
         final List<String> execsV = new ArrayList<>();
         String error;
+        private ProgressWindow pw;
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
             super.onPreExecute();
         }
 
@@ -191,7 +186,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(getActivity(), null)
                         .showErrorDialog(getString(R.string.error_title), error);
@@ -208,9 +203,10 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         final List<String> statesD = new ArrayList<>();
         final List<Long> statesV = new ArrayList<>();
         String error;
+        private ProgressWindow pw;
 
         @Override protected void onPreExecute() {
-            progressDialog.show();
+            pw = new ProgressWindow(getActivity());
             super.onPreExecute();
         }
 
@@ -236,7 +232,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         }
 
         @Override protected void onPostExecute(Integer result) {
-            progressDialog.dismiss();
+            pw.dismiss();
             if (result == -1) {
                 new ErrorPopup(getActivity(), null)
                         .showErrorDialog(getString(R.string.error_title), error);

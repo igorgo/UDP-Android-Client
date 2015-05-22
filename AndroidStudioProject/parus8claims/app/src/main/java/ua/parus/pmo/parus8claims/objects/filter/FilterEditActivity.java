@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims.objects.filter;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,7 +19,9 @@ import java.util.List;
 
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
+import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
 import ua.parus.pmo.parus8claims.objects.dicts.ApplistHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
@@ -43,7 +44,6 @@ public class FilterEditActivity extends ActionBarActivity
     private Intent resultIntent;
     private Filter filter;
     private int selfRequest;
-    private ProgressDialog progressDialog;
     private FilterEditActivity instance;
 
     @Override
@@ -51,9 +51,6 @@ public class FilterEditActivity extends ActionBarActivity
 
         super.onCreate(savedInstanceState);
         instance = this;
-        this.progressDialog = new ProgressDialog(this);
-        this.progressDialog.setMessage(getString(R.string.please_wait));
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         selfRequest = getIntent().getIntExtra(Constants.EXTRA_KEY_REQUEST, 0);
         setContentView(R.layout.activity_filter_editor);
         ActionBar actionBar = getSupportActionBar();
@@ -67,15 +64,17 @@ public class FilterEditActivity extends ActionBarActivity
     }
 
     private class ReadTask extends AsyncTask<Void,Void,Void> {
+        private ProgressWindow pw;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
+            pw.dismiss();
             onAfterRead();
             super.onPostExecute(aVoid);
         }
@@ -134,15 +133,13 @@ public class FilterEditActivity extends ActionBarActivity
     }
 
     private class SetupBuildsTask extends AsyncTask<Void,Void,Void> {
-        private ProgressDialog progressDialog = new ProgressDialog(instance);
+        private ProgressWindow pw;
         private List<String> items = new ArrayList<>();
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage(getString(R.string.please_wait));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
         }
 
         @Override
@@ -155,7 +152,7 @@ public class FilterEditActivity extends ActionBarActivity
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
+            pw.dismiss();
             holder.build8.setItems(
                     items, true
             );
@@ -239,16 +236,17 @@ public class FilterEditActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_save_query:
-                new MaterialDialog.Builder(this)
-                        .input(getText(R.string.querys_name), this.filter.filter_name, false, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
-                                instance.filter.filter_name = charSequence.toString();
-                                setFilterFromFields();
-                                new SaveTask().execute(false);
-                            }
-                        })
-                        .typeface(Constants.FONT_BOLD,Constants.FONT_REGULAR)
+                new MaterialDialogBuilder(this)
+                        .input(getText(R.string.querys_name), this.filter.filter_name, false,
+                                new MaterialDialog.InputCallback() {
+                                    @Override
+                                    public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
+                                        instance.filter.filter_name = charSequence.toString();
+                                        setFilterFromFields();
+                                        new SaveTask().execute(false);
+                                    }
+                                })
+//                        .typeface(Constants.FONT_BOLD_CONDENSED,Constants.FONT_REGULAR_CONDENSED)
                         .show();
                 return true;
             case R.id.action_exec_query:
@@ -270,15 +268,17 @@ public class FilterEditActivity extends ActionBarActivity
     }
 
     private class SaveTask extends AsyncTask<Boolean,Void,Boolean> {
+        private ProgressWindow pw;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
-            progressDialog.dismiss();
+            pw.dismiss();
             onAfterSave(aBoolean);
             super.onPostExecute(aBoolean);
         }
@@ -304,15 +304,17 @@ public class FilterEditActivity extends ActionBarActivity
 
 
     private class DeleteTask extends AsyncTask<Void,Void,Void> {
+        private ProgressWindow pw;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.show();
+            pw = new ProgressWindow(instance);
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
+            pw.dismiss();
             onAfterDelete();
             super.onPostExecute(aVoid);
         }

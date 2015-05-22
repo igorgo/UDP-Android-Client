@@ -21,7 +21,7 @@ public class ErrorPopup implements DialogInterface.OnKeyListener {
     }
 
     public void showErrorDialog(final String title, final String message) {
-        MaterialDialog alertDialog = new MaterialDialog.Builder(context)
+        MaterialDialog dialog = new MaterialDialogBuilder(context)
                 .content(message)
                 .positiveText(android.R.string.ok)
                 .callback(buttonCallback != null ? buttonCallback : new MaterialDialog.ButtonCallback() {
@@ -35,10 +35,10 @@ public class ErrorPopup implements DialogInterface.OnKeyListener {
                 .title(TextUtils.isEmpty(title) ? context.getText(R.string.error_title) : title)
                 .titleColorRes(R.color.NegoSatate)
                 .icon(context.getResources().getDrawable(R.drawable.ic_alert))
-                .typeface(Constants.FONT_BOLD, Constants.FONT_REGULAR)
+//                .typeface(FontCache.getInstance(context).getMaterialFontName(true),FontCache.getInstance(context).getMaterialFontName(true))
                 .build();
-        alertDialog.setOnKeyListener(this);
-        alertDialog.show();
+        dialog.setOnKeyListener(this);
+        dialog.show();
     }
 
 

@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -35,7 +34,9 @@ import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListPageListener;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
+import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
+import ua.parus.pmo.parus8claims.gui.TextView;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimActivity;
 import ua.parus.pmo.parus8claims.objects.claim.ClaimListAdapter;
@@ -102,7 +103,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             final EditText passwordEditText = (EditText) v.findViewById(R.id.password_request);
             final EditText usernameEditText = (EditText) v.findViewById(R.id.username_request);
 
-            MaterialDialog dialog = new MaterialDialog.Builder(this)
+            MaterialDialog dialog = new MaterialDialogBuilder(this)
                     .autoDismiss(false)
                     .title(R.string.pref_header_account)
                     .customView(v, false)
