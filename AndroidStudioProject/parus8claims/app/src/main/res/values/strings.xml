@@ -108,4 +108,5 @@
     <string name="pref_header_iface">Interface</string>
     <string name="use_condensed_font">Use narrow font</string>
     <string name="dowloading_file">Downloading the file…</string>
+    <string name="claims">Claims</string>
 </resources>

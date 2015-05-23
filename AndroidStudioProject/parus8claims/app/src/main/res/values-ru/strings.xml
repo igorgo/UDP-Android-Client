@@ -108,4 +108,5 @@
     <string name="pref_header_iface">Интерфейс</string>
     <string name="use_condensed_font">Использовать узкий шрифт</string>
     <string name="dowloading_file">Загрузка файла…</string>
+    <string name="claims">Рекламации</string>
 </resources>

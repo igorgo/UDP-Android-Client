@@ -21,6 +21,8 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.getbase.floatingactionbutton.AddFloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +69,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
     private TextView emptyText;
+    private FloatingActionsMenu fab;
     private LinearLayout progress;
     private MainActivity instance;
 
@@ -85,8 +88,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayShowHomeEnabled(true);
-            actionBar.setLogo(R.drawable.pmo_logo);
+            actionBar.setLogo(R.drawable.logo);
             actionBar.setDisplayUseLogoEnabled(true);
+            actionBar.setTitle(R.string.claims);
         }
         this.claimsListView = (AutoScrollListView) findViewById(R.id.lvMaMyClaim);
         this.emptyText = (TextView) findViewById(R.id.nodata);
@@ -95,6 +99,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         this.claimsListView.setLoadingView(layoutInflater.inflate(R.layout.list_item_loading, null));
         this.claimsListView.setOnItemClickListener(this);
         this.application = (ClaimApplication) this.getApplication();
+        initFab();
         if (isCredentialsSet()) {
             cacheRelease();
         } else {
@@ -140,7 +145,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             dialog.show();
         }
     }
-
+    private void initFab() {
+        AddFloatingActionButton fabAddButton = (AddFloatingActionButton) findViewById(R.id.fab);
+        fabAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    addClaim();
+            }
+        });
+    }
 
     private void cacheRelease() {
         if (application.isNotCacheRefreshed()) {
@@ -301,16 +314,20 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             case R.id.action_refresh:
                 this.getClaims(this.currentConditionRn, null);
                 return true;
-            case R.id.action_add_claim:
-                Intent intentAdd = new Intent(this, ClaimActionActivity.class);
-                intentAdd.putExtra(Constants.EXTRA_KEY_CLAIM, new Claim());
-                intentAdd.putExtra(Constants.EXTRA_KEY_REQUEST, Constants.REQUEST_CLAIM_ADD);
-                intentAdd.putExtra(Constants.EXTRA_KEY_SESSION, this.application.getSessionId());
-                startActivityForResult(intentAdd, Constants.REQUEST_CLAIM_ADD);
-                return true;
+            /*case R.id.action_add_claim:
+                addClaim();
+                return true;*/
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addClaim() {
+        Intent intentAdd = new Intent(this, ClaimActionActivity.class);
+        intentAdd.putExtra(Constants.EXTRA_KEY_CLAIM, new Claim());
+        intentAdd.putExtra(Constants.EXTRA_KEY_REQUEST, Constants.REQUEST_CLAIM_ADD);
+        intentAdd.putExtra(Constants.EXTRA_KEY_SESSION, this.application.getSessionId());
+        startActivityForResult(intentAdd, Constants.REQUEST_CLAIM_ADD);
     }
 
     @Override

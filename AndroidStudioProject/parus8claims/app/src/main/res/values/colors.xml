@@ -2,7 +2,9 @@
 <resources>
 	
 	<color name="transparent">#00000000</color>
-	<color name="theme_main">#ff6a97bf</color>
+	<color name="theme_main">#ff1670a5</color>
+	<color name="fab_semi">#AA1670a5</color>
+	<color name="fab_semi_pressed">#ff4470bf</color>
 	<color name="RelAccepted">#ff206cff</color>
 	<color name="RelNotAccepted">#ff006c00</color>
     <color name="NegoSatate">#ffBB0000</color>
@@ -11,5 +13,6 @@
     <color name="priority_bg">#ffFFFFCC</color>
     <color name="priority_brd">#ffAAAAAA</color>
     <color name="text_color">#565656</color>
-
+    <color name="colorAccent">#F44336</color>
+    <color name="colorAccentPressed">#D32F2F</color>
 </resources>

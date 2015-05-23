@@ -11,13 +11,13 @@
         app:showAsAction="always|withText"
         />
 
-    <item
+<!--    <item
         android:id="@+id/action_add_claim"
         android:title="@string/action_claim_add"
         android:icon="@drawable/ic_action_new"
         android:orderInCategory="20"
         app:showAsAction="always|withText"
-        />
+        />-->
 
     <item
         android:id="@+id/action_refresh"
@@ -31,7 +31,7 @@
         android:title="@string/action_settings"
         android:icon="@drawable/ic_action_settings"
         android:orderInCategory="90"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="never"
         />
 
 

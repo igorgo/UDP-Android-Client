@@ -5,6 +5,20 @@
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp">
 
+    <ImageView
+        android:contentDescription="@string/action_claim_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/flImageEdit"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:minHeight="@dimen/min_designer_image_size"
+        android:minWidth="@dimen/min_designer_image_size"
+        android:focusable="false"
+        android:paddingRight="@dimen/fab_labels_margin"
+        android:src="@drawable/ic_action_edit_d"/>
+
     <ua.parus.pmo.parus8claims.gui.TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,22 +26,9 @@
         android:id="@+id/flFilterName"
         android:layout_centerVertical="true"
         android:minWidth="@dimen/min_designer_width"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/flImageEdit"
-        android:layout_toStartOf="@+id/flImageEdit"/>
-
-    <ImageView
-        android:contentDescription="@string/action_claim_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/flImageEdit"
-        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:minHeight="@dimen/min_designer_image_size"
-        android:minWidth="@dimen/min_designer_image_size"
-        android:focusable="false"
-        android:src="@drawable/ic_action_edit_d"/>
+        android:layout_toRightOf="@+id/flImageEdit"
+        android:layout_toEndOf="@+id/flImageEdit"/>
 
 </RelativeLayout>

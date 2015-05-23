@@ -1,10 +1,12 @@
 <resources>
 
     <style name="udp_action_bar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/action_bar_bg</item>
+        <!--<item name="android:background">@drawable/action_bar_bg</item>-->
         <item name="android:titleTextStyle">@style/action_bar_title</item>
         <!-- Support library compatibility -->
-        <item name="background">@drawable/action_bar_bg</item>
+        <!--<item name="background">@drawable/action_bar_bg</item>-->
+        <item name="android:background">@color/theme_main</item>
+        <item name="background">@color/theme_main</item>
         <item name="titleTextStyle">@style/action_bar_title</item>
         <item name="android:textColorPrimary">#FFFFFF</item>
         <item name="android:textColor">#FFFFFF</item>

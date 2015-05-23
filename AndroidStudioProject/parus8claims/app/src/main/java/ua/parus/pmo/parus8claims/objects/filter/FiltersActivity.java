@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.getbase.floatingactionbutton.AddFloatingActionButton;
+
 import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
@@ -43,6 +45,7 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
         this.handler = new Handler(this);
         this.filtersListView = (ListView) findViewById(R.id.flFiltersList);
         this.filtersListView.setOnItemClickListener(this);
+        initFab();
         setAdapter();
     }
 
@@ -57,7 +60,7 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_filters, menu);
+//        getMenuInflater().inflate(R.menu.menu_filters, menu);
         return true;
     }
 
@@ -71,16 +74,27 @@ public class FiltersActivity extends ActionBarActivity implements AdapterView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add_query:
+            /*case R.id.action_add_query:
                 Intent iAdd = new Intent();
                 setResult(Constants.RESULT_NEED_ADD_NEW_FILTER, iAdd);
                 finish();
-                return true;
+                return true;*/
             case android.R.id.home:
                 onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void initFab() {
+        AddFloatingActionButton fabAddButton = (AddFloatingActionButton) findViewById(R.id.fab);
+        fabAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent iAdd = new Intent();
+                setResult(Constants.RESULT_NEED_ADD_NEW_FILTER, iAdd);
+                finish();
+            }
+        });
     }
 
     @Override
