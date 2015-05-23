@@ -82,7 +82,6 @@ public class MultiSpinner extends Spinner implements
             }
         }
     }
-// todo: not return alltext
     @Override
     public boolean performClick() {
         if (this.displayItems != null && this.displayItems.size() > 0) {

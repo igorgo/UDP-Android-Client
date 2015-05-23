@@ -1,4 +1,8 @@
 package ua.parus.pmo.parus8claims;
+// todo: окно about из Settings
+// todo: проверка обновлений (см. OmniNote UpdaterTask)
+// todo: язык
+
 
 import android.app.Application;
 import android.os.StrictMode;
@@ -6,6 +10,7 @@ import android.view.ViewConfiguration;
 
 import java.lang.reflect.Field;
 
+import ua.parus.pmo.parus8claims.objects.filter.Filter;
 import ua.parus.pmo.parus8claims.objects.filter.FilterListAdapter;
 
 public class ClaimApplication extends Application {
@@ -13,6 +18,7 @@ public class ClaimApplication extends Application {
     private boolean isPmoUser;
     private boolean cacheRefreshed;
     private FilterListAdapter filters;
+    private Filter lastDefaultFilter;
 
     private void getOverflowMenu() {
 
@@ -68,5 +74,13 @@ public class ClaimApplication extends Application {
 
     public void setFilters(FilterListAdapter filters) {
         this.filters = filters;
+    }
+
+    public Filter getLastDefaultFilter() {
+        return lastDefaultFilter;
+    }
+
+    public void setLastDefaultFilter(Filter lastDefaultFilter) {
+        this.lastDefaultFilter = lastDefaultFilter;
     }
 }

@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import ua.parus.pmo.parus8claims.gui.MultiAutoCompleteTextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -20,6 +19,7 @@ import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.CheckBox;
 import ua.parus.pmo.parus8claims.gui.EditText;
 import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
+import ua.parus.pmo.parus8claims.gui.MultiAutoCompleteTextView;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
@@ -57,9 +57,18 @@ public class FilterEditActivity extends ActionBarActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(R.string.query_editor);
         }
-        this.filter = new Filter();
-        this.filter.filter_rn = getIntent().getLongExtra(Constants.EXTRA_KEY_RN, 0);
-        new ReadTask().execute();
+        Long fn = getIntent().getLongExtra(Constants.EXTRA_KEY_RN, 0);
+
+        if (fn == 0) {
+            this.filter = ((ClaimApplication) getApplication()).getLastDefaultFilter();
+            if (this.filter != null) {
+                onAfterRead();
+                return;
+            }
+        }
+            this.filter = new Filter();
+            this.filter.filter_rn = fn;
+            new ReadTask().execute();
     }
 
     private void onAfterRead() {
@@ -207,6 +216,8 @@ public class FilterEditActivity extends ActionBarActivity
     private void onAfterSave(boolean onlyExec) {
         if (!onlyExec) {
             ((ClaimApplication) getApplication()).getFilters().addReplaceFilter(filter);
+        } else {
+            ((ClaimApplication) getApplication()).setLastDefaultFilter(filter);
         }
         resultIntent = new Intent();
         if (filter.filter_rn > 0) {
