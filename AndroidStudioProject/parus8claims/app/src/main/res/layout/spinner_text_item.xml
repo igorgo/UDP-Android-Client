@@ -1,22 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.neopixl.pixlui.components.textview.TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:pixlui="http://schemas.android.com/apk/com.neopixl.pixlui"
+<ua.parus.pmo.parus8claims.gui.TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/TextView"
     style="@style/small"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    pixlui:typeface="RobotoCondensed-Regular.ttf"
     android:gravity="right"
-    android:singleLine="false"
-     />
-
-    <!--CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/spinnerText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    style="@style/small"
-    android:ellipsize="marquee"
-    android:singleLine="true"
-    android:gravity="center_vertical"
-    android:checkMark="?android:attr/listChoiceIndicatorSingle"
-    /-->
+    android:singleLine="false" />

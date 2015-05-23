@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 
@@ -33,6 +32,7 @@ import java.net.MalformedURLException;
 import ua.parus.pmo.parus8claims.db.DatabaseWrapper;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListPageListener;
 import ua.parus.pmo.parus8claims.gui.AutoScrollListView;
+import ua.parus.pmo.parus8claims.gui.EditText;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;

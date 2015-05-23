@@ -39,14 +39,16 @@
                     android:gravity="bottom"
                     android:text="@string/number" />
 
-                <EditText
+                <ua.parus.pmo.parus8claims.gui.EditText
                     android:id="@+id/feNumberEdit"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="end"
-                    style="@style/small"
                     android:inputType="text"
-                    tools:ignore="TextFields" />
+                    tools:ignore="TextFields">
+                    <requestFocus />
+                </ua.parus.pmo.parus8claims.gui.EditText>
 
 
             </LinearLayout>
@@ -122,10 +124,10 @@
 
                 <ua.parus.pmo.parus8claims.gui.MultiSpinner
                     android:id="@+id/feVersionSpinner"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    style="@style/small"
                     android:gravity="end"
                     android:spinnerMode="dialog" />
 
@@ -146,11 +148,11 @@
 
                 <ua.parus.pmo.parus8claims.gui.MultiSpinner
                     android:id="@+id/feReleaseSpinner"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:gravity="end"
-                    style="@style/small"
                     android:spinnerMode="dialog" />
 
             </LinearLayout>
@@ -170,10 +172,10 @@
 
                 <ua.parus.pmo.parus8claims.gui.MultiSpinner
                     android:id="@+id/feBuildSpinner"
+                    style="@style/small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    style="@style/small"
                     android:gravity="end"
                     android:spinnerMode="dialog" />
 
@@ -207,11 +209,11 @@
                 android:layout_height="wrap_content"
                 android:text="@string/header_content" />
 
-            <EditText
+            <ua.parus.pmo.parus8claims.gui.EditText
                 android:id="@+id/feContent"
+                style="@style/small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/small"
                 android:inputType="text" />
 
         </LinearLayout>

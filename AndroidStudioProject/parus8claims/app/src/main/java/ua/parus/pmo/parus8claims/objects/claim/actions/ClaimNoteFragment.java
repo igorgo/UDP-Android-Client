@@ -5,9 +5,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import ua.parus.pmo.parus8claims.R;
+import ua.parus.pmo.parus8claims.gui.EditText;
 
 public class ClaimNoteFragment extends Fragment {
     public EditText note;

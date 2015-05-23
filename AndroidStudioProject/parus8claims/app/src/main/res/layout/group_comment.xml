@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:text="@string/claim_content"/>
 
-    <EditText
+    <ua.parus.pmo.parus8claims.gui.EditText
         android:id="@+id/contentEdit"
         style="@style/small"
         android:layout_width="match_parent"

@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/claim_note" />
 
-    <EditText
+    <ua.parus.pmo.parus8claims.gui.EditText
         android:id="@+id/noteEdit"
         style="@style/small"
         android:layout_width="match_parent"
