@@ -15,6 +15,6 @@ public class MaterialDialogBuilder extends com.afollestad.materialdialogs.Materi
     public MaterialDialogBuilder(@NonNull Context context) {
         super(context);
         typeface(FontCache.getInstance(context).getMaterialFontName(true), FontCache.getInstance(context)
-                                                                                    .getMaterialFontName(true));
+                                                                                    .getMaterialFontName(false));
     }
 }

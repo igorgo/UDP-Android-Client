@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.MultiAutoCompleteTextView;
+import ua.parus.pmo.parus8claims.gui.MultiAutoCompleteTextView;
 
 import java.util.List;
 

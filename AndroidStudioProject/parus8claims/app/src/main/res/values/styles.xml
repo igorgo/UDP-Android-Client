@@ -111,6 +111,7 @@
     </style>
 
     <style name="check_box_base" parent="CheckBoxAppTheme">
+        <item name="android:textColor">@android:color/tertiary_text_light</item>
         <item name="android:textSize">@dimen/small_font</item>
     </style>
 

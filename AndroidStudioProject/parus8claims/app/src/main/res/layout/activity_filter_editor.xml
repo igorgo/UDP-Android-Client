@@ -73,7 +73,7 @@
                     android:gravity="bottom"
                     android:text="@string/unit" />
 
-                <MultiAutoCompleteTextView
+                <ua.parus.pmo.parus8claims.gui.MultiAutoCompleteTextView
                     android:id="@+id/feUnitsText"
                     style="@style/small"
                     android:layout_width="match_parent"
@@ -94,7 +94,7 @@
                     android:gravity="bottom"
                     android:text="@string/app" />
 
-                <MultiAutoCompleteTextView
+                <ua.parus.pmo.parus8claims.gui.MultiAutoCompleteTextView
                     android:id="@+id/feAppText"
                     style="@style/small"
                     android:layout_width="match_parent"
@@ -188,14 +188,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/header_mine" />
 
-            <CheckBox
+            <ua.parus.pmo.parus8claims.gui.CheckBox
                 android:id="@+id/feImInit"
                 style="@style/check_box"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/im_init" />
 
-            <CheckBox
+            <ua.parus.pmo.parus8claims.gui.CheckBox
                 android:id="@+id/feImExec"
                 style="@style/check_box"
                 android:layout_width="wrap_content"

@@ -34,7 +34,7 @@
                     android:id="@+id/typeRadioGroup"
                     android:checkedButton="@+id/radioTypeAddon">
 
-                    <RadioButton
+                    <ua.parus.pmo.parus8claims.gui.RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/small"
@@ -42,7 +42,7 @@
                         android:id="@+id/radioTypeAddon"
                         android:layout_weight="5" />
 
-                    <RadioButton
+                    <ua.parus.pmo.parus8claims.gui.RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/small"
@@ -50,7 +50,7 @@
                         android:id="@+id/radioTypeRebuke"
                         android:layout_weight="5" />
 
-                    <RadioButton
+                    <ua.parus.pmo.parus8claims.gui.RadioButton
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/small"
