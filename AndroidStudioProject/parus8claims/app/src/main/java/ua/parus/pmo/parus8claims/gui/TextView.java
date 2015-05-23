@@ -2,6 +2,7 @@ package ua.parus.pmo.parus8claims.gui;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 
 import ua.parus.pmo.parus8claims.utils.FontCache;
@@ -28,12 +29,28 @@ public class TextView extends android.widget.TextView {
     }
 
     private void setFont(Context context, AttributeSet attrs) {
-        Typeface tf = FontCache.getInstance(context).getTypeface(attrs);
-        if (tf != null) {
-            setTypeface(tf);
+        if (!isInEditMode()) {
+            Typeface tf = FontCache.getInstance(context).getTypeface(attrs);
+            if (tf != null) {
+                setTypeface(tf);
+            }
         }
     }
 
-
-
+    @Override
+    public void setTextAppearance(@NonNull Context context, int resid) {
+        super.setTextAppearance(context, resid);
+        if (!isInEditMode()) {
+            int style = 0;
+            Typeface tf = getTypeface();
+            if (tf != null) {
+                if (tf.isBold()) style++;
+                if (tf.isItalic()) style = style + 2;
+            }
+            tf = FontCache.getInstance(context).getTypeface(style);
+            if (tf != null) {
+                setTypeface(tf);
+            }
+        }
+    }
 }

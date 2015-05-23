@@ -49,9 +49,7 @@
         <item name="android:textSize">@dimen/small_font</item>
     </style>
 
-    <style name="small_v16" parent="small_base" />
-
-    <style name="small" parent="small_v16" />
+    <style name="small" parent="small_base" />
 
     <style name="small_bold" parent="small">
         <item name="android:textStyle">bold</item>
@@ -61,9 +59,7 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="medium_v16" parent="medium_base" />
-
-    <style name="medium" parent="medium_v16" />
+    <style name="medium" parent="medium_base" />
 
     <style name="medium_bold" parent="medium">
         <item name="android:textStyle">bold</item>
@@ -118,9 +114,7 @@
         <item name="android:textSize">@dimen/small_font</item>
     </style>
 
-    <style name="check_box_v16" parent="check_box_base" />
-
-    <style name="check_box" parent="check_box_v16" />
+    <style name="check_box" parent="check_box_base" />
 
 
 </resources>

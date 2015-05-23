@@ -33,9 +33,8 @@ public class FontCache {
 
     private static Hashtable<String, Typeface> fontCache = new Hashtable<>();
 
-    public Typeface getTypeface(AttributeSet attrs) {
+    public Typeface getTypeface(int fontType) {
         String fontName = (useCondensed) ? Constants.FONT_NAME_CONDENSED : Constants.FONT_NAME;
-        int fontType = (attrs == null) ? 0 : attrs.getAttributeIntValue(Constants.ANDROID_SCHEMA,"textStyle",0);
         switch (fontType) {
             case 0:
                 fontName = fontName + Constants.FONT_REGULAR;
@@ -61,6 +60,13 @@ public class FontCache {
             fontCache.put(fontName, typeface);
         }
         return typeface;
+
+    }
+
+
+    public Typeface getTypeface(AttributeSet attrs) {
+        int fontType = (attrs == null) ? 0 : attrs.getAttributeIntValue(Constants.ANDROID_SCHEMA,"textStyle",0);
+        return getTypeface(fontType);
     }
 
     public String getMaterialFontName(boolean bold) {
