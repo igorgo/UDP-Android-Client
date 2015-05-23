@@ -22,13 +22,13 @@ import ua.parus.pmo.parus8claims.ClaimApplication;
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ErrorPopup;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
-import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
+import ua.parus.pmo.parus8claims.gui.SingleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
-public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnValueChangedListener {
+public class ClaimForwardFragment extends Fragment implements SingleSpinner.OnValueChangedListener {
 
     @SuppressWarnings("unused")
     private static final String TAG = ClaimSendFragment.class.getSimpleName();
@@ -70,7 +70,7 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
         return rootView;
     }
 
-    @Override public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
+    @Override public void onValueChanged(SingleSpinner sender, String valueString, Long valueLong) {
         if (sender.getId() == holder.state.getId()) {
             holder.releaseFix.setOnValueChangedListener(this);
             holder.releaseFix.setItems(
@@ -131,21 +131,21 @@ public class ClaimForwardFragment extends Fragment implements SimpleSpinner.OnVa
     }
 
     class Holder {
-        public final SimpleSpinner state;
-        public final SimpleSpinner send;
+        public final SingleSpinner state;
+        public final SingleSpinner send;
         public final EditText note;
         public final LinearLayout groupFix;
-        public final SimpleSpinner releaseFix;
-        public final SimpleSpinner buildFix;
+        public final SingleSpinner releaseFix;
+        public final SingleSpinner buildFix;
         public final EditText priority;
 
         public Holder() {
-            state = (SimpleSpinner) rootView.findViewById(R.id.stateSpinner);
-            send = (SimpleSpinner) rootView.findViewById(R.id.sendSpinner);
+            state = (SingleSpinner) rootView.findViewById(R.id.stateSpinner);
+            send = (SingleSpinner) rootView.findViewById(R.id.sendSpinner);
             note = (EditText) rootView.findViewById(R.id.noteEdit);
             groupFix = (LinearLayout) rootView.findViewById(R.id.groupFix);
-            releaseFix = (SimpleSpinner) rootView.findViewById(R.id.releaseFixSpinner);
-            buildFix = (SimpleSpinner) rootView.findViewById(R.id.buildFixSpinner);
+            releaseFix = (SingleSpinner) rootView.findViewById(R.id.releaseFixSpinner);
+            buildFix = (SingleSpinner) rootView.findViewById(R.id.buildFixSpinner);
             priority = (EditText) rootView.findViewById(R.id.priorityEdit);
             groupFix.setVisibility(View.GONE);
             state.setOnValueChangedListener(ClaimForwardFragment.this);

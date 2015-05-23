@@ -28,7 +28,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/claim_state_g" />
 
-                <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+                <ua.parus.pmo.parus8claims.gui.SingleSpinner
                     android:id="@+id/stateSpinner"
                     style="@style/small"
                     android:layout_width="match_parent"

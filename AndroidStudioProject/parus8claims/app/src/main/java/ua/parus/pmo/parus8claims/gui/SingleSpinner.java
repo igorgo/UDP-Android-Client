@@ -1,20 +1,20 @@
 package ua.parus.pmo.parus8claims.gui;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.List;
 
 import ua.parus.pmo.parus8claims.R;
 
-public class SimpleSpinner extends Spinner implements DialogInterface.OnClickListener {
+public class SingleSpinner extends Spinner implements MaterialDialog.ListCallbackSingleChoice {
     @SuppressWarnings("unused")
-    private static final String TAG = SimpleSpinner.class.getSimpleName();
+    private static final String TAG = SingleSpinner.class.getSimpleName();
     private static final String EMPTY_STRING = "";
     private List<String> displayItems;
     private List<String> valueStringItems;
@@ -26,14 +26,14 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
     private String selfName;
     private OnValueChangedListener onValueChangedListener;
 
-    public SimpleSpinner(Context context) {
+    public SingleSpinner(Context context) {
         super(context, MODE_DIALOG);
         valueLong = null;
         valueString = null;
         selected = -1;
     }
 
-    public SimpleSpinner(Context context, AttributeSet attrs) {
+    public SingleSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
         valueLong = null;
         valueString = null;
@@ -141,28 +141,14 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
     @Override
     public boolean performClick() {
         if (this.displayItems != null && this.displayItems.size() > 0) {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
-            dialogBuilder.setSingleChoiceItems(new ArrayAdapter<>(
-                    getContext(),
-                    R.layout.dropdown_multiline_single_choice_item,
-                    android.R.id.text1,
-                    this.displayItems), this.selected, this);
-            AlertDialog dialog = dialogBuilder.create();
-            dialog.show();
+            new MaterialDialogBuilder(getContext())
+                    .items(displayItems.toArray(new CharSequence[displayItems.size()]))
+                    .positiveText(android.R.string.ok)
+                    .negativeText(android.R.string.cancel)
+                    .itemsCallbackSingleChoice(selected, this)
+                    .show();
         }
         return true;
-    }
-
-    @Override
-    public void onClick(@NonNull DialogInterface dialog, int which) {
-        if (this.valueType == ValueType.LONG && valueLongItems != null && valueLongItems.size() > 0) {
-            setValue(valueLongItems.get(which));
-            dialog.dismiss();
-        }
-        if (this.valueType == ValueType.STRING && valueStringItems != null && valueStringItems.size() > 0) {
-            setValue(valueStringItems.get(which));
-            dialog.dismiss();
-        }
     }
 
     private void setValueText(String displayValue) {
@@ -193,9 +179,22 @@ public class SimpleSpinner extends Spinner implements DialogInterface.OnClickLis
         this.onValueChangedListener = onValueChangedListener;
     }
 
+    @Override
+    public boolean onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+        if (this.valueType == ValueType.LONG && valueLongItems != null && valueLongItems.size() > 0) {
+            setValue(valueLongItems.get(i));
+            return true;
+        }
+        if (this.valueType == ValueType.STRING && valueStringItems != null && valueStringItems.size() > 0) {
+            setValue(valueStringItems.get(i));
+            return true;
+        }
+        return false;
+    }
+
     private enum ValueType {LONG, STRING}
 
     public interface OnValueChangedListener {
-        void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong);
+        void onValueChanged(SingleSpinner sender, String valueString, Long valueLong);
     }
 }

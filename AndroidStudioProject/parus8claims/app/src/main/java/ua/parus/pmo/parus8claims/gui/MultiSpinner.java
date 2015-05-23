@@ -82,7 +82,7 @@ public class MultiSpinner extends Spinner implements
             }
         }
     }
-
+// todo: not return alltext
     @Override
     public boolean performClick() {
         if (this.displayItems != null && this.displayItems.size() > 0) {
@@ -238,7 +238,7 @@ public class MultiSpinner extends Spinner implements
         if (integers.length == 0) {
             spinnerText = this.textNoOneSelected;
         } else if (integers.length == valueItems.size()) {
-            spinnerText = this.textNoOneSelected;
+            spinnerText = this.textAllSelected;
         } else {
             for (Integer integer : integers) {
                 buffer.append(valueItems.get(integer));

@@ -25,7 +25,7 @@ import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
-import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
+import ua.parus.pmo.parus8claims.gui.SingleSpinner;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
@@ -92,14 +92,14 @@ public class ClaimAddFragment extends Fragment {
 
     class Holder {
         public final RadioGroup type;
-        public final SimpleSpinner release;
-        public final SimpleSpinner build;
-        public final SimpleSpinner releaseFix;
-        public final SimpleSpinner buildFix;
+        public final SingleSpinner release;
+        public final SingleSpinner build;
+        public final SingleSpinner releaseFix;
+        public final SingleSpinner buildFix;
         public final EditText priority;
         public final MultiAutoCompleteTextView unit;
         public final MultiSpinner unitApp;
-        public final SimpleSpinner unitFunc;
+        public final SingleSpinner unitFunc;
         public final EditText content;
         private final LinearLayout groupFix;
         private final ClaimAddFragment that;
@@ -112,16 +112,16 @@ public class ClaimAddFragment extends Fragment {
             View view = ClaimAddFragment.this.rootView;
             that = ClaimAddFragment.this;
             this.type = (RadioGroup) view.findViewById(R.id.typeRadioGroup);
-            this.release = (SimpleSpinner) view.findViewById(R.id.releaseSpinner);
-            this.build = (SimpleSpinner) view.findViewById(R.id.buildSpinner);
-            this.releaseFix = (SimpleSpinner) view.findViewById(R.id.releaseFixSpinner);
-            this.buildFix = (SimpleSpinner) view.findViewById(R.id.buildFixSpinner);
+            this.release = (SingleSpinner) view.findViewById(R.id.releaseSpinner);
+            this.build = (SingleSpinner) view.findViewById(R.id.buildSpinner);
+            this.releaseFix = (SingleSpinner) view.findViewById(R.id.releaseFixSpinner);
+            this.buildFix = (SingleSpinner) view.findViewById(R.id.buildFixSpinner);
             this.priority = (EditText) view.findViewById(R.id.priorityEdit);
             this.priority.setFilters(new InputFilter[]{new InputFilterMinMax("1", "10")});
             this.content = (EditText) view.findViewById(R.id.contentEdit);
             this.unit = (MultiAutoCompleteTextView) view.findViewById(R.id.unitsText);
             this.unitApp = (MultiSpinner) view.findViewById(R.id.appSpinner);
-            this.unitFunc = (SimpleSpinner) view.findViewById(R.id.funcSpinner);
+            this.unitFunc = (SingleSpinner) view.findViewById(R.id.funcSpinner);
             this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
@@ -129,9 +129,9 @@ public class ClaimAddFragment extends Fragment {
 
         private void initFields() {
             this.release.setOnValueChangedListener(
-                    new SimpleSpinner.OnValueChangedListener() {
+                    new SingleSpinner.OnValueChangedListener() {
                         @Override
-                        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
+                        public void onValueChanged(SingleSpinner sender, String valueString, Long valueLong) {
                             if ((valueString == null) || valueString.isEmpty()) {
                                 build.setEnabled(false);
                                 build.clear();

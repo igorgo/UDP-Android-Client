@@ -68,7 +68,7 @@
             android:gravity="bottom"
             android:text="@string/claim_unitfunc" />
 
-        <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        <ua.parus.pmo.parus8claims.gui.SingleSpinner
             android:id="@+id/funcSpinner"
             style="@style/small"
             android:layout_width="match_parent"

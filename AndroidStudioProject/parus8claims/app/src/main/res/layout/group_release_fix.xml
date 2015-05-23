@@ -25,7 +25,7 @@ android:id="@+id/groupFix">
         android:gravity="bottom"
         android:text="@string/claim_release" />
 
-    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+    <ua.parus.pmo.parus8claims.gui.SingleSpinner
         android:id="@+id/releaseFixSpinner"
         style="@style/small"
         android:layout_width="match_parent"
@@ -47,7 +47,7 @@ android:id="@+id/groupFix">
             android:gravity="bottom"
             android:text="@string/claim_build" />
 
-        <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+        <ua.parus.pmo.parus8claims.gui.SingleSpinner
             android:id="@+id/buildFixSpinner"
             style="@style/small"
             android:layout_width="match_parent"

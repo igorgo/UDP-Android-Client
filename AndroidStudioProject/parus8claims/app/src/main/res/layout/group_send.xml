@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/executor" />
 
-    <ua.parus.pmo.parus8claims.gui.SimpleSpinner
+    <ua.parus.pmo.parus8claims.gui.SingleSpinner
         android:id="@+id/sendSpinner"
         style="@style/small"
         android:layout_width="match_parent"

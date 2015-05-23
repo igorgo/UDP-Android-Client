@@ -19,7 +19,7 @@ import java.util.List;
 
 import ua.parus.pmo.parus8claims.R;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
-import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
+import ua.parus.pmo.parus8claims.gui.SingleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 
@@ -66,11 +66,11 @@ public class ClaimSendFragment extends Fragment {
     }
 
     class Holder {
-        public final SimpleSpinner send;
+        public final SingleSpinner send;
         public final EditText note;
 
         public Holder() {
-            send = (SimpleSpinner) rootView.findViewById(R.id.sendSpinner);
+            send = (SingleSpinner) rootView.findViewById(R.id.sendSpinner);
             note = (EditText) rootView.findViewById(R.id.noteEdit);
         }
     }

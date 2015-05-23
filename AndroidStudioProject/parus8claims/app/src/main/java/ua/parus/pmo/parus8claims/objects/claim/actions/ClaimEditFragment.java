@@ -23,7 +23,7 @@ import ua.parus.pmo.parus8claims.gui.InputFilterMinMax;
 import ua.parus.pmo.parus8claims.gui.MultiSpinner;
 import ua.parus.pmo.parus8claims.gui.ProgressWindow;
 import ua.parus.pmo.parus8claims.gui.SemicolonTokenizer;
-import ua.parus.pmo.parus8claims.gui.SimpleSpinner;
+import ua.parus.pmo.parus8claims.gui.SingleSpinner;
 import ua.parus.pmo.parus8claims.objects.claim.Claim;
 import ua.parus.pmo.parus8claims.objects.dicts.BuildHelper;
 import ua.parus.pmo.parus8claims.objects.dicts.ReleaseHelper;
@@ -113,14 +113,14 @@ public class ClaimEditFragment extends Fragment {
     }
 
     class Holder {
-        public final SimpleSpinner release;
-        public final SimpleSpinner build;
-        public final SimpleSpinner releaseFix;
-        public final SimpleSpinner buildFix;
+        public final SingleSpinner release;
+        public final SingleSpinner build;
+        public final SingleSpinner releaseFix;
+        public final SingleSpinner buildFix;
         public final EditText priority;
         public final MultiAutoCompleteTextView unit;
         public final MultiSpinner unitApp;
-        public final SimpleSpinner unitFunc;
+        public final SingleSpinner unitFunc;
         public final EditText content;
         private final LinearLayout groupFix;
         private final ClaimEditFragment that;
@@ -130,16 +130,16 @@ public class ClaimEditFragment extends Fragment {
         public Holder() {
             View view = ClaimEditFragment.this.rootView;
             that = ClaimEditFragment.this;
-            this.release = (SimpleSpinner) view.findViewById(R.id.releaseSpinner);
-            this.build = (SimpleSpinner) view.findViewById(R.id.buildSpinner);
-            this.releaseFix = (SimpleSpinner) view.findViewById(R.id.releaseFixSpinner);
-            this.buildFix = (SimpleSpinner) view.findViewById(R.id.buildFixSpinner);
+            this.release = (SingleSpinner) view.findViewById(R.id.releaseSpinner);
+            this.build = (SingleSpinner) view.findViewById(R.id.buildSpinner);
+            this.releaseFix = (SingleSpinner) view.findViewById(R.id.releaseFixSpinner);
+            this.buildFix = (SingleSpinner) view.findViewById(R.id.buildFixSpinner);
             this.priority = (EditText) view.findViewById(R.id.priorityEdit);
             this.content = (EditText) view.findViewById(R.id.contentEdit);
             this.priority.setFilters(new InputFilter[]{new InputFilterMinMax("1", "10")});
             this.unit = (MultiAutoCompleteTextView) view.findViewById(R.id.unitsText);
             this.unitApp = (MultiSpinner) view.findViewById(R.id.appSpinner);
-            this.unitFunc = (SimpleSpinner) view.findViewById(R.id.funcSpinner);
+            this.unitFunc = (SingleSpinner) view.findViewById(R.id.funcSpinner);
             this.groupFix = (LinearLayout) view.findViewById(R.id.groupFix);
         }
 
@@ -148,9 +148,9 @@ public class ClaimEditFragment extends Fragment {
 
         private void populateFromClaim(Claim claim) {
             this.release.setOnValueChangedListener(
-                    new SimpleSpinner.OnValueChangedListener() {
+                    new SingleSpinner.OnValueChangedListener() {
                         @Override
-                        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
+                        public void onValueChanged(SingleSpinner sender, String valueString, Long valueLong) {
                             new GetBuildsTask().execute(release.getValueString(), BUILD_TYPE_FOUND);
                         }
                     }
@@ -160,9 +160,9 @@ public class ClaimEditFragment extends Fragment {
                             getActivity(), null, true, ""),
                     claim.releaseFound.name);
             this.releaseFix.setOnValueChangedListener(
-                    new SimpleSpinner.OnValueChangedListener() {
+                    new SingleSpinner.OnValueChangedListener() {
                         @Override
-                        public void onValueChanged(SimpleSpinner sender, String valueString, Long valueLong) {
+                        public void onValueChanged(SingleSpinner sender, String valueString, Long valueLong) {
                             if ((valueString == null) || valueString.isEmpty()) {
                                 buildFix.setEnabled(false);
                                 buildFix.clear();
