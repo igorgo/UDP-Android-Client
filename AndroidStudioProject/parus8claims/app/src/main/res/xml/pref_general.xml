@@ -1,6 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-        android:title="@string/pref_header_account">
+    <PreferenceCategory android:title="@string/pref_header_account">
         <EditTextPreference
             android:capitalize="none"
             android:inputType="textNoSuggestions"
@@ -8,7 +7,7 @@
             android:maxLines="1"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/pref_title_user_name"/>
+            android:title="@string/pref_title_user_name" />
         <EditTextPreference
             android:capitalize="none"
             android:inputType="textPassword"
@@ -17,20 +16,23 @@
             android:password="true"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/pref_title_password"/>
+            android:title="@string/pref_title_password" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/pref_header_iface">
-<CheckBoxPreference
-    android:key="use_condensed_font"
-    android:defaultValue="true"
-    android:title="@string/use_condensed_font"/>
+    <PreferenceCategory android:title="@string/pref_header_iface">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="use_condensed_font"
+            android:title="@string/use_condensed_font" />
+        <ListPreference
+            android:entries="@array/languages"
+            android:entryValues="@array/languages_codes"
+            android:key="settings_language"
+            android:title="@string/settings_choose_language" />
     </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/pref_header_cache">
+    <PreferenceCategory android:title="@string/pref_header_cache">
         <Preference
             android:key="cache"
-            android:title="@string/refresh_cache"/>
+            android:title="@string/refresh_cache" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -62,5 +62,5 @@ public interface Constants {
     final String PREF_USERNAME = "username";
     final String PREF_RESET_CACHE = "cache";
     final String PREF_FONT = "use_condensed_font";
-
+    final String PREF_LANG = "settings_language";
 }

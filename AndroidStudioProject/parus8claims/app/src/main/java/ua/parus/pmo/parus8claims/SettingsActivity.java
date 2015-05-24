@@ -3,6 +3,7 @@ package ua.parus.pmo.parus8claims;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -15,6 +16,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import java.util.Locale;
 
 import ua.parus.pmo.parus8claims.utils.Constants;
 import ua.parus.pmo.parus8claims.utils.FontCache;
@@ -132,5 +135,32 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
         super.onCreate(savedInstanceState);
         instance = this;
         prefs = getSharedPreferences(Constants.PREFS_NAME, Context.MODE_MULTI_PROCESS);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Languages
+        ListPreference lang = (ListPreference) findPreference("settings_language");
+        if (lang != null) {
+            String languageName = getResources().getConfiguration().locale.getDisplayName();
+            lang.setSummary(languageName.substring(0, 1).toUpperCase(getResources().getConfiguration().locale)
+                    + languageName.substring(1, languageName.length()));
+            lang.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object value) {
+                    Locale locale = new Locale(value.toString());
+                    Configuration config = getResources().getConfiguration();
+
+                    if (!config.locale.getCountry().equals(locale)) {
+                        ClaimApplication.updateLanguage(instance, value.toString());
+                        ClaimApplication.restartApp(instance);
+                    }
+                    return false;
+                }
+            });
+        }
     }
 }

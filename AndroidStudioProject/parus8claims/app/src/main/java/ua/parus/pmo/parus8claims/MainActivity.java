@@ -71,7 +71,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private TextView emptyText;
     private FloatingActionsMenu fab;
     private LinearLayout progress;
-    private MainActivity instance;
+    private static MainActivity instance;
 
     @SuppressLint("InflateParams")
     @Override
@@ -172,6 +172,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     }
 
+    public static MainActivity getInstance() {
+        return instance;
+    }
 
     private void getClaims(Long cond, Long newrn) {
         try {
