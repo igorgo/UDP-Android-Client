@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog bulletedList="true">
 
-    <changelogversion changeDate="?? мая 2015" versionName="2.0">
+    <changelogversion changeDate="24 мая 2015" versionName="2.0">
         <changelogtext>Дизайн приложения частично приведен в соответствие с концепцией Google Material Design.</changelogtext>
+        <changelogtext>[b]Добавлена[/b] атоматическая проверка и загрузка обновлений приложения.</changelogtext>
         <changelogtext>[b]Добавлена[/b] возможность смены языка интерфейса приложения. Доступны украинский, русский и английский языки.</changelogtext>
         <changelogtext>[b]Добавлена[/b] возможность выбора шрифта интерфейса приложения (узкий или широкий).</changelogtext>
         <changelogtext>[b]Добавлена[/b] возможность просмотра истории изменений программы.</changelogtext>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog bulletedList="true">
 
-    <changelogversion changeDate="May ??, 2015" versionName="2.0">
+    <changelogversion changeDate="May 24, 2015" versionName="2.0">
+        <changelogtext>[b]New![/b] Added automatic check for updates and downloading the application.
+        </changelogtext>
         <changelogtext>[b]New![/b] The application is restyled in according of the Google Material
-            Design
-            concept.
+            Design concept.
         </changelogtext>
         <changelogtext>[b]New![/b] Added feature to change the language of the application
             interface.

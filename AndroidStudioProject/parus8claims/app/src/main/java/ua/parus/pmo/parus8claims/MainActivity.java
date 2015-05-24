@@ -50,6 +50,7 @@ import ua.parus.pmo.parus8claims.objects.dicts.UnitHelper;
 import ua.parus.pmo.parus8claims.objects.filter.Filter;
 import ua.parus.pmo.parus8claims.objects.filter.FilterEditActivity;
 import ua.parus.pmo.parus8claims.objects.filter.FiltersActivity;
+import ua.parus.pmo.parus8claims.rest.CheckUpdates;
 import ua.parus.pmo.parus8claims.rest.RestRequest;
 import ua.parus.pmo.parus8claims.utils.Constants;
 
@@ -185,6 +186,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             this.claimsListView.setAdapter(claimListAdapter);
             claimListAdapter.setAutoScrollListPageListener(this);
             claimListAdapter.onScrollNext();
+            new CheckUpdates(this).execute();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

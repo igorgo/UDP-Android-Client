@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="languages">
+    <string-array name="languages" translatable="false">
         <item>English (English)</item>
         <item>Русский (Russian)</item>
         <item>Українська (Ukrainian)</item>
     </string-array>
 
-    <string-array name="languages_codes">
+    <string-array name="languages_codes" translatable="false">
         <item>en_US</item>
         <item>ru_RU</item>
         <item>uk_UA</item>

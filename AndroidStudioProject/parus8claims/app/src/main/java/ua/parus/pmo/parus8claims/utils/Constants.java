@@ -10,6 +10,9 @@ public interface Constants {
     final String PACKAGE = "ua.parus.pmo.parus8claims";
     final String PREFS_NAME = PACKAGE + "_preferences";
     final String ANDROID_SCHEMA = "http://schemas.android.com/apk/res/android";
+    static final long UPDATE_MIN_FREQUENCY = 60 * 60 * 1000; // 1 hour
+    final String PARUS8CLAIMS_APK = "parus8claims.apk";
+    static final int MEGABYTE = 1024 * 1024;
 
 
 
@@ -63,4 +66,6 @@ public interface Constants {
     final String PREF_RESET_CACHE = "cache";
     final String PREF_FONT = "use_condensed_font";
     final String PREF_LANG = "settings_language";
+    final String PREF_LAST_UPDATE_CHECK = "last_update_check";
+    String PREF_CURRENT_APP_VERSION = "settings_current_app_version";
 }

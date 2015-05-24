@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog bulletedList="true">
 
-    <changelogversion changeDate="?? травня 2015" versionName="2.0">
+    <changelogversion changeDate="24 травня 2015" versionName="2.0">
         <changelogtext>Дизайн програми частково приведений у відповідність з концепцією Google
             Material Design.
         </changelogtext>
+        <changelogtext>[b] Додана [/ b] автоматична перевірка і завантаження оновлень програми.</changelogtext>
         <changelogtext>[b]Додана[/b] можливість зміни мови інтерфейсу програми. Доступні українська, російська та англійська мови.</changelogtext>
         <changelogtext>[b]Додана[/b] можливість вибору шрифту інтерфейсу програми (вузький або широкий).</changelogtext>
         <changelogtext>[b]Додана[/b] можливість перегляду історії змін програми.</changelogtext>

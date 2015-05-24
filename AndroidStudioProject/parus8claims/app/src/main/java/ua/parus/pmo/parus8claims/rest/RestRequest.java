@@ -23,6 +23,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import ua.parus.pmo.parus8claims.utils.Constants;
+
 public class RestRequest {
 
     public static final String BASE_URL = "http://pmo.parus.ua/apex/rest/udp/";
@@ -33,7 +35,6 @@ public class RestRequest {
     private static final String TAG_ITEMS = "items";
     private static final String TAG_NEXT = "next";
     private static final String ITEM_REF = "$ref";
-    private static final int MEGABYTE = 1024 * 1024;
     private URL startUrl;
     private URL nextUrl;
     private String httpMethod;
@@ -218,7 +219,7 @@ public class RestRequest {
                 file.createNewFile();
                 InputStream inputStream = connection.getInputStream();
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
-                byte[] buffer = new byte[MEGABYTE];
+                byte[] buffer = new byte[Constants.MEGABYTE];
                 int bufferLength;
                 while ((bufferLength = inputStream.read(buffer)) > 0) {
                     fileOutputStream.write(buffer, 0, bufferLength);

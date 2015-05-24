@@ -1,6 +1,5 @@
 package ua.parus.pmo.parus8claims;
-// todo: окно about из Settings
-// todo: проверка обновлений (см. OmniNote UpdaterTask) +
+// todo: выход
 
 import android.app.AlarmManager;
 import android.app.Application;
