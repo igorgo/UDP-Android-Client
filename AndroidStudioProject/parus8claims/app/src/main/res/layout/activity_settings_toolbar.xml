@@ -5,12 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
-    android:background="@drawable/action_bar_bg"
+    android:background="@color/theme_main"
     app:navigationContentDescription="@string/abc_action_bar_up_description"
     app:navigationIcon="?attr/homeAsUpIndicator"
-    app:background="@drawable/action_bar_bg"
+    app:background="@color/theme_main"
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
     style="@style/udp_action_bar"
     app:title="@string/action_settings" />
 
+    <!--android:background="@drawable/action_bar_bg"-->
+    <!--app:background="@drawable/action_bar_bg"-->

@@ -35,28 +35,31 @@
                     android:checkedButton="@+id/radioTypeAddon">
 
                     <ua.parus.pmo.parus8claims.gui.RadioButton
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/small"
                         android:text="@string/claim_type_addon"
+                        android:textSize="@dimen/radio_width"
                         android:id="@+id/radioTypeAddon"
-                        android:layout_weight="5" />
+                        android:layout_weight="6" />
 
                     <ua.parus.pmo.parus8claims.gui.RadioButton
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/radio_width"
                         style="@style/small"
                         android:text="@string/claim_type_rebuke"
                         android:id="@+id/radioTypeRebuke"
-                        android:layout_weight="5" />
+                        android:layout_weight="6" />
 
                     <ua.parus.pmo.parus8claims.gui.RadioButton
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:textSize="@dimen/radio_width"
                         style="@style/small"
                         android:text="@string/claim_type_error"
                         android:id="@+id/radioTypeError"
-                        android:layout_weight="6" />
+                        android:layout_weight="5" />
                 </RadioGroup>
             </LinearLayout>
 
