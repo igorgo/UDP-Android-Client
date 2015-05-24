@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog bulletedList="true">
+
+    <changelogversion changeDate="?? травня 2015" versionName="2.0">
+        <changelogtext>Дизайн програми частково приведений у відповідність з концепцією Google
+            Material Design.
+        </changelogtext>
+        <changelogtext>[b]Додана[/b] можливість зміни мови інтерфейсу програми. Доступні українська, російська та англійська мови.</changelogtext>
+        <changelogtext>[b]Додана[/b] можливість вибору шрифту інтерфейсу програми (вузький або широкий).</changelogtext>
+        <changelogtext>[b]Додана[/b] можливість перегляду історії змін програми.</changelogtext>
+        <changelogtext>Умови відбору, що викорисовувалися в останнє, кешуються та не перечитуються з сервера.</changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="19 травня 2015" versionName="1.2">
+        <changelogtext>[b]Додано[/b] відображення діалогу завантаження при всіх операціях з сервером
+            (запити, виконання дій).
+        </changelogtext>
+        <changelogtext>Істотно [b]прискорене[/b] завантаження кеша словників. Тепер вставка в кеш
+            всіх
+            отриманих з сервера записів здійснюється в одній транзакції.
+        </changelogtext>
+        <changelogtext>[u]Виправлена[/u] помилка фонового кешування списку розділів при
+            першому запуску програми.
+        </changelogtext>
+        <changelogtext>[u]Виправлена[/u] відправка приєднаного документа (якщо URI
+            вибраного файлу не в схемі "file:", а у схемі "content").
+        </changelogtext>
+    </changelogversion>
+    <changelogversion changeDate="12 травня 2015" versionName="1.1">
+        <changelogtext>[b]Додано[/b] відображення індикатора завантаження списку рекламацій.
+        </changelogtext>
+        <changelogtext>[b]Додано[/b] відображення тексту «По заданих умовах вібору дані не
+            знайдені», якщо під умови не потрапляє жодна рекламація.
+        </changelogtext>
+        <changelogtext>[b]Додано[/b] кешування списку збережених запитів (умов відбору).
+            Тепер список читається з сервера тільки один раз, при першому зверненні.
+        </changelogtext>
+        <changelogtext>Змінена візуалізація авторизації в системі. Замість тимчасово спливаючого
+            повідомлення відображається діалог з індикатором виконання. Діалог відображається або до
+            успішного входу, або до виникнення помилки.
+        </changelogtext>
+        <changelogtext>[u]Виправлена[/u] обробка помилки ConnectionTimeOut. Якщо помилка
+            виникає після запуску програми при першій спробі з'єднатися з сервером, то після
+            закриття вікна з повідомленням про помилку, програма завершує свою роботу.
+        </changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="8 травня 2015" versionName="1.0">
+        <changelogtext>Перша редакція.</changelogtext>
+    </changelogversion>
+
+
+</changelog>

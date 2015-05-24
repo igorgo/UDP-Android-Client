@@ -3,6 +3,8 @@ package ua.parus.pmo.parus8claims;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -17,8 +19,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import java.util.Locale;
 
+import roboguice.util.Ln;
+import ua.parus.pmo.parus8claims.gui.MaterialDialogBuilder;
 import ua.parus.pmo.parus8claims.utils.Constants;
 import ua.parus.pmo.parus8claims.utils.FontCache;
 
@@ -161,6 +167,32 @@ public class SettingsActivity extends PreferenceActivity implements Preference.O
                     return false;
                 }
             });
+        }
+
+        // Changelog
+        Preference changelog = findPreference("settings_changelog");
+        if (changelog != null) {
+            changelog.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+                @Override
+                public boolean onPreferenceClick(Preference arg0) {
+                    new MaterialDialogBuilder(instance)
+                            .customView(R.layout.activity_changelog, false)
+                            .positiveText(android.R.string.ok)
+                            .build().show();
+                    return false;
+                }
+            });
+            // Retrieval of installed app version to write it as summary
+            PackageInfo pInfo;
+            String versionString = "";
+            try {
+                pInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
+                versionString = pInfo.versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+                Ln.e("Error retrieving version", e);
+            }
+            changelog.setSummary(versionString);
         }
     }
 }

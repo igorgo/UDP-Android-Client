@@ -110,4 +110,6 @@
     <string name="dowloading_file">Загрузка файла…</string>
     <string name="claims">Рекламации</string>
     <string name="settings_choose_language">Язык</string>
+    <string name="settings_category_about">О программе</string>
+    <string name="settings_changelog">История изменений</string>
 </resources>

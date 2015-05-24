@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog bulletedList="true">
+
+    <changelogversion changeDate="May ??, 2015" versionName="2.0">
+        <changelogtext>[b]New![/b] The application is restyled in according of the Google Material
+            Design
+            concept.
+        </changelogtext>
+        <changelogtext>[b]New![/b] Added feature to change the language of the application
+            interface.
+            Available Ukrainian, Russian and English.
+        </changelogtext>
+        <changelogtext>[b]New![/b] Added feature to select the font (narrow or wide) of the
+            application interface.
+        </changelogtext>
+        <changelogtext>[b]New![/ b] Added feature to view the change history of the program.
+        </changelogtext>
+        <changelogtext>The last used filter conditions are cached and don't re-read from the
+            server.
+        </changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="May 19,2015" versionName="1.2">
+        <changelogtext>[b]New![/b] When the application interacts with the server (queries or
+            perform actions) the download dialog appears.
+        </changelogtext>
+        <changelogtext>Significantly [b]speed up[/b] downloading of dictionaries cache. Now
+            insertion of
+            records retrieved from the server to the cache is performed in a single transaction.
+        </changelogtext>
+        <changelogtext>[u]Fix[/u] Fixed the background caching of units list when you first start
+            the application.
+        </changelogtext>
+        <changelogtext>[u]Fix[/u] Fixed sending the attached document (when the URI of the selected
+            file is not in the scheme of "file:", but in the scheme of "content").
+        </changelogtext>
+    </changelogversion>
+    <changelogversion changeDate="May 12,2015" versionName="1.1">
+        <changelogtext>[b]New![/b] Added the download indicator when list of claims retrieves from
+            the server.
+        </changelogtext>
+        <changelogtext>[b]New![/b] Added the display of the text "No data found according your
+            condition." if the conditions do not fit into any one claim.
+        </changelogtext>
+        <changelogtext>[b]New![/b] Implemented the caching of the saved queries list (conditions).
+            Now the list is read from the server only the first time.
+        </changelogtext>
+        <changelogtext>Changed visualization of authorization in the system. Instead of temporary
+            pop-up message displays a dialog with a progress bar. Dialog is displayed or until a
+            successful login or until an error occurs.
+        </changelogtext>
+        <changelogtext>[u]Fix[/u] Fixed handling the ConnectionTimeOut error. If an error occurs
+            at the first attempt to connect to the server after launching the application, then the
+            application terminates after closing the error message.
+        </changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="May 8,2015" versionName="1.0">
+        <changelogtext>Initial release.</changelogtext>
+    </changelogversion>
+
+
+</changelog>

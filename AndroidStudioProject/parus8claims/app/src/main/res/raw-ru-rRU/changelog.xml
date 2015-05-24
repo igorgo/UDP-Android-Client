@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<changelog bulletedList="true">
+
+    <changelogversion changeDate="?? мая 2015" versionName="2.0">
+        <changelogtext>Дизайн приложения частично приведен в соответствие с концепцией Google Material Design.</changelogtext>
+        <changelogtext>[b]Добавлена[/b] возможность смены языка интерфейса приложения. Доступны украинский, русский и английский языки.</changelogtext>
+        <changelogtext>[b]Добавлена[/b] возможность выбора шрифта интерфейса приложения (узкий или широкий).</changelogtext>
+        <changelogtext>[b]Добавлена[/b] возможность просмотра истории изменений программы.</changelogtext>
+        <changelogtext>Последние использованные условия отбора кешируются и не перечитываются с сервера.</changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="19 мая 2015" versionName="1.2">
+        <changelogtext>[b]Добавлено[/b] отображение диалога загрузки при всех операциях с сервером (запросы, выполнение действий).
+        </changelogtext>
+        <changelogtext>Существенно [b]ускорена[/b] загрузка кеша словарей. Теперь вставка в кеш всех
+            полученных с сервера записей производится в одной транзакции.
+        </changelogtext>
+        <changelogtext>[u]Исправлена[/u] ошибка фонового кеширования списка разделов при первом
+            запуске приложения.
+        </changelogtext>
+        <changelogtext>[u]Исправлена[/u] отправка присоединенного документа (если URI выбранного
+            файла не в схеме "file:", а в схеме "content").
+        </changelogtext>
+    </changelogversion>
+    <changelogversion changeDate="12 мая 2015" versionName="1.1">
+        <changelogtext>[b]Добавлено[/b] отображение индикатора загрузки списка рекламаций
+        </changelogtext>
+        <changelogtext>[b]Добавлено[/b] отображение текста «По заданным условиям отбора данных
+            не найдено», если под условия не попадает ни одна рекламация.
+        </changelogtext>
+        <changelogtext>[b]Добавлено[/b] кеширование списка сохраненных запросов (условий
+            отбора). Теперь список читается с сервера только один раз, при первом обращении.
+        </changelogtext>
+        <changelogtext>Изменена визуализация авторизации в системе. Вместо временно всплывающего
+            сообщения отображается диалог с индикатором выполнения. Диалог отображается либо до
+            удачного входа, либо до возникновения ошибки.
+        </changelogtext>
+        <changelogtext>[u]Исправлена[/u] обработка ошибки ConnectionTimeOut. Если ошибка
+            возникает после запуска приложения при первой попытке соединиться с сервером, то после
+            закрытия окна с сообщением об ошибке, приложение завершает свою работу.
+        </changelogtext>
+    </changelogversion>
+
+    <changelogversion changeDate="8 мая 2015" versionName="1.0">
+        <changelogtext>Первая редакция.</changelogtext>
+    </changelogversion>
+
+
+</changelog>
