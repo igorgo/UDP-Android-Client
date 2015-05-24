@@ -115,4 +115,6 @@
     <string name="new_update_available">Доступна новая версия программы, хотите провести обновление?</string>
     <string name="update">Обновить</string>
     <string name="not_now">Не сейчас</string>
+    <string name="click_to_exit">Нажмите НАЗАД еще раз для выхода из приложения.</string>
+    <string name="logoff">Выход из программы…</string>
 </resources>

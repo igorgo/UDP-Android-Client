@@ -1,5 +1,4 @@
 package ua.parus.pmo.parus8claims;
-// todo: выход
 
 import android.app.AlarmManager;
 import android.app.Application;

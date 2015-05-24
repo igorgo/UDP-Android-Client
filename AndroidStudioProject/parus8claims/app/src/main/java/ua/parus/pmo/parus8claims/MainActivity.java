@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.getbase.floatingactionbutton.AddFloatingActionButton;
@@ -70,9 +71,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private AutoScrollListView claimsListView;
     private Long currentConditionRn = null;
     private TextView emptyText;
-    private FloatingActionsMenu fab;
     private LinearLayout progress;
     private static MainActivity instance;
+    private boolean doubleBackToExitPressedOnce = false;
 
     @SuppressLint("InflateParams")
     @Override
@@ -392,6 +393,60 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         return false;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (this.doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            new LogoffAsyncTask().execute();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, getString(R.string.click_to_exit), Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.doubleBackToExitPressedOnce = false;
+    }
+
+    private class LogoffAsyncTask extends AsyncTask<Void, Void, Void> {
+        public static final String REST_URL = "logoff/";
+        public static final String HTTP_METHOD = "POST";
+        public static final String REST_PARAM_SESSION = "session";
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                RestRequest logoffRequest = new RestRequest(REST_URL, HTTP_METHOD);
+                logoffRequest.addInParam(REST_PARAM_SESSION, instance.application.getSessionId());
+                logoffRequest.getStringContent();
+            } catch (MalformedURLException | ConnectException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void arg) {
+            super.onPostExecute(arg);
+            instance.finish();
+            System.exit(0);
+        }
+    }
 
     private class LoginAsyncTask extends AsyncTask<Void, Void, Integer> {
         public static final String REST_URL = "login/";
@@ -615,6 +670,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
             super.onPostExecute(result);
         }
     }
+
 
 
 }

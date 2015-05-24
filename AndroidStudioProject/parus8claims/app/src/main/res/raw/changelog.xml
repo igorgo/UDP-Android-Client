@@ -16,6 +16,8 @@
         </changelogtext>
         <changelogtext>[b]New![/ b] Added feature to view the change history of the program.
         </changelogtext>
+        <changelogtext>[b]New![/ b] Added feature to exit the application by press BACK twice.
+        </changelogtext>
         <changelogtext>The last used filter conditions are cached and don't re-read from the
             server.
         </changelogtext>

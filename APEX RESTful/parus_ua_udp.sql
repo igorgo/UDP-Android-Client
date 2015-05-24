@@ -905,7 +905,7 @@ wwv_flow_api.create_restful_handler (
  ,p_source_type => 'PLSQL'
  ,p_format => 'DEFAULT'
  ,p_method => 'POST'
- ,p_require_https => 'YES'
+ ,p_require_https => 'NO'
  ,p_source => 
 'begin UDO_PKG_MOBILE_IFACE.LOGIN (:user,:pass,:P_SESSID,:P_PP, :P_ERROR); end;'
   );
@@ -938,6 +938,25 @@ wwv_flow_api.create_restful_param (
  ,p_source_type => 'RESPONSE'
  ,p_access_method => 'OUT'
  ,p_param_type => 'STRING'
+  );
+ 
+wwv_flow_api.create_restful_template (
+  p_id => 2874632663963684 + wwv_flow_api.g_id_offset
+ ,p_module_id => 5622617744333346 + wwv_flow_api.g_id_offset
+ ,p_uri_template => 'logoff/'
+ ,p_priority => 0
+ ,p_etag_type => 'HASH'
+  );
+ 
+wwv_flow_api.create_restful_handler (
+  p_id => 2874716518968472 + wwv_flow_api.g_id_offset
+ ,p_template_id => 2874632663963684 + wwv_flow_api.g_id_offset
+ ,p_source_type => 'PLSQL'
+ ,p_format => 'DEFAULT'
+ ,p_method => 'POST'
+ ,p_require_https => 'NO'
+ ,p_source => 
+'begin UDO_PKG_MOBILE_IFACE.LOGOFF (:session); end;'
   );
  
 wwv_flow_api.create_restful_template (

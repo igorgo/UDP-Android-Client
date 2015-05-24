@@ -302,6 +302,11 @@ CREATE OR REPLACE package UDO_PKG_MOBILE_IFACE is
     P_ERROR   out varchar2,
     P_RESULT  out integer
   );
+  
+  procedure LOGOFF
+  (
+    P_SESSION   in varchar2
+  );
 
 end UDO_PKG_MOBILE_IFACE;
 
@@ -419,8 +424,20 @@ CREATE OR REPLACE package body UDO_PKG_MOBILE_IFACE is
     P_SESSID := L_SESS_ID;
   end;
 
+  procedure LOGOFF
+  (
+    P_SESSION   in varchar2
+  ) is
+  begin
+    begin 
+      PKG_SESSION.LOGOFF_WEB(sCONNECT => P_SESSION);
+    exception
+      when others then
+        null;
+    end;      
+  end;
+
   function SET_SESSION(P_SESSION in varchar2) return boolean is
-  
   begin
     begin
       PKG_SESSION.VALIDATE_WEB(P_SESSION);

@@ -115,4 +115,6 @@
     <string name="new_update_available">Доступна оновлена версія програми, бажаєте оновитись?</string>
     <string name="update">Оновити</string>
     <string name="not_now">Не зараз</string>
+    <string name="click_to_exit">Натисніть НАЗАД ще раз для виходу з програми.</string>
+    <string name="logoff">Вихід з програми…</string>
 </resources>
